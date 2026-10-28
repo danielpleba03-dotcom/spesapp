@@ -20,7 +20,7 @@ amministrativa. La protezione dei dati è nelle regole Firestore.
    dalla radice del ramo main. Non serve GitHub Actions.
 6. Aggiungere il dominio github.io del proprietario ai domini autorizzati di
    Firebase Authentication. Accedere con il proprio Google account.
-7. Dalle impostazioni dell'app importare il file privato migrazione-spesapp.json.
+7. Non importare dati di prova nel sito pubblico: le installazioni esistenti mantengono il proprio archivio.
 
 ## Dati e uso offline
 Le modifiche vengono applicate tramite transazioni Firestore con identificativo
@@ -29,8 +29,7 @@ sono accodate sul dispositivo e inviate quando la connessione ritorna.
 Usare l'app offline solo dopo un primo accesso e caricamento completo online.
 Non uscire dall'account finché rimangono modifiche da sincronizzare.
 La prima modifica giornaliera crea una copia immutabile dello stato precedente
-su Firestore. È disponibile anche l'esportazione manuale JSON. L'importazione
-scarica prima una copia dello stato attuale e richiede conferma.
+su Firestore. Importazione ed esportazione manuali sono state rimosse dall'interfaccia. Il pulsante in alto esegue direttamente il logout.
 
 ## Gratuità
 GitHub Pages e Firebase Spark non richiedono un server locale. Restare su Spark,
@@ -44,8 +43,7 @@ L'anteprima usa dati separati nel browser e non si collega a Firebase.
 ## Revisione qualità · 28 ottobre 2026
 Le quantità delle ricette sono sempre per una persona. La conferma Preparata
 accetta il numero di persone e le quantità effettivamente consumate; questi
-valori non cambiano la ricetta salvata. Gli strumenti sono facoltativi e
-compilati dall'utente, senza deduzioni automatiche.
+valori non cambiano la ricetta salvata. La ricetta aperta mostra solo dosi e link alla fonte; procedimento e strumenti non sono richiesti né mostrati.
 
 Le operazioni in attesa hanno una chiave locale per ciascuna azione e una
 ricevuta immutabile sul server. Prima di pubblicare questa versione web è
@@ -57,3 +55,12 @@ il piano resta gratuito entro i limiti del servizio.
 La schermata mobile resta intenzionalmente in manutenzione. Per controllare
 il responsive usare una copia isolata in anteprima; non rimuovere il blocco
 nel sito pubblico senza una richiesta esplicita.
+
+## Interfaccia compatta
+L'archivio iniziale include solo le bruschette al pomodoro. Questo non elimina
+automaticamente le ricette salvate: la pulizia di quelle esistenti avviene solo
+con conferma dell'utente. I suggerimenti prodotto derivano esclusivamente
+dalla dispensa, inclusi gli esauriti, senza un catalogo preimpostato. I moduli
+consentono inserimento libero, passi di 50 G / 1 L / 1 P e unità abbreviate;
+Altro viene sempre inviato in pezzi, conservando i vincoli sulle unità dei
+prodotti già registrati. Le ricette si salvano con nome, link e ingredienti.

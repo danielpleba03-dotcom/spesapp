@@ -54,7 +54,7 @@ export function validateRecipe(raw,allowMissingSource=false){
  if(r.instructions.length>LIMITS.instructions||r.source_url.length>2048||r.source_title.length>300)fail('Testo della ricetta troppo lungo.');
  let url;if(r.source_url){try{url=new URL(r.source_url);}catch{fail('Inserisci un link valido alla ricetta.');}}else if(!allowMissingSource)fail('Inserisci il link alla ricetta.');
  if(url&&(!['https:','http:'].includes(url.protocol)||url.username||url.password))fail('Usa un link http:// o https:// senza credenziali.');
- if(!allowMissingSource&&!r.instructions)fail('Inserisci il procedimento.');
+
  const units=new Map();for(const i of r.ingredients){validProduct({name:i.ingredient,qty:i.qty,category:'Alimentari',unit:i.unit},true);if(units.has(i.ingredient)&&units.get(i.ingredient)!==i.unit)fail(`Usa una sola unità per ${i.ingredient}.`);units.set(i.ingredient,i.unit);}
  const aggregated=recipeStatus({pantry:[]},r);for(const i of aggregated.ingredients)validProduct({name:i.ingredient,qty:i.qty,category:'Alimentari',unit:i.unit},true);
  r.source_title||=url?.hostname||'Link da aggiungere';return r;
