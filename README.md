@@ -41,3 +41,19 @@ immutabile o disponibilità senza interruzioni per sempre.
 ## Anteprima
 Servire questa cartella con un server HTTP e aprire ?preview=1 su localhost.
 L'anteprima usa dati separati nel browser e non si collega a Firebase.
+## Revisione qualità · 28 ottobre 2026
+Le quantità delle ricette sono sempre per una persona. La conferma Preparata
+accetta il numero di persone e le quantità effettivamente consumate; questi
+valori non cambiano la ricetta salvata. Gli strumenti sono facoltativi e
+compilati dall'utente, senza deduzioni automatiche.
+
+Le operazioni in attesa hanno una chiave locale per ciascuna azione e una
+ricevuta immutabile sul server. Prima di pubblicare questa versione web è
+necessario pubblicare le regole private aggiornate che autorizzano le ricevute
+solo al proprietario verificato. Non caricare tali regole nel repository pubblico.
+Le ricevute e le copie giornaliere occupano spazio e consumano quote Spark;
+il piano resta gratuito entro i limiti del servizio.
+
+La schermata mobile resta intenzionalmente in manutenzione. Per controllare
+il responsive usare una copia isolata in anteprima; non rimuovere il blocco
+nel sito pubblico senza una richiesta esplicita.
