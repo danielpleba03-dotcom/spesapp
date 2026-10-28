@@ -27,6 +27,17 @@ export function lockUnit(state,productName,unit){
  if(existing&&existing!==unit)fail(`${key} deve essere inserito in ${existing==='g'?'grammi':existing==='l'?'litri':'pezzi'} (${existing}).`);
  state.units[key]=unit;
 }
+// An old food-unit entry must not block an explicitly classified household item
+// when no product or recipe still refers to that name. Never convert live stock.
+function lockAddedProduct(state,product){
+ const key=product.name,previous=own(state.units,key);
+ if(product.category==='Altro'&&product.unit==='pz'&&['g','l'].includes(previous)
+   && ![...state.pantry,...state.shopping].some(p=>p.name===key)
+   && !state.recipes.some(r=>r.ingredients.some(i=>normalize(i.ingredient)===key))){
+  state.units[key]='pz';
+ }
+ lockUnit(state,key,product.unit);
+}
 export function emptyState(recipes=[]){return {schema:1,pantry:[],shopping:[],units:{},recipes:recipes.map(r=>validateRecipe(r,true)),counts:{},applied:[]};}
 export function recipeStatus(state,r){
  const needs=new Map();for(const i of r.ingredients){const key=normalize(i.ingredient)+'|'+i.unit;needs.set(key,{...i,ingredient:normalize(i.ingredient),qty:round((needs.get(key)?.qty||0)+Number(i.qty))});}
@@ -89,7 +100,7 @@ export function applyAction(original,action){
  const find=(kind,id)=>s[kind].find(p=>p.id===String(id));
  const upsert=p=>{lockUnit(s,p.name,p.unit);const existing=s.pantry.find(x=>x.name===p.name);if(existing){const qty=round(existing.qty+p.qty);validProduct({...existing,qty,category:p.category});existing.qty=qty;existing.category=p.category;}else s.pantry.push({...p,id:p.pantryId||p.id});};
  switch(action.type){
- case 'addPantry':case 'addShopping':{const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
+ case 'addPantry':case 'addShopping':{const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);lockAddedProduct(s,p);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
  case 'quantity':{if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;break;}
  case 'exhaust':{const p=find('pantry',a.id);if(p)p.qty=0;break;}
  case 'deletePantry':{const p=find('pantry',a.id);if(p&&p.qty<=0)s.pantry=s.pantry.filter(x=>x.id!==p.id);break;}

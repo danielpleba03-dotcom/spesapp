@@ -1,6 +1,6 @@
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round} from './domain.mjs?v=20261028-compact';
-import {createStore} from './cloud.mjs?v=20261028-compact';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261028-compact';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round} from './domain.mjs?v=20261028-unitfix';
+import {createStore} from './cloud.mjs?v=20261028-unitfix';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261028-unitfix';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mobile=()=>/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||matchMedia('(max-width:650px)').matches;
 function renderMaintenance(){
