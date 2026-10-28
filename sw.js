@@ -1,4 +1,4 @@
-const VERSION='spesapp-2026-10-27-v1';
+const VERSION='spesapp-2026-10-28-maintenance-v1';
 const LOCAL=['./','./index.html','./style.css','./app.mjs','./cloud.mjs','./domain.mjs','./firebase-config.mjs','./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(name=>`https://www.gstatic.com/firebasejs/13.1.0/${name}.js`);
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(VERSION);await cache.addAll(LOCAL);await Promise.allSettled(SDK.map(url=>cache.add(url)));self.skipWaiting();})()));
