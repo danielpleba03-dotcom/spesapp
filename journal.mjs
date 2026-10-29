@@ -1,4 +1,4 @@
-import {validateAction,DomainError} from './domain.mjs?v=20261029-polish';
+import {validateAction,DomainError} from './domain.mjs?v=20261029-pantryadd';
 // One immutable local entry per operation: tabs never overwrite a shared array.
 export function createJournal(storage,uid){
  const prefix='spesapp-operation-'+encodeURIComponent(uid)+':',legacy='spesapp-pending-'+uid;
