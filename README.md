@@ -52,15 +52,30 @@ solo al proprietario verificato. Non caricare tali regole nel repository pubblic
 Le ricevute e le copie giornaliere occupano spazio e consumano quote Spark;
 il piano resta gratuito entro i limiti del servizio.
 
-La schermata mobile resta intenzionalmente in manutenzione. Per controllare
-il responsive usare una copia isolata in anteprima; non rimuovere il blocco
-nel sito pubblico senza una richiesta esplicita.
+La vista telefono è attiva: lista della spesa e dispensa in consultazione con
+ricerca e quantità, inclusi gli esauriti; ricette disponibili solo sul PC.
+Il modulo di aggiunta alla spesa mantiene lo stato aperto/chiuso sul dispositivo.
+Il manifesto richiede orientamento verticale. Se il browser non permette il
+blocco nativo, la vista orizzontale mostra l'invito a ruotare il telefono.
 
 ## Interfaccia compatta
-L'archivio iniziale include solo le bruschette al pomodoro. Questo non elimina
+L'archivio iniziale include solo i pancake banana e uova. Questo non elimina
 automaticamente le ricette salvate: la pulizia di quelle esistenti avviene solo
 con conferma dell'utente. I suggerimenti prodotto derivano esclusivamente
 dalla dispensa, inclusi gli esauriti, senza un catalogo preimpostato. I moduli
 consentono inserimento libero, passi di 50 G / 1 L / 1 P e unità abbreviate;
 Altro viene sempre inviato in pezzi, conservando i vincoli sulle unità dei
 prodotti già registrati. Le ricette si salvano con nome, link e ingredienti.
+
+## Aggiornamento mobile · 29 ottobre 2026
+Valori preimpostati di inserimento: 100 G, 1 L e 1 P, ripristinati dopo ogni
+aggiunta e cambio di unità; i pulsanti procedono di 50 G, 1 L e 1 P.
+Lo stato cloud rimane fermo su «Sincronizzazione attiva» durante gli invii,
+con dettagli delle operazioni in attesa nel titolo accessibile. Offline ed
+errori restano espliciti. Le righe acquistate si chiudono con un'animazione
+compatta e i controlli vengono disabilitati subito per evitare doppi acquisti.
+La ricetta iniziale è PANCAKE BANANA E UOVA, per una persona, con banana,
+uovo e poco olio di semi per ungere (dose adattata di 2 ml); il link contiene
+il procedimento e i condimenti facoltativi. Nessuna cancellazione automatica
+viene eseguita sugli archivi esistenti all'aggiornamento dell'app.
+

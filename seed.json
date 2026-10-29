@@ -1,51 +1,31 @@
 {
+  "catalog": [],
   "recipes": [
     {
-      "id": "classic-7",
-      "name": "BRUSCHETTE AL POMODORO",
-      "instructions": "",
-      "source_url": "https://www.cortonaweb.net/recipe/bruschetta-al-pomodoro/",
-      "source_title": "Cortonaweb — cucina tradizionale cortonese",
+      "id": "pancake-banana-uova",
+      "name": "PANCAKE BANANA E UOVA",
       "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://blog.giallozafferano.it/renatabriano/ricetta-pancakes-di-banane-senza-zucchero-farina-e-latte/",
+      "source_title": "Renata Briano · GialloZafferano",
       "ingredients": [
         {
-          "ingredient": "PANE",
-          "qty": 100,
-          "unit": "g"
+          "ingredient": "BANANA",
+          "qty": 1,
+          "unit": "pz"
         },
         {
-          "ingredient": "POMODORI",
-          "qty": 150,
-          "unit": "g"
+          "ingredient": "UOVA",
+          "qty": 1,
+          "unit": "pz"
         },
         {
-          "ingredient": "AGLIO",
-          "qty": 1.5,
-          "unit": "g"
-        },
-        {
-          "ingredient": "OLIO",
-          "qty": 0.01,
+          "ingredient": "OLIO DI SEMI",
+          "qty": 0.002,
           "unit": "l"
-        },
-        {
-          "ingredient": "BASILICO",
-          "qty": 1,
-          "unit": "g"
-        },
-        {
-          "ingredient": "SALE",
-          "qty": 1,
-          "unit": "g"
-        },
-        {
-          "ingredient": "PEPE",
-          "qty": 0.3,
-          "unit": "g"
         }
-      ],
-      "tools": []
+      ]
     }
-  ],
-  "catalog": []
+  ]
 }
