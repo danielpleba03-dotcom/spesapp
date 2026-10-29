@@ -73,21 +73,18 @@ aggiunta e cambio di unità; i pulsanti procedono di 50 G, 1 L e 1 P.
 Gli indicatori ordinari di sincronizzazione non sono mostrati. Gli errori di
 salvataggio restano visibili quando richiedono un intervento. Le righe acquistate si chiudono con un'animazione
 compatta e i controlli vengono disabilitati subito per evitare doppi acquisti.
-La ricetta iniziale è PANCAKE BANANA E UOVA, per una persona, con banana,
-uovo e poco olio di semi per ungere (dose adattata di 2 ml); il link contiene
-il procedimento e i condimenti facoltativi. Nessuna cancellazione automatica
-viene eseguita sugli archivi esistenti all'aggiornamento dell'app.
+La ricetta iniziale è BUDINO BANANA E CIOCCOLATO: per persona, una banana
+(P) e 25 G di cioccolato fondente, con fonte In cucina da Eva / GialloZafferano.
+Gli aggiornamenti non cancellano automaticamente gli archivi esistenti.
 
-
-## Unità e tocchi · 29 ottobre 2026
-Le unità sono vincolate ai prodotti realmente presenti in dispensa o nella
-lista della spesa, inclusi gli esauriti. La cache delle unità viene ricostruita
-da questi record: metadati storici e ricette non riservano l'unità di un nome
-assente dai due elenchi. Rimuovendo l'ultimo record il nome torna libero.
-Le ricette nuove o modificate devono rispettare le unità dei prodotti attuali.
-Una ricetta precedente con unità incompatibile viene segnalata e non può
-essere confermata: la quantità va corretta esplicitamente dall'utente. Non si
-converte mai un pezzo in un numero arbitrario di grammi o litri.
+## Unità condivise · 29 ottobre 2026
+Dispensa (anche esauriti), lista e ricette condividono la stessa unità per
+ogni prodotto. Un inserimento incompatibile viene rifiutato subito, senza
+conversioni arbitrarie. Solo i metadati storici privi di riferimenti reali
+vengono ignorati. Modificando una ricetta si può cambiare esplicitamente
+unità e dose solo se non esistono altri riferimenti che la vincolano.
+Sul telefono le quantità in dispensa sono leggibili e modificabili soltanto
+con +/−, in passi di 50 G, 1 L o 1 P, senza scendere sotto zero.
 Sul telefono sono applicate regole touch e viewport per evitare zoom
 involontario: i doppi tocchi sui controlli restano due azioni normali e lo
 scorrimento verticale resta attivo.

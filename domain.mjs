@@ -21,19 +21,21 @@ export function validProduct(p,positive=false){
  if(!['g','l','pz'].includes(p.unit)||(p.category==='Altro'&&p.unit!=='pz'))fail('Per Altro usa solamente pezzi.');
  if(p.unit==='pz'&&!Number.isInteger(qty))fail('I pezzi devono essere interi.');
 }
-export function productUnit(state,productName){const key=normalize(productName);return [...(state.pantry||[]),...(state.shopping||[])].find(p=>p.name===key)?.unit;}
-export function lockUnit(state,productName,unit){
+function unitReferences(state,productName,excludeRecipeId){const key=normalize(productName);return [...(state.pantry||[]),...(state.shopping||[])].filter(p=>p.name===key).concat((state.recipes||[]).filter(r=>r.id!==excludeRecipeId).flatMap(r=>r.ingredients.filter(i=>normalize(i.ingredient)===key)));}
+export function productUnit(state,productName,excludeRecipeId){return unitReferences(state,productName,excludeRecipeId)[0]?.unit;}
+export function lockUnit(state,productName,unit,excludeRecipeId){
  const key=name(productName);if(!['g','l','pz'].includes(unit))fail('Unità non valida: scegli grammi, litri oppure pezzi.');
- const existing=productUnit(state,key);
- if(existing&&existing!==unit)fail(`${key} è già presente in dispensa o nella lista: usa ${existing==='g'?'grammi':existing==='l'?'litri':'pezzi'} (${existing==='pz'?'P':existing.toUpperCase()}).`);
+ const references=unitReferences(state,key,excludeRecipeId),existing=references[0]?.unit;
+ if(references.some(item=>item.unit!==existing))fail(`${key} ha unità diverse negli elementi salvati. Correggi le ricette per usare la stessa unità della dispensa e della lista.`);
+ if(existing&&existing!==unit)fail(`${key} deve essere inserito in ${existing==='g'?'grammi':existing==='l'?'litri':'pezzi'} (${existing==='pz'?'P':existing.toUpperCase()}), come in dispensa, nella lista e nelle ricette.`);
  if(existing)state.units[key]=existing;else delete state.units[key];
 }
-function rebuildProductUnits(state){const units={};for(const p of [...state.pantry,...state.shopping]){if(units[p.name]&&units[p.name]!==p.unit)fail(`${p.name}: unità diverse tra dispensa e lista della spesa.`);units[p.name]=p.unit;}state.units=units;}
-export function emptyState(recipes=[]){return {schema:1,pantry:[],shopping:[],units:{},recipes:recipes.map(r=>validateRecipe(r,true)),counts:{},applied:[]};}
+function rebuildProductUnits(state){const units={};for(const p of [...state.pantry,...state.shopping]){if(units[p.name]&&units[p.name]!==p.unit)fail(`${p.name}: unità diverse tra dispensa e lista della spesa.`);units[p.name]=p.unit;}for(const r of state.recipes)for(const i of r.ingredients)units[i.ingredient]??=i.unit;state.units=units;}
+export function emptyState(recipes=[]){const state={schema:1,pantry:[],shopping:[],units:{},recipes:recipes.map(r=>validateRecipe(r,true)),counts:{},applied:[]};rebuildProductUnits(state);return state;}
 export function recipeStatus(state,r){
  const needs=new Map();for(const i of r.ingredients){const key=normalize(i.ingredient)+'|'+i.unit;needs.set(key,{...i,ingredient:normalize(i.ingredient),qty:round((needs.get(key)?.qty||0)+Number(i.qty))});}
  const ingredients=[...needs.values()];const missing=ingredients.filter(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);return (Number(p?.qty)||0)+1e-9<i.qty;});
- const unitConflicts=ingredients.flatMap(i=>{const expected=productUnit({...state,shopping:state.shopping||[]},i.ingredient);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
+ const unitConflicts=ingredients.flatMap(i=>{const expected=productUnit(state,i.ingredient,r.id);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
  const preparations=ingredients.length?Math.min(...ingredients.map(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);const required=Math.round(Number(i.qty)*1e6),available=Math.round(Number(p?.qty||0)*1e6);return required>0?Math.floor(available/required):0;})):0;
  return {ingredients,missing,unitConflicts,possible:ingredients.length>0&&missing.length===0&&unitConflicts.length===0,preparations:unitConflicts.length?0:preparations};
 }
@@ -74,7 +76,7 @@ export function validateImport(raw){
  rebuildProductUnits(s);
  const ids=new Set(),names=new Set();s.recipes=raw.recipes.map(rawRecipe=>{const r=validateRecipe(rawRecipe,true);if(ids.has(r.id)||names.has(r.name))fail('Ricetta duplicata nel backup.');ids.add(r.id);names.add(r.name);return r;});
  for(const [key,count]of Object.entries(raw.counts||{})){const id=identifier(key);if(!Number.isSafeInteger(count)||count<0||count>LIMITS.quantity)fail('Conteggio delle ricette non valido.');if(ids.has(id))s.counts[id]=count;}
- assertCapacity(s);return s;
+ rebuildProductUnits(s);assertCapacity(s);return s;
 }
 export function validateState(raw){
  const s=validateImport(raw);
@@ -95,13 +97,13 @@ export function applyAction(original,action){
  const find=(kind,id)=>s[kind].find(p=>p.id===String(id));
  const upsert=p=>{lockUnit(s,p.name,p.unit);const existing=s.pantry.find(x=>x.name===p.name);if(existing){const qty=round(existing.qty+p.qty);validProduct({...existing,qty,category:p.category});existing.qty=qty;existing.category=p.category;}else s.pantry.push({...p,id:p.pantryId||p.id});};
  switch(action.type){
- case 'addPantry':case 'addShopping':{const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
+ case 'addPantry':case 'addShopping':{const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
  case 'quantity':{if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;break;}
  case 'exhaust':{const p=find('pantry',a.id);if(p)p.qty=0;break;}
  case 'deletePantry':{const p=find('pantry',a.id);if(p&&p.qty<=0)s.pantry=s.pantry.filter(x=>x.id!==p.id);break;}
  case 'removeShopping':s.shopping=s.shopping.filter(p=>p.id!==String(a.id));break;
  case 'buy':{const p=find('shopping',a.id);if(!p)break;validProduct(p,true);upsert({...p,pantryId:'bought-'+p.id});s.shopping=s.shopping.filter(x=>x.id!==p.id);break;}
- case 'saveRecipe':{if(!record(a.recipe))fail('Ricetta non valida.');const r=validateRecipe({...a.recipe,id:a.recipe.id||action.id});if(a.expected!==undefined&&JSON.stringify(s.recipes.find(x=>x.id===r.id))!==JSON.stringify(a.expected))fail('La ricetta è stata modificata o eliminata da un altro dispositivo. Riaprila prima di salvare.');if(s.recipes.some(x=>x.id!==r.id&&x.name===r.name))fail('Esiste già una ricetta con questo nome.');for(const i of r.ingredients){if([...s.pantry,...s.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))fail(`${i.ingredient} appartiene ad Altro: nelle ricette usa prodotti alimentari.`);lockUnit(s,i.ingredient,i.unit);}s.recipes=s.recipes.filter(x=>x.id!==r.id);s.recipes.push(r);break;}
+ case 'saveRecipe':{if(!record(a.recipe))fail('Ricetta non valida.');const r=validateRecipe({...a.recipe,id:a.recipe.id||action.id});if(a.expected!==undefined&&JSON.stringify(s.recipes.find(x=>x.id===r.id))!==JSON.stringify(a.expected))fail('La ricetta è stata modificata o eliminata da un altro dispositivo. Riaprila prima di salvare.');if(s.recipes.some(x=>x.id!==r.id&&x.name===r.name))fail('Esiste già una ricetta con questo nome.');for(const i of r.ingredients){if([...s.pantry,...s.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))fail(`${i.ingredient} appartiene ad Altro: nelle ricette usa prodotti alimentari.`);lockUnit(s,i.ingredient,i.unit,r.id);}s.recipes=s.recipes.filter(x=>x.id!==r.id);s.recipes.push(r);break;}
  case 'deleteRecipe':s.recipes=s.recipes.filter(r=>r.id!==String(a.id));delete s.counts[String(a.id)];break;
  case 'cook':{const r=s.recipes.find(r=>r.id===String(a.id));if(!r)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(r)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata su un altro dispositivo. Riapri la preparazione prima di confermare.');const status=preparationStatus(s,r,a.people??1,a.ingredients??null);if(!status.possible)fail('Le quantità disponibili non bastano: '+status.missing.map(i=>i.ingredient).join(', ')+'.');for(const i of status.ingredients){if(i.qty===0)continue;const p=s.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);p.qty=round(Math.max(0,p.qty-i.qty));}if((own(s.counts,r.id)||0)>=LIMITS.quantity)fail('Conteggio delle preparazioni troppo elevato.');s.counts[r.id]=(own(s.counts,r.id)||0)+1;break;}
  case 'import':{const imported=validateImport(a.state);const applied=s.applied;Object.assign(s,imported);s.applied=applied;break;}

@@ -2,13 +2,13 @@
   "catalog": [],
   "recipes": [
     {
-      "id": "pancake-banana-uova",
-      "name": "PANCAKE BANANA E UOVA",
+      "id": "budino-banana-cioccolato",
+      "name": "BUDINO BANANA E CIOCCOLATO",
       "servings": 1,
       "instructions": "",
       "tools": [],
-      "source_url": "https://blog.giallozafferano.it/renatabriano/ricetta-pancakes-di-banane-senza-zucchero-farina-e-latte/",
-      "source_title": "Renata Briano · GialloZafferano",
+      "source_url": "https://blog.giallozafferano.it/incucinadaeva/budino-banana-e-cioccolato-fondente/",
+      "source_title": "In cucina da Eva · GialloZafferano",
       "ingredients": [
         {
           "ingredient": "BANANA",
@@ -16,14 +16,9 @@
           "unit": "pz"
         },
         {
-          "ingredient": "UOVA",
-          "qty": 1,
-          "unit": "pz"
-        },
-        {
-          "ingredient": "OLIO DI SEMI",
-          "qty": 0.002,
-          "unit": "l"
+          "ingredient": "CIOCCOLATO FONDENTE",
+          "qty": 25,
+          "unit": "g"
         }
       ]
     }
