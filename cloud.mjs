@@ -1,6 +1,6 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261029-menus';
-import {createJournal} from './journal.mjs?v=20261029-menus';
-import {firebaseConfig} from './firebase-config.mjs?v=20261029-menus';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261029-polish';
+import {createJournal} from './journal.mjs?v=20261029-polish';
+import {firebaseConfig} from './firebase-config.mjs?v=20261029-polish';
 export function cloudMessage(error){
  const code=String(error?.code||'');
  if(code.includes('popup-closed-by-user')||code.includes('cancelled-popup-request'))return 'Accesso annullato. Puoi riprovare quando vuoi.';
@@ -51,7 +51,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
      tx.set(ref,after);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return after;
     });
     // Local acknowledgement can be lost without repeating the operation: the receipt survives.
-    s.journal.remove(action.id);if(s===session){if(s.snapshotVersion===snapshotVersion)s.remote=committed;s.error='';emit();}
+    s.journal.remove(action.id);if(s===session){if(s.snapshotVersion===snapshotVersion||!s.remote.applied?.includes(action.id))s.remote=committed;s.error='';emit();}
    }catch(error){
     if(s!==session)break;
     if(error instanceof DomainError){s.journal.remove(action.id);report(error);emit();continue;}
