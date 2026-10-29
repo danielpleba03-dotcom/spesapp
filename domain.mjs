@@ -42,7 +42,8 @@ export function emptyState(recipes=[]){return {schema:1,pantry:[],shopping:[],un
 export function recipeStatus(state,r){
  const needs=new Map();for(const i of r.ingredients){const key=normalize(i.ingredient)+'|'+i.unit;needs.set(key,{...i,ingredient:normalize(i.ingredient),qty:round((needs.get(key)?.qty||0)+Number(i.qty))});}
  const ingredients=[...needs.values()];const missing=ingredients.filter(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);return (Number(p?.qty)||0)+1e-9<i.qty;});
- return {ingredients,missing,possible:ingredients.length>0&&missing.length===0};
+ const preparations=ingredients.length?Math.min(...ingredients.map(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);const required=Math.round(Number(i.qty)*1e6),available=Math.round(Number(p?.qty||0)*1e6);return required>0?Math.floor(available/required):0;})):0;
+ return {ingredients,missing,possible:ingredients.length>0&&missing.length===0,preparations};
 }
 export function preparationStatus(state,recipe,people=1,actual=null){
  const factor=number(people);if(!Number.isInteger(factor)||factor<1||factor>1000)fail('Inserisci un numero intero di persone tra 1 e 1000.');

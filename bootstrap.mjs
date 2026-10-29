@@ -1,5 +1,5 @@
 const maintenance=()=>/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||matchMedia('(max-width:650px)').matches;
-try{await import('./app.mjs?v=20261028-unitfix');}
+try{await import('./app.mjs?v=20261028-capacity');}
 catch{
  const root=document.querySelector('#app');
  if(maintenance()){root.innerHTML='<main class="welcome" aria-label="Manutenzione"><div class="brandmark" aria-hidden="true">S</div><h1 style="font-size:1.4rem;line-height:1.5">App da telefono in manutenzione</h1></main>';}
