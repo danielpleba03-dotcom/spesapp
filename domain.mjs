@@ -21,33 +21,26 @@ export function validProduct(p,positive=false){
  if(!['g','l','pz'].includes(p.unit)||(p.category==='Altro'&&p.unit!=='pz'))fail('Per Altro usa solamente pezzi.');
  if(p.unit==='pz'&&!Number.isInteger(qty))fail('I pezzi devono essere interi.');
 }
+export function productUnit(state,productName){const key=normalize(productName);return [...(state.pantry||[]),...(state.shopping||[])].find(p=>p.name===key)?.unit;}
 export function lockUnit(state,productName,unit){
  const key=name(productName);if(!['g','l','pz'].includes(unit))fail('Unità non valida: scegli grammi, litri oppure pezzi.');
- const existing=own(state.units,key)||state.pantry.find(p=>p.name===key)?.unit||state.shopping.find(p=>p.name===key)?.unit;
- if(existing&&existing!==unit)fail(`${key} deve essere inserito in ${existing==='g'?'grammi':existing==='l'?'litri':'pezzi'} (${existing}).`);
- state.units[key]=unit;
+ const existing=productUnit(state,key);
+ if(existing&&existing!==unit)fail(`${key} è già presente in dispensa o nella lista: usa ${existing==='g'?'grammi':existing==='l'?'litri':'pezzi'} (${existing==='pz'?'P':existing.toUpperCase()}).`);
+ if(existing)state.units[key]=existing;else delete state.units[key];
 }
-// An old food-unit entry must not block an explicitly classified household item
-// when no product or recipe still refers to that name. Never convert live stock.
-function lockAddedProduct(state,product){
- const key=product.name,previous=own(state.units,key);
- if(product.category==='Altro'&&product.unit==='pz'&&['g','l'].includes(previous)
-   && ![...state.pantry,...state.shopping].some(p=>p.name===key)
-   && !state.recipes.some(r=>r.ingredients.some(i=>normalize(i.ingredient)===key))){
-  state.units[key]='pz';
- }
- lockUnit(state,key,product.unit);
-}
+function rebuildProductUnits(state){const units={};for(const p of [...state.pantry,...state.shopping]){if(units[p.name]&&units[p.name]!==p.unit)fail(`${p.name}: unità diverse tra dispensa e lista della spesa.`);units[p.name]=p.unit;}state.units=units;}
 export function emptyState(recipes=[]){return {schema:1,pantry:[],shopping:[],units:{},recipes:recipes.map(r=>validateRecipe(r,true)),counts:{},applied:[]};}
 export function recipeStatus(state,r){
  const needs=new Map();for(const i of r.ingredients){const key=normalize(i.ingredient)+'|'+i.unit;needs.set(key,{...i,ingredient:normalize(i.ingredient),qty:round((needs.get(key)?.qty||0)+Number(i.qty))});}
  const ingredients=[...needs.values()];const missing=ingredients.filter(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);return (Number(p?.qty)||0)+1e-9<i.qty;});
+ const unitConflicts=ingredients.flatMap(i=>{const expected=productUnit({...state,shopping:state.shopping||[]},i.ingredient);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
  const preparations=ingredients.length?Math.min(...ingredients.map(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);const required=Math.round(Number(i.qty)*1e6),available=Math.round(Number(p?.qty||0)*1e6);return required>0?Math.floor(available/required):0;})):0;
- return {ingredients,missing,possible:ingredients.length>0&&missing.length===0,preparations};
+ return {ingredients,missing,unitConflicts,possible:ingredients.length>0&&missing.length===0&&unitConflicts.length===0,preparations:unitConflicts.length?0:preparations};
 }
 export function preparationStatus(state,recipe,people=1,actual=null){
  const factor=number(people);if(!Number.isInteger(factor)||factor<1||factor>1000)fail('Inserisci un numero intero di persone tra 1 e 1000.');
- const base=recipeStatus(state,recipe).ingredients,byKey=new Map(base.map(i=>[i.ingredient+'|'+i.unit,i]));
+ const status=recipeStatus(state,recipe);if(status.unitConflicts.length)fail('Correggi unità e dosi della ricetta: '+status.unitConflicts.map(i=>`${i.ingredient} usa ${i.expected==='pz'?'P':i.expected.toUpperCase()} in dispensa o nella lista`).join(', ')+'.');
+ const base=status.ingredients,byKey=new Map(base.map(i=>[i.ingredient+'|'+i.unit,i]));
  let ingredients;
  if(actual!==null){
   if(!Array.isArray(actual)||actual.length!==base.length)fail('Controlla tutti gli ingredienti della preparazione.');
@@ -77,7 +70,8 @@ export function validateImport(raw){
  const s=emptyState();
  for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');lockUnit(s,p.name,p.unit);if(ids.has(p.id)||kind==='pantry'&&names.has(p.name))fail('Prodotto o identificativo duplicato nel backup.');ids.add(p.id);names.add(p.name);s[kind].push(p);}}
  if(Object.keys(raw.units||{}).length>5000)fail('Troppe unità nel backup.');
- for(const [key,unit]of Object.entries(raw.units||{}))lockUnit(s,key,unit);
+ for(const [key,unit]of Object.entries(raw.units||{})){name(key);if(!['g','l','pz'].includes(unit))fail('Unità non valida nel backup.');}
+ rebuildProductUnits(s);
  const ids=new Set(),names=new Set();s.recipes=raw.recipes.map(rawRecipe=>{const r=validateRecipe(rawRecipe,true);if(ids.has(r.id)||names.has(r.name))fail('Ricetta duplicata nel backup.');ids.add(r.id);names.add(r.name);return r;});
  for(const [key,count]of Object.entries(raw.counts||{})){const id=identifier(key);if(!Number.isSafeInteger(count)||count<0||count>LIMITS.quantity)fail('Conteggio delle ricette non valido.');if(ids.has(id))s.counts[id]=count;}
  assertCapacity(s);return s;
@@ -101,7 +95,7 @@ export function applyAction(original,action){
  const find=(kind,id)=>s[kind].find(p=>p.id===String(id));
  const upsert=p=>{lockUnit(s,p.name,p.unit);const existing=s.pantry.find(x=>x.name===p.name);if(existing){const qty=round(existing.qty+p.qty);validProduct({...existing,qty,category:p.category});existing.qty=qty;existing.category=p.category;}else s.pantry.push({...p,id:p.pantryId||p.id});};
  switch(action.type){
- case 'addPantry':case 'addShopping':{const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);lockAddedProduct(s,p);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
+ case 'addPantry':case 'addShopping':{const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
  case 'quantity':{if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;break;}
  case 'exhaust':{const p=find('pantry',a.id);if(p)p.qty=0;break;}
  case 'deletePantry':{const p=find('pantry',a.id);if(p&&p.qty<=0)s.pantry=s.pantry.filter(x=>x.id!==p.id);break;}
@@ -113,5 +107,6 @@ export function applyAction(original,action){
  case 'import':{const imported=validateImport(a.state);const applied=s.applied;Object.assign(s,imported);s.applied=applied;break;}
  }
  if(s.pantry.length>LIMITS.rows||s.shopping.length>LIMITS.rows||s.recipes.length>LIMITS.recipes)fail('Hai raggiunto il limite di elementi dell’archivio. Esporta una copia dei dati.');
+ rebuildProductUnits(s);
  s.applied=[...new Set([...s.applied,action.id])].slice(-1500);assertCapacity(s);return s;
 }

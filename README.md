@@ -70,12 +70,24 @@ prodotti già registrati. Le ricette si salvano con nome, link e ingredienti.
 ## Aggiornamento mobile · 29 ottobre 2026
 Valori preimpostati di inserimento: 100 G, 1 L e 1 P, ripristinati dopo ogni
 aggiunta e cambio di unità; i pulsanti procedono di 50 G, 1 L e 1 P.
-Lo stato cloud rimane fermo su «Sincronizzazione attiva» durante gli invii,
-con dettagli delle operazioni in attesa nel titolo accessibile. Offline ed
-errori restano espliciti. Le righe acquistate si chiudono con un'animazione
+Gli indicatori ordinari di sincronizzazione non sono mostrati. Gli errori di
+salvataggio restano visibili quando richiedono un intervento. Le righe acquistate si chiudono con un'animazione
 compatta e i controlli vengono disabilitati subito per evitare doppi acquisti.
 La ricetta iniziale è PANCAKE BANANA E UOVA, per una persona, con banana,
 uovo e poco olio di semi per ungere (dose adattata di 2 ml); il link contiene
 il procedimento e i condimenti facoltativi. Nessuna cancellazione automatica
 viene eseguita sugli archivi esistenti all'aggiornamento dell'app.
 
+
+## Unità e tocchi · 29 ottobre 2026
+Le unità sono vincolate ai prodotti realmente presenti in dispensa o nella
+lista della spesa, inclusi gli esauriti. La cache delle unità viene ricostruita
+da questi record: metadati storici e ricette non riservano l'unità di un nome
+assente dai due elenchi. Rimuovendo l'ultimo record il nome torna libero.
+Le ricette nuove o modificate devono rispettare le unità dei prodotti attuali.
+Una ricetta precedente con unità incompatibile viene segnalata e non può
+essere confermata: la quantità va corretta esplicitamente dall'utente. Non si
+converte mai un pezzo in un numero arbitrario di grammi o litri.
+Sul telefono sono applicate regole touch e viewport per evitare zoom
+involontario: i doppi tocchi sui controlli restano due azioni normali e lo
+scorrimento verticale resta attivo.

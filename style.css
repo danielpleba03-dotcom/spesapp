@@ -36,3 +36,5 @@
 @media(prefers-reduced-motion:reduce){.shopping-product.is-leaving,.leaving-group{animation-duration:.01ms!important}}
 
 .shopping-controls .buy:active:not(:disabled){transform:none}
+
+html{touch-action:manipulation}.is-phone,.is-phone #app,.is-phone dialog{touch-action:pan-y}.is-phone input,.is-phone select,.is-phone textarea{font-size:16px}.recipe-unit-warning{padding:9px 10px;margin:0 0 9px;border:1px solid #805f45;border-radius:9px;background:#36291c;color:#f0d3ac;font-size:.82rem;line-height:1.5}.unit-hint{display:block;color:#efc89b;line-height:1.4;font-size:.73rem}

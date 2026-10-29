@@ -1,6 +1,6 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261029-mobile';
-import {createJournal} from './journal.mjs?v=20261029-mobile';
-import {firebaseConfig} from './firebase-config.mjs?v=20261029-mobile';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261029-units';
+import {createJournal} from './journal.mjs?v=20261029-units';
+import {firebaseConfig} from './firebase-config.mjs?v=20261029-units';
 export function cloudMessage(error){
  const code=String(error?.code||'');
  if(code.includes('popup-closed-by-user')||code.includes('cancelled-popup-request'))return 'Accesso annullato. Puoi riprovare quando vuoi.';
@@ -61,7 +61,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
  }
  const store={
   login:()=>authSDK.signInWithPopup(auth,new authSDK.GoogleAuthProvider()).catch(e=>{throw Error(cloudMessage(e));}),
-  async logout(){if(session?.journal?.list().length)throw Error('Attendi la sincronizzazione delle modifiche prima di uscire.');await authSDK.signOut(auth);},
+  async logout(){if(session?.journal?.list().length)throw Error('Attendi il salvataggio delle modifiche prima di uscire.');await authSDK.signOut(auth);},
   dispatch(action){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');applyAction(visible(s),action);s.journal.put(action);emit();void flush(s);},
   get state(){return session?visible(session):emptyState();},get user(){return session?.user;},preview:false
  };
