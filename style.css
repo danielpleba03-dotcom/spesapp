@@ -41,3 +41,24 @@ html{touch-action:manipulation}.is-phone,.is-phone #app,.is-phone dialog{touch-a
 
 .add-unit-error{grid-column:1/-1;padding:8px 10px;border-radius:8px;background:#34281b;color:#f0d2a9;border:1px solid #7c603f;line-height:1.5;font-size:.8rem;margin:0}.quantity-value{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:10px;background:#0e1913;font-weight:650;font-variant-numeric:tabular-nums}.quantity-value small{font-size:.75rem;font-weight:400}
 @media(max-width:650px){.pantry-product{grid-template-columns:minmax(0,1fr);gap:5px;padding:8px 10px}.pantry-product .product-name{grid-column:1/-1;line-height:1.4;padding:0 1px 3px}.pantry-product .buttons-only{grid-column:1/-1;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;width:100%;flex:none}.pantry-product .buttons-only button{width:44px;min-height:44px}.quantity-value{font-size:1rem}.pantry-product .stock-label{display:inline;margin-left:7px;font-size:.7rem}.add-unit-error{font-size:.78rem}}
+
+/* Subtle section palettes: emerald pantry, warm sage recipes, teal shopping. */
+body{--accent:#81dfae;--accent-fill:#256749;--accent-deep:#193d2b;--accent-line:#4e9670;--accent-glow:#2a82562b;--line:#314b3b;background:radial-gradient(ellipse at 85% 0,var(--accent-glow),transparent 48%),var(--bg)}
+body[data-page="recipes"]{--accent:#e2c98d;--accent-fill:#6c5931;--accent-deep:#342f20;--accent-line:#9a8352;--accent-glow:#a3843426;--line:#494632;--bright:#e2c98d}
+body[data-page="shopping"]{--accent:#8bdacf;--accent-fill:#25685d;--accent-deep:#183b34;--accent-line:#529c8e;--accent-glow:#258d7c2b;--line:#304c43;--bright:#8bdacf}
+.nav button[data-nav="pantry"]{color:#a3e7be;border-color:#385b44}.nav button[data-nav="recipes"]{color:#e2cea1;border-color:#5c5237}.nav button[data-nav="shopping"]{color:#a3e2d9;border-color:#365f56}
+.nav button[data-nav="pantry"].active{background:linear-gradient(135deg,#2b7955,#1d593f);border-color:#70b98b}
+.nav button[data-nav="recipes"].active{background:linear-gradient(135deg,#71603a,#4e432b);border-color:#bba26a}
+.nav button[data-nav="shopping"].active{background:linear-gradient(135deg,#2e7b6d,#20544c);border-color:#69b9a6}
+.nav button.active{color:#fff;box-shadow:inset 0 1px #ffffff20,0 3px 14px #0002}
+.filter.active,.mobile-add{background:var(--accent-fill);border-color:var(--accent-line)}
+.mobile-add.active{background:var(--accent-deep)}
+button.primary,.recipe-actions a{background:linear-gradient(135deg,var(--accent-fill),var(--accent-deep));border-color:var(--accent-line)}
+button:hover{border-color:var(--accent-line);background:var(--accent-deep)}
+button.primary:hover,.recipe-actions a:hover{filter:brightness(1.12)}
+.group-title{color:var(--accent)}
+.product,.recipe,.addform{border-color:var(--line);box-shadow:0 4px 18px #00000015}
+.recipe summary{background:linear-gradient(110deg,var(--accent-deep),#17251b)}
+.topbar{border-bottom-color:var(--accent-line)}
+input:focus,select:focus,textarea:focus{outline-color:var(--accent)}
+.filters button.active{background:var(--accent-fill);border-color:var(--accent-line);color:#fff}
