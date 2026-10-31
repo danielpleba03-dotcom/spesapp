@@ -93,3 +93,8 @@ scorrimento verticale resta attivo.
 Ricette disponibili anche sul telefono: ricerca, filtri, ingredienti/link, creazione/modifica e conferma delle dosi effettive. La stessa logica dati è condivisa con il PC.
 Un contenitore della stessa origine mantiene un viewport verticale anche se il browser non supporta il blocco nativo. La rotazione modifica solo dimensioni e trasformazione del contenitore, preservando pagina e modali. Il manifesto continua a preferire portrait; tastiera e barre di sistema dipendono dal dispositivo. Nessuna schermata blocca l'uso in orizzontale. Desktop invariato e dati non reinizializzati.
 
+
+## Preferite e mancanti in spesa · 31 ottobre 2026
+Filtri ricette: Fattibili adesso, Non fattibili e Preferite; nessuna vista Tutte. Il flag favorite booleano è salvato nella ricetta e conservato nella validazione e nelle modifiche. La stella usa saveRecipe con payload dedicato senza alterare dosi.
+Il comando Mancanti in spesa calcola le scorte per una persona e arrotonda per eccesso a 50 G, 1 L, 1 P. Considera le quantità già pianificate e completa la prima riga esistente anziché duplicarla. Esegue il piano atomicamente con addShopping; ripetizione dell'operazione e doppi clic non duplicano le quantità. Nessuna modifica alle regole di accesso o ai permessi Firebase.
+

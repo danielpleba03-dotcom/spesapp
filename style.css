@@ -94,3 +94,5 @@ body[data-page="recipes"]{--bg:#191107;--panel:#2b2011;--field:#1e160b;--surface
 /* Never interpolate the orientation container; suppress app motion while settling. */
 .portrait-frame{transition:none!important;animation:none!important;will-change:transform;backface-visibility:hidden}
 .orientation-settling *,.orientation-settling *:before,.orientation-settling *:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+
+.missing-shop{width:100%;margin-top:10px;color:var(--accent);border-color:var(--accent-line);background:var(--accent-deep);font-weight:600}.recipe-footer button[aria-pressed=true]{color:var(--accent);border-color:var(--accent-line);background:var(--accent-deep)}.recipe-footer{flex-wrap:wrap}.recipe-footer button{flex:1;white-space:nowrap;padding-inline:9px}@media(max-width:650px){.recipe-footer button{font-size:.75rem;padding-inline:6px}.missing-shop{min-height:44px;font-size:.84rem}}
