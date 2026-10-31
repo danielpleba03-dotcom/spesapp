@@ -1,10 +1,10 @@
-import {enhanceSuggestions} from './suggestions.mjs?v=20261031-recipes';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261031-safearea';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261031-recipes';
+import {enhanceSelects} from './select-menu.mjs?v=20261031-safearea';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit} from './domain.mjs?v=20261031-recipes';
-import {createStore} from './cloud.mjs?v=20261031-recipes';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261031-recipes';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit} from './domain.mjs?v=20261031-safearea';
+import {createStore} from './cloud.mjs?v=20261031-safearea';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261031-safearea';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -75,7 +75,7 @@ function updateIngredientUnitHint(index){const item=draftIngredients[index],fiel
 function showPreparation(recipe){
  if(!recipe)throw Error('Questa ricetta non è più disponibile.');
  preparation={recipe:structuredClone(recipe),people:1,ingredients:recipeStatus(state,recipe).ingredients.map(i=>({...i}))};
- $('#editor').innerHTML=editorHead('Preparata · '+recipe.name)+`<form id="preparation-form" class="editor-form"><div class="preparation-toolbar"><label>Persone<input type="number" id="preparation-people" min="1" max="1000" step="1" value="1" inputmode="numeric" required></label><button type="button" data-command="prep-factor" data-value="1">×1</button><button type="button" data-command="prep-factor" data-value="2">×2</button></div><p class="preparation-note">Dosi per una persona moltiplicate per le persone indicate. Correggi le quantità effettivamente usate: la ricetta salvata resta invariata.</p><div id="preparation-ingredients"></div><p id="preparation-error" class="input-error" role="status"></p><div class="editor-footer"><button type="button" data-command="close-dialog">Annulla</button><button class="primary" id="confirm-preparation">Conferma e aggiorna dispensa</button></div></form>`;
+ $('#editor').innerHTML=editorHead('Preparata · '+recipe.name)+`<form id="preparation-form" class="editor-form"><div class="preparation-toolbar"><label>Persone<input type="number" id="preparation-people" min="1" max="1000" step="1" value="1" inputmode="numeric" required></label><button type="button" data-command="prep-factor" data-value="2">×2</button><button type="button" data-command="prep-factor" data-value="3">×3</button><button type="button" data-command="prep-factor" data-value="4">×4</button><button type="button" data-command="prep-factor" data-value="5">×5</button></div><p class="preparation-note">Dosi per una persona moltiplicate per le persone indicate. Correggi le quantità effettivamente usate: la ricetta salvata resta invariata.</p><div id="preparation-ingredients"></div><p id="preparation-error" class="input-error" role="status"></p><div class="editor-footer"><button type="button" data-command="close-dialog">Annulla</button><button class="primary" id="confirm-preparation">Conferma e aggiorna dispensa</button></div></form>`;
  renderPreparationRows();$('#editor').showModal();
 }
 function renderPreparationRows(){
