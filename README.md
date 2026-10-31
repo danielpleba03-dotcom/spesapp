@@ -98,3 +98,8 @@ Un contenitore della stessa origine mantiene un viewport verticale anche se il b
 Filtri ricette: Fattibili adesso, Non fattibili e Preferite; nessuna vista Tutte. Il flag favorite booleano è salvato nella ricetta e conservato nella validazione e nelle modifiche. La stella usa saveRecipe con payload dedicato senza alterare dosi.
 Il comando Mancanti in spesa calcola le scorte per una persona e arrotonda per eccesso a 50 G, 1 L, 1 P. Considera le quantità già pianificate e completa la prima riga esistente anziché duplicarla. Esegue il piano atomicamente con addShopping; ripetizione dell'operazione e doppi clic non duplicano le quantità. Nessuna modifica alle regole di accesso o ai permessi Firebase.
 
+
+## Dispensa mobile e quantità · 31 ottobre 2026
+Filtri Disponibili, Da rifornire ed Esauriti presenti anche su telefono, con la stessa logica del PC. Il comando ingredienti mancanti mantiene l'arrotondamento a passi di 50 G ma impone un target minimo di 100 G, 1 L o 1 P, contando la spesa già pianificata.
+Le operazioni confermate restano protette in memoria fino all'eco del servizio. Aggiornamenti riconoscibilmente precedenti, in base alla cronologia delle operazioni applicate, vengono ignorati per impedire ritorni temporanei delle quantità durante i clic rapidi. I pulsanti quantità non selezionano testo al doppio clic.
+

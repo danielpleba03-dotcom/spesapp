@@ -59,7 +59,7 @@ export function recipeShoppingPlan(state,recipe){
  return status.ingredients.flatMap(i=>{
   const stocked=state.pantry.find(p=>p.name===i.ingredient&&p.category==='Alimentari'&&p.unit===i.unit)?.qty||0;
   const missing=Math.max(0,round(i.qty-stocked));if(!missing)return [];
-  const increment=step(i.unit),target=round(Math.ceil(Math.round(missing*1e6)/Math.round(increment*1e6))*increment);
+  const increment=step(i.unit),target=Math.max(i.unit==='g'?100:1,round(Math.ceil(Math.round(missing*1e6)/Math.round(increment*1e6))*increment));
   const planned=state.shopping.filter(p=>p.name===i.ingredient&&p.unit===i.unit&&p.category==='Alimentari').reduce((sum,p)=>round(sum+p.qty),0);
   const qty=Math.max(0,round(target-planned));return qty>0?[{name:i.ingredient,unit:i.unit,category:'Alimentari',qty,target}]:[];
  });

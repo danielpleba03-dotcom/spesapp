@@ -1,6 +1,6 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261031-favorites';
-import {createJournal} from './journal.mjs?v=20261031-favorites';
-import {firebaseConfig} from './firebase-config.mjs?v=20261031-favorites';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261031-pantryfilters';
+import {createJournal} from './journal.mjs?v=20261031-pantryfilters';
+import {firebaseConfig} from './firebase-config.mjs?v=20261031-pantryfilters';
 export function cloudMessage(error){
  const code=String(error?.code||'');
  if(code.includes('popup-closed-by-user')||code.includes('cancelled-popup-request'))return 'Accesso annullato. Puoi riprovare quando vuoi.';
@@ -27,7 +27,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
  const db=fire.initializeFirestore(app,{localCache:fire.persistentLocalCache({tabManager:fire.persistentMultipleTabManager()})});
  let session=null,unsub=null,epoch=0;
  const report=e=>onError(Error(cloudMessage(e)));
- function visible(s){let result=structuredClone(s.remote);for(const a of s.journal?.list()||[]){try{result=applyAction(result,a);}catch{}}return result;}
+ function visible(s){let result=structuredClone(s.remote);for(const a of [...(s.confirmed?.values()||[]),...(s.journal?.list()||[])]){try{result=applyAction(result,a);}catch{}}return result;}
  function emit(){const s=session;if(!s){onChange(emptyState(),{ready:false,online:navigator.onLine,pending:0,authenticated:false});return;}try{onChange(visible(s),{ready:s.ready,online:navigator.onLine,pending:s.journal?.list().length||0,authenticated:true,user:s.user,error:s.error,fromCache:s.fromCache});}catch(e){s.ready=false;s.error=cloudMessage(e);onChange(s.remote,{ready:false,online:navigator.onLine,authenticated:true,pending:0,error:s.error});}}
  function retry(s,delay=10000){clearTimeout(s.retry);if(s===session)s.retry=setTimeout(()=>void flush(s),delay);}
  async function flush(s=session){
@@ -37,21 +37,21 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
    const action=s.journal.list()[0];if(!action)break;const snapshotVersion=s.snapshotVersion;
    const ref=fire.doc(db,'users',s.user.uid,'data','main'),receipt=fire.doc(db,'users',s.user.uid,'receipts',action.id);
    try{
-    const committed=await fire.runTransaction(db,async tx=>{
+    const result=await fire.runTransaction(db,async tx=>{
      if(s!==session)throw Object.assign(Error('Sessione cambiata'),{code:'cancelled'});
      const snap=await tx.get(ref),done=await tx.get(receipt);
      if(!snap.exists())throw Object.assign(Error('Archivio non disponibile. Riprova più tardi.'),{code:'unavailable'});
      let before;try{before=validateState(snap.data());}catch{throw Object.assign(Error('Archivio non valido. Le modifiche sul dispositivo sono conservate.'),{code:'data-corrupt'});}
-     if(done.exists())return before;
+     if(done.exists())return {state:before,receipt:true};
      const after=applyAction(before,action),today=new Date().toISOString().slice(0,10);
      let backupRef,backup;
      if(before.backupDate!==today){backupRef=fire.doc(db,'users',s.user.uid,'backups',today);backup=await tx.get(backupRef);after.backupDate=today;}
      assertCapacity(after);
      if(backupRef&&!backup.exists())tx.set(backupRef,before);
-     tx.set(ref,after);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return after;
+     tx.set(ref,after);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
     });
     // Local acknowledgement can be lost without repeating the operation: the receipt survives.
-    s.journal.remove(action.id);if(s===session){if(s.snapshotVersion===snapshotVersion||!s.remote.applied?.includes(action.id))s.remote=committed;s.error='';emit();}
+    const committed=result.state;if(!result.receipt&&!s.remote.applied?.includes(action.id))s.confirmed.set(action.id,action);s.journal.remove(action.id);if(s===session){if(s.snapshotVersion===snapshotVersion||!s.remote.applied?.includes(action.id))s.remote=committed;s.error='';emit();}
    }catch(error){
     if(s!==session)break;
     if(error instanceof DomainError){s.journal.remove(action.id);report(error);emit();continue;}
@@ -68,13 +68,13 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
  authSDK.onAuthStateChanged(auth,next=>{
   unsub?.();if(session)clearTimeout(session.retry);epoch++;
   if(!next){session=null;emit();return;}
-  const s={epoch,user:next,remote:emptyState(recipes),ready:false,journal:null,error:'',fromCache:true,snapshotVersion:0,flushing:false,retry:null};session=s;
+  const s={epoch,user:next,remote:emptyState(recipes),ready:false,journal:null,error:'',fromCache:true,snapshotVersion:0,confirmed:new Map(),flushing:false,retry:null};session=s;
   try{s.journal=createJournal(localStorage,next.uid);}catch(e){s.error=e.message;emit();return;}
   const ref=fire.doc(db,'users',next.uid,'data','main');
   unsub=fire.onSnapshot(ref,{includeMetadataChanges:true},snapshot=>{
    if(s!==session)return;s.snapshotVersion++;
    if(snapshot.exists()){
-    try{s.remote=validateState(snapshot.data());s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
+    try{const incoming=validateState(snapshot.data()),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1))return;for(const id of incoming.applied||[])s.confirmed.delete(id);s.remote=incoming;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
     catch{ s.ready=false;s.error='I dati dell’archivio non sono leggibili. Non sono stati modificati: contatta l’assistenza.';emit();}
    }else if(!snapshot.metadata.fromCache){
     void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,emptyState(recipes));}).catch(e=>{if(s===session){s.error=cloudMessage(e);emit();}});
