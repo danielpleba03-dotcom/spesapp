@@ -1,17 +1,17 @@
-import {enhanceSuggestions} from './suggestions.mjs?v=20261029-suggestionclose';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261031-recipes';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261029-suggestionclose';
+import {enhanceSelects} from './select-menu.mjs?v=20261031-recipes';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit} from './domain.mjs?v=20261029-suggestionclose';
-import {createStore} from './cloud.mjs?v=20261029-suggestionclose';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261029-suggestionclose';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit} from './domain.mjs?v=20261031-recipes';
+import {createStore} from './cloud.mjs?v=20261031-recipes';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261031-recipes';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
 function phonePresentation(){
  const phone=mobile(),orientation=screen.orientation;
  const landscape=phoneAgent&&typeof window.orientation==='number'?Math.abs(window.orientation)===90:phoneAgent&&orientation?.type?orientation.type.startsWith('landscape'):matchMedia('(orientation:landscape)').matches;
- document.body.classList.toggle('is-phone',phone);document.body.classList.toggle('phone-landscape',phone&&landscape);
+ document.body.classList.toggle('is-phone',phone);document.body.classList.remove('phone-landscape');
 }
 phonePresentation();addEventListener('orientationchange',phonePresentation);screen.orientation?.addEventListener('change',phonePresentation);addEventListener('resize',phonePresentation);
 document.addEventListener('pointerdown',()=>{if(mobile()&&matchMedia('(display-mode:standalone)').matches)try{screen.orientation?.lock?.('portrait').catch(()=>{});}catch{}},{once:true});
@@ -26,7 +26,7 @@ function notify(message,error=false){
 }
 
 function action(type,payload){try{store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});return true;}catch(e){notify(e.message,true);renderList();return false;}}
-function nav(target){if(mobile()&&target==='recipes')return;clearTimeout(noticeTimer);$('#notice').style.display='none';page=target;search='';grace.clear();order=[];renderShell();}
+function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';page=target;search='';grace.clear();order=[];renderShell();}
 const defaultQuantity=unit=>unit==='g'?100:1;
 
 
@@ -36,10 +36,9 @@ function filterButtons(values,current,group){return values.map(v=>`<button class
 const isAddOpen=()=>page==='pantry'?pantryAddOpen:addOpen;
 function addForm(){return `<form id="add-form" class="addform" ${mobile()&&!isAddOpen()?'hidden style="display:none"':''}><label class="product-field">Prodotto<input name="name" list="product-options" placeholder="SCRIVI O SCEGLI UN PRODOTTO" autocomplete="off" maxlength="120" required></label><datalist id="product-options">${catalog().map(p=>`<option value="${esc(p.name)}">${esc(p.category)}</option>`).join('')}</datalist><label class="category-field">Categoria<select name="category"><option>Alimentari</option><option>Altro</option></select></label><label class="qty-field" for="add-qty">Quantità<span class="add-stepper"><button type="button" data-command="add-decrease" aria-label="Riduci quantità da aggiungere">−</button><input type="number" id="add-qty" aria-label="Quantità da aggiungere" name="qty" value="100" step="any" min="0.000001" max="1000000000" required inputmode="decimal"><button type="button" data-command="add-increase" aria-label="Aumenta quantità da aggiungere">＋</button></span></label><label class="unit-field">Unità<select name="unit"><option value="g">G</option><option value="l">L</option><option value="pz">P</option></select></label><button class="primary submit-add">＋ Aggiungi</button><p id="add-unit-error" class="add-unit-error" role="alert" hidden></p></form>`;}
 function renderShell(){
- if(mobile()&&page==='recipes')page='shopping';
  if(!state)return;
  document.body.dataset.page=page;
- $('#app').innerHTML=`<header class="topbar"><span class="brand">Spesapp<span style="color:var(--bright)">.</span></span><nav class="nav" aria-label="Sezioni"><button data-nav="pantry" class="${page==='pantry'?'active':''}">Dispensa</button>${!mobile()?`<button data-nav="recipes" class="recipes-nav ${page==='recipes'?'active':''}">Ricette</button>`:''}<button data-nav="shopping" class="${page==='shopping'?'active':''}"><span class="desktop-only">Lista della spesa</span><span class="phone-only">Spesa</span></button></nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:''}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${page==='recipes'?`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o ingrediente" placeholder="CERCA RICETTA O INGREDIENTE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="filters">${filterButtons(['Tutte','Fattibili adesso','Non fattibili'],recipeFilter,'recipe')}</div>`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div>${!mobile()?`<div class="filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>`:''}`:addForm()}<section id="list" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
+ $('#app').innerHTML=`<header class="topbar"><span class="brand">Spesapp<span style="color:var(--bright)">.</span></span><nav class="nav" aria-label="Sezioni"><button data-nav="pantry" class="${page==='pantry'?'active':''}">Dispensa</button><button data-nav="recipes" class="recipes-nav ${page==='recipes'?'active':''}">Ricette</button><button data-nav="shopping" class="${page==='shopping'?'active':''}"><span class="desktop-only">Lista della spesa</span><span class="phone-only">Spesa</span></button></nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:''}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${page==='recipes'?`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o ingrediente" placeholder="CERCA RICETTA O INGREDIENTE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="filters">${filterButtons(['Tutte','Fattibili adesso','Non fattibili'],recipeFilter,'recipe')}</div>`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div>${!mobile()?`<div class="filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>`:''}`:addForm()}<section id="list" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
  renderList();updateAddUnitError();
 }
 function quantityControl(p,kind,buttonsOnly=false){return `<div class="stepper ${buttonsOnly?'buttons-only':''}"><button ${kind==='pantry'&&p.qty<=0?'disabled':''} data-command="decrease" data-kind="${kind}" data-id="${esc(p.id)}" aria-label="Riduci ${esc(p.name)} di ${step(p.unit)} ${p.unit}">−</button>${buttonsOnly?`<output class="quantity-value" aria-label="Quantità ${esc(p.name)}">${p.qty} <small>${unitLabel(p.unit)}</small></output>`:`<input type="number" min="${kind==='shopping'?(p.unit==='pz'?1:.000001):0}" max="1000000000" step="${p.unit==='pz'?1:'any'}" value="${p.qty}" data-quantity="${kind}" data-id="${esc(p.id)}" aria-label="Quantità ${esc(p.name)} in ${p.unit}" inputmode="decimal">`}<button data-command="increase" data-kind="${kind}" data-id="${esc(p.id)}" aria-label="Aumenta ${esc(p.name)} di ${step(p.unit)} ${p.unit}">＋</button></div>`;}
@@ -153,7 +152,7 @@ document.addEventListener('click',async event=>{
  case 'retry':location.reload();break;
  }}catch(e){notify(e.message,true);}
 });
-matchMedia('(max-width:650px)').addEventListener('change',()=>{if(mobile()){$('#editor').close();preparation=null;if(page==='recipes')page='shopping';}if(meta.ready&&(meta.preview||meta.authenticated))renderShell();else onStoreChange(state||{pantry:[],shopping:[],recipes:[]},meta);});
+matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').open)return;if(meta.ready&&(meta.preview||meta.authenticated))renderShell();else onStoreChange(state||{pantry:[],shopping:[],recipes:[]},meta);});
 function onStoreChange(next,nextMeta){
  state=next;meta=nextMeta;if(!meta.preview&&!meta.authenticated){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
  if(!meta.ready){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';return;}

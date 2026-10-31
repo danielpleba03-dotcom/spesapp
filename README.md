@@ -88,3 +88,8 @@ con +/−, in passi di 50 G, 1 L o 1 P, senza scendere sotto zero.
 Sul telefono sono applicate regole touch e viewport per evitare zoom
 involontario: i doppi tocchi sui controlli restano due azioni normali e lo
 scorrimento verticale resta attivo.
+
+## Ricette mobile e orientamento · 31 ottobre 2026
+Ricette disponibili anche sul telefono: ricerca, filtri, ingredienti/link, creazione/modifica e conferma delle dosi effettive. La stessa logica dati è condivisa con il PC.
+Un contenitore della stessa origine mantiene un viewport verticale anche se il browser non supporta il blocco nativo. La rotazione modifica solo dimensioni e trasformazione del contenitore, preservando pagina e modali. Il manifesto continua a preferire portrait; tastiera e barre di sistema dipendono dal dispositivo. Nessuna schermata blocca l'uso in orizzontale. Desktop invariato e dati non reinizializzati.
+
