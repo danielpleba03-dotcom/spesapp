@@ -1,10 +1,10 @@
-import {enhanceSuggestions} from './suggestions.mjs?v=20261031-safearea';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261031-palettes';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261031-safearea';
+import {enhanceSelects} from './select-menu.mjs?v=20261031-palettes';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit} from './domain.mjs?v=20261031-safearea';
-import {createStore} from './cloud.mjs?v=20261031-safearea';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261031-safearea';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit} from './domain.mjs?v=20261031-palettes';
+import {createStore} from './cloud.mjs?v=20261031-palettes';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261031-palettes';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;

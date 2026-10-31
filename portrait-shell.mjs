@@ -19,12 +19,13 @@ export function mountPortraitShell(){
  const frame=document.createElement('iframe');frame.className='portrait-frame';frame.title='Spesapp';frame.src=location.href;
  document.body.replaceChildren(frame);
  const probe=document.createElement('div');probe.className='safe-area-probe';document.body.append(probe);
- let portraitTop=0,portraitBottom=0,portraitWidth=Math.min(innerWidth,innerHeight),lastRotation=-90;
+ let portraitTop=0,portraitBottom=0,portraitWidth=Math.min(innerWidth,innerHeight),lastRotation=-90,previousLandscape=false;
  const layout=()=>{
   const width=innerWidth,height=innerHeight;
   // Dimensions update before orientation metadata on iOS. A keyboard changes
   // height but does not widen the display, so it must not trigger rotation.
   const landscape=width>height&&width>portraitWidth*1.25;
+  if(landscape!==previousLandscape){previousLandscape=landscape;settle();}
   const angle=typeof window.orientation==='number'?window.orientation:(screen.orientation?.angle||0);
   const g=portraitGeometry(width,height,angle,landscape);
   if(landscape){if(angle===0)g.rotation=lastRotation;else lastRotation=g.rotation;g.left=g.rotation===90?width:0;g.top=g.rotation===90?0:height;}
@@ -36,8 +37,11 @@ export function mountPortraitShell(){
   try{const root=frame.contentDocument?.documentElement;if(root){root.style.setProperty('--app-safe-top',safe.top+'px');root.style.setProperty('--app-safe-bottom',safe.bottom+'px');}}catch{}
  };
  frame.addEventListener('load',layout);
+ let settleTimer;
+ const settle=()=>{const root=frame.contentDocument?.documentElement;if(!root)return;root.classList.add('orientation-settling');clearTimeout(settleTimer);settleTimer=setTimeout(()=>root.classList.remove('orientation-settling'),1200);};
  const refresh=()=>{layout();requestAnimationFrame(layout);};
- refresh();addEventListener('resize',refresh);addEventListener('orientationchange',refresh);screen.orientation?.addEventListener('change',refresh);window.visualViewport?.addEventListener('resize',refresh);
+ const rotating=()=>{settle();refresh();};
+ refresh();addEventListener('resize',refresh);addEventListener('orientationchange',rotating);screen.orientation?.addEventListener('change',rotating);window.visualViewport?.addEventListener('resize',refresh);
 
  return true;
 }
