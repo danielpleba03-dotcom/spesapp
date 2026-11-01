@@ -66,7 +66,7 @@ export function recipeShoppingPlan(state,recipe){
   const qty=Math.max(0,round(target-planned));return qty>0?[{name:i.ingredient,unit:i.unit,category:'Alimentari',qty,target}]:[];
  });
 }
-export function validateRecipe(raw,allowMissingSource=false){
+export function validateRecipe(raw,allowMissingSource=true){
  if(!record(raw)||!Array.isArray(raw.ingredients)||!raw.ingredients.length||raw.ingredients.length>LIMITS.ingredients)fail('Inserisci da 1 a 100 ingredienti.');
  if(raw.tools!==undefined&&(!Array.isArray(raw.tools)||raw.tools.length>30||raw.tools.some(t=>typeof t!=='string'||!normalize(t)||normalize(t).length>120||/[\x00-\x1f\x7f]/.test(t))))fail('Inserisci al massimo 30 strumenti, con nomi da 1 a 120 caratteri.');
  const r={tools:[...new Set((raw.tools||[]).map(normalize))],id:identifier(raw.id),name:name(raw.name),instructions:String(raw.instructions||'').trim(),source_url:String(raw.source_url||'').trim(),source_title:String(raw.source_title||'').trim(),servings:1,ingredients:raw.ingredients.map(i=>{if(!record(i))fail('Ingrediente non valido.');return {ingredient:name(i.ingredient),qty:number(i.qty),unit:i.unit};})};
