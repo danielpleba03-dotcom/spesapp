@@ -15,7 +15,7 @@ export function enhanceSelects(){
    }
    const {trigger,list}=select._menu,selected=select.selectedOptions[0],text=selected?.textContent||'Scegli';
    if(trigger.textContent!==text)trigger.textContent=text;
-   const label=select.getAttribute('aria-label')||select.labels?.[0]?.childNodes[0]?.textContent?.trim()||'Scegli';trigger.setAttribute('aria-label',label+': '+text);trigger.disabled=select.disabled;
+   const label=select.getAttribute('aria-label')||select.labels?.[0]?.childNodes[0]?.textContent?.trim()||'Scegli';trigger.setAttribute('aria-label',label+': '+text);trigger.disabled=select.disabled;trigger.setAttribute('aria-required',String(select.required||select.getAttribute('aria-required')==='true'));
    const signature=[...select.options].map(o=>[o.value,o.textContent,o.disabled,o.selected].join('|')).join('\n');
    if(list.dataset.signature!==signature){list.dataset.signature=signature;list.replaceChildren();for(const option of select.options){const button=document.createElement('button');button.type='button';button.setAttribute('role','option');button.setAttribute('aria-selected',String(option.selected));button.textContent=option.textContent;button.disabled=option.disabled;button.addEventListener('click',event=>{event.preventDefault();if(option.disabled)return;select.value=option.value;close(true);select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));sync();});list.append(button);}}
   }

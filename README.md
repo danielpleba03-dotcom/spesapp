@@ -103,3 +103,7 @@ Il comando Mancanti in spesa calcola le scorte per una persona e arrotonda per e
 Filtri Disponibili, Da rifornire ed Esauriti presenti anche su telefono, con la stessa logica del PC. Il comando ingredienti mancanti mantiene l'arrotondamento a passi di 50 G ma impone un target minimo di 100 G, 1 L o 1 P, contando la spesa già pianificata.
 Le operazioni confermate restano protette in memoria fino all'eco del servizio. Aggiornamenti riconoscibilmente precedenti, in base alla cronologia delle operazioni applicate, vengono ignorati per impedire ritorni temporanei delle quantità durante i clic rapidi. I pulsanti quantità non selezionano testo al doppio clic.
 
+
+## Tipi di pasto · 1 novembre 2026
+Nuove ricette e modifiche richiedono la scelta di Colazioni, Primi, Secondi, Dolci o Merende nel modulo. Ogni vista delle ricette raggruppa per questo ordine, mantenendo ricerca e filtri di fattibilità/preferiti. Il campo meal è validato e conservato tra salvataggi e caricamenti. Le vecchie ricette senza campo restano leggibili in Da classificare; il budino iniziale è riconosciuto come Dolci, modificabile dall'utente. Nessuna cancellazione o modifica delle dosi.
+

@@ -1,3 +1,5 @@
+export const mealTypes=['Colazioni','Primi','Secondi','Dolci','Merende'];
+export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';
 export const categories=['Alimentari','Altro'];
 export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:500,ingredients:100,instructions:20000,bytes:780000};
 export class DomainError extends Error {constructor(message){super(message);this.name='DomainError';this.code='validation';}}
@@ -68,6 +70,7 @@ export function validateRecipe(raw,allowMissingSource=false){
  if(!record(raw)||!Array.isArray(raw.ingredients)||!raw.ingredients.length||raw.ingredients.length>LIMITS.ingredients)fail('Inserisci da 1 a 100 ingredienti.');
  if(raw.tools!==undefined&&(!Array.isArray(raw.tools)||raw.tools.length>30||raw.tools.some(t=>typeof t!=='string'||!normalize(t)||normalize(t).length>120||/[\x00-\x1f\x7f]/.test(t))))fail('Inserisci al massimo 30 strumenti, con nomi da 1 a 120 caratteri.');
  const r={tools:[...new Set((raw.tools||[]).map(normalize))],id:identifier(raw.id),name:name(raw.name),instructions:String(raw.instructions||'').trim(),source_url:String(raw.source_url||'').trim(),source_title:String(raw.source_title||'').trim(),servings:1,ingredients:raw.ingredients.map(i=>{if(!record(i))fail('Ingrediente non valido.');return {ingredient:name(i.ingredient),qty:number(i.qty),unit:i.unit};})};
+ if(raw.meal!==undefined){if(typeof raw.meal!=='string'||!mealTypes.includes(raw.meal))fail('Scegli il tipo di pasto: Colazioni, Primi, Secondi, Dolci o Merende.');r.meal=raw.meal;}
  if(raw.favorite!==undefined){if(typeof raw.favorite!=='boolean')fail('Preferenza della ricetta non valida.');r.favorite=raw.favorite;}
  if(r.instructions.length>LIMITS.instructions||r.source_url.length>2048||r.source_title.length>300)fail('Testo della ricetta troppo lungo.');
  let url;if(r.source_url){try{url=new URL(r.source_url);}catch{fail('Inserisci un link valido alla ricetta.');}}else if(!allowMissingSource)fail('Inserisci il link alla ricetta.');

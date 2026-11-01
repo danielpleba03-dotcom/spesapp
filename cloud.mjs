@@ -1,6 +1,6 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261031-pantryfilters';
-import {createJournal} from './journal.mjs?v=20261031-pantryfilters';
-import {firebaseConfig} from './firebase-config.mjs?v=20261031-pantryfilters';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261101-meals';
+import {createJournal} from './journal.mjs?v=20261101-meals';
+import {firebaseConfig} from './firebase-config.mjs?v=20261101-meals';
 export function cloudMessage(error){
  const code=String(error?.code||'');
  if(code.includes('popup-closed-by-user')||code.includes('cancelled-popup-request'))return 'Accesso annullato. Puoi riprovare quando vuoi.';
