@@ -118,3 +118,16 @@ La spesa della settimana richiede la revisione e conferma del menu, sottrae le
 scorte e la lista esistente, e conta una sola volta cena e pranzo collegati.
 Prima di distribuire questi file pubblicare le regole private aggiornate per
 planning/main e per le ricevute di tipo plan, mantenendo l’accesso al proprietario.
+
+## Gestione pasti e porzioni · 1 novembre 2026
+Ricettario interno al Piano, senza conferma di preparazione nel ricettario.
+I pasti preparati conservano una firma delle dosi della ricetta: le porzioni pronte
+sono riconosciute anche in altri giorni e settimane compatibili. Mangia registra
+il consumo nella data del pasto selezionato, senza una seconda conferma.
+Rimuovere un consumo dal diario restituisce la porzione pronta e le calorie,
+lasciando avvenuta la preparazione e invariata la dispensa.
+Il riepilogo settimanale aggiorna il profilo con il peso misurato: non deduce un
+peso esatto dalle calorie e non cambia automaticamente il target confermato.
+Il formato privato del Piano è ora schema 2, compatibile in lettura con schema 1.
+Le regole impediscono il downgrade da schema 2 per proteggere le nuove informazioni
+da versioni vecchie ancora aperte. Nessuna modifica al formato della dispensa.
