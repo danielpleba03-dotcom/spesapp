@@ -29,7 +29,7 @@ sono accodate sul dispositivo e inviate quando la connessione ritorna.
 Usare l'app offline solo dopo un primo accesso e caricamento completo online.
 Non uscire dall'account finché rimangono modifiche da sincronizzare.
 La prima modifica giornaliera crea una copia immutabile dello stato precedente
-su Firestore. Importazione ed esportazione manuali sono state rimosse dall'interfaccia. Il pulsante in alto esegue direttamente il logout.
+su Firestore. Importazione ed esportazione manuali sono state rimosse dall'interfaccia. Il logout non è esposto nella navigazione personale.
 
 ## Gratuità
 GitHub Pages e Firebase Spark non richiedono un server locale. Restare su Spark,
@@ -107,3 +107,14 @@ Le operazioni confermate restano protette in memoria fino all'eco del servizio. 
 ## Tipi di pasto · 1 novembre 2026
 Nuove ricette e modifiche richiedono la scelta di Colazioni, Primi, Secondi, Dolci o Merende nel modulo. Ogni vista delle ricette raggruppa per questo ordine, mantenendo ricerca e filtri di fattibilità/preferiti. Il campo meal è validato e conservato tra salvataggi e caricamenti. Le vecchie ricette senza campo restano leggibili in Da classificare; il budino iniziale è riconosciuto come Dolci, modificabile dall'utente. Nessuna cancellazione o modifica delle dosi.
 
+
+## Piano settimanale · 1 novembre 2026
+La sezione Piano usa un documento privato separato dall’archivio dei prodotti.
+Il profilo e il valore calorico richiedono conferma esplicita; nessun dato personale
+è incluso nei file pubblici. Le kcal sono stime modificabili, non una prescrizione.
+La preparazione scala gli ingredienti per tutte le porzioni e registra solo quelle
+mangiate; le porzioni conservate si consumano senza scalare nuovamente la dispensa.
+La spesa della settimana richiede la revisione e conferma del menu, sottrae le
+scorte e la lista esistente, e conta una sola volta cena e pranzo collegati.
+Prima di distribuire questi file pubblicare le regole private aggiornate per
+planning/main e per le ricevute di tipo plan, mantenendo l’accesso al proprietario.
