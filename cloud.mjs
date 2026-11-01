@@ -1,6 +1,6 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261101-mealtap';
-import {createJournal} from './journal.mjs?v=20261101-mealtap';
-import {firebaseConfig} from './firebase-config.mjs?v=20261101-mealtap';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261101-accordion';
+import {createJournal} from './journal.mjs?v=20261101-accordion';
+import {firebaseConfig} from './firebase-config.mjs?v=20261101-accordion';
 export function cloudMessage(error){
  const code=String(error?.code||'');
  if(code.includes('popup-closed-by-user')||code.includes('cancelled-popup-request'))return 'Accesso annullato. Puoi riprovare quando vuoi.';

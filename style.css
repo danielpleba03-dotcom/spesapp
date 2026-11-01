@@ -105,3 +105,7 @@ body[data-page="recipes"]{--bg:#191107;--panel:#2b2011;--field:#1e160b;--surface
 .select-options{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 #notice:not(.error){background:var(--accent-deep);border-color:var(--accent-line);color:var(--text)}
 
+
+/* Recipe titles and capacity share one row, with an accessible compact count on phones. */
+.recipe summary{display:flex;flex-wrap:nowrap;align-items:center;gap:10px;list-style:none}.recipe summary::-webkit-details-marker{display:none}.recipe-name{flex:1;min-width:0;overflow-wrap:anywhere}.recipe-capacity{flex:none;white-space:nowrap;margin:0}.recipe summary:before{content:"›";flex:none;color:var(--accent);font-size:1.2rem;line-height:1}.recipe[open] summary:before{transform:rotate(90deg)}
+@media(max-width:650px){.capacity-description{display:none}.recipe-capacity{min-width:30px;text-align:center;padding:3px 7px;margin:0;font-variant-numeric:tabular-nums}.recipe summary{gap:8px}.recipe-name{font-size:.85rem}}
