@@ -1,10 +1,10 @@
-import {enhanceSuggestions} from './suggestions.mjs?v=20261101-refinements';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261101-refinements2';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261101-refinements';
+import {enhanceSelects} from './select-menu.mjs?v=20261101-refinements2';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,createUndoPatch,undoStillValid,formatQuantity} from './domain.mjs?v=20261101-refinements';
-import {createStore} from './cloud.mjs?v=20261101-refinements';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-refinements';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,applyAction,createUndoPatch,undoStillValid,formatQuantity} from './domain.mjs?v=20261101-refinements2';
+import {createStore} from './cloud.mjs?v=20261101-refinements2';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-refinements2';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -27,7 +27,7 @@ function notify(message,error=false){
  const el=$('#notice');el.textContent=message;el.classList.toggle('error',error);el.style.display='block';clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>el.style.display='none',error?6500:3000);
 }
 
-function action(type,payload){try{const before=structuredClone(state);store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});if(!payload.undo){const patch=['quantity','buy','removeShopping','exhaust'].includes(type)?createUndoPatch(before,state):null;lastUndo=patch?{patch,label:type==='buy'?'Acquisto registrato':type==='removeShopping'?'Prodotto rimosso dalla lista':type==='exhaust'?'Prodotto esaurito':'Quantità aggiornata'}:null;renderUndo();}return true;}catch(e){notify(e.message,true);renderList();return false;}}
+function action(type,payload){try{const before=structuredClone(state),operation={id:crypto.randomUUID(),type,payload,at:Date.now()},after=applyAction(before,operation);store.dispatch(operation);if(!payload.undo){const patch=['quantity','buy','removeShopping','exhaust'].includes(type)?createUndoPatch(before,after):null;lastUndo=patch?{patch,label:type==='buy'?'Acquisto registrato':type==='removeShopping'?'Prodotto rimosso dalla lista':type==='exhaust'?'Prodotto esaurito':'Quantità aggiornata'}:null;renderUndo();}return true;}catch(e){notify(e.message,true);renderList();return false;}}
 function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';page=target;search='';grace.clear();order=[];renderShell();}
 const defaultQuantity=unit=>unit==='g'?100:1;
 
@@ -160,7 +160,7 @@ document.addEventListener('click',async event=>{
 });
 matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').open)return;if(meta.ready&&(meta.preview||meta.authenticated))renderShell();else onStoreChange(state||{pantry:[],shopping:[],recipes:[]},meta);});
 function onStoreChange(next,nextMeta){
- state=next;meta=nextMeta;if(lastUndo&&!undoStillValid(state,lastUndo.patch)){lastUndo=null;renderUndo();}if(!meta.preview&&!meta.authenticated){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
+ state=next;meta=nextMeta;if(!meta.preview&&!meta.authenticated){lastUndo=null;$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
  if(!meta.ready){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';return;}
  if(!$('.shell'))renderShell();else{renderList();refreshSuggestions();updateAddUnitError();}
  const error=$('#sync-error');if(error){error.hidden=!meta.error;error.textContent=meta.error||'';}
