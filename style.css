@@ -100,3 +100,8 @@ body[data-page="recipes"]{--bg:#191107;--panel:#2b2011;--field:#1e160b;--surface
 .stepper button,.add-stepper button{-webkit-user-select:none;user-select:none;touch-action:manipulation}.pantry-product .stepper,.pantry-product .pantry-actions{align-self:flex-start}.pantry-filters{margin-top:0;gap:6px}@media(max-width:650px){.pantry-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:10px}.pantry-filters button{min-height:42px;font-size:.76rem;padding:8px 5px;white-space:nowrap}.pantry-product{padding:8px 10px;margin:5px 0}.pantry-product .product-name{font-size:.9rem}.pantry-product .buttons-only{gap:5px}.pantry-product .quantity-value{min-height:42px}}
 
 .meal-heading{margin-top:20px;padding:0 2px 7px;border-bottom:1px solid var(--line);font-size:.83rem;color:var(--accent)}.meal-heading:first-child{margin-top:4px}@media(max-width:650px){.meal-heading{margin-top:16px;font-size:.8rem;padding-bottom:5px}.editor-form select[name=meal]+.select-trigger{min-height:44px}}
+
+/* Keep option scrolling local and confirmations consistent with their section. */
+.select-options{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+#notice:not(.error){background:var(--accent-deep);border-color:var(--accent-line);color:var(--text)}
+

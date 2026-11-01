@@ -1,10 +1,10 @@
-import {enhanceSuggestions} from './suggestions.mjs?v=20261101-meals';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261101-menuscroll';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261101-meals';
+import {enhanceSelects} from './select-menu.mjs?v=20261101-menuscroll';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe} from './domain.mjs?v=20261101-meals';
-import {createStore} from './cloud.mjs?v=20261101-meals';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-meals';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe} from './domain.mjs?v=20261101-menuscroll';
+import {createStore} from './cloud.mjs?v=20261101-menuscroll';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-menuscroll';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;

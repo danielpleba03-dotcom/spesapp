@@ -22,6 +22,146 @@
         }
       ],
       "meal": "Dolci"
+    },
+    {
+      "id": "porridge-frutti-bosco",
+      "name": "PORRIDGE AI FRUTTI DI BOSCO",
+      "meal": "Colazioni",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.policlinico.mi.it/ladietaperfetta/ricette/15/porridge-di-fiocchi-davena-e-frutta-fresca",
+      "ingredients": [
+        {
+          "ingredient": "FIOCCHI DI AVENA",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.15,
+          "unit": "l"
+        },
+        {
+          "ingredient": "FRUTTI DI BOSCO",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.3,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "pasta-burro-parmigiano",
+      "name": "PASTA BURRO E PARMIGIANO",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.alimentinutrizione.it/tabelle-nutrizionali/PC0034",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 15,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "frittata-parmigiano",
+      "name": "FRITTATA AL PARMIGIANO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://blog.giallozafferano.it/peccatodigola/frittata/",
+      "ingredients": [
+        {
+          "ingredient": "UOVA",
+          "qty": 2,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO DI SEMI",
+          "qty": 0.005,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "mousse-cioccolato-acqua",
+      "name": "MOUSSE AL CIOCCOLATO ALL’ACQUA",
+      "meal": "Dolci",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://megcucinaveg.it/ricetta/mousse-cioccolato-acqua/",
+      "ingredients": [
+        {
+          "ingredient": "CIOCCOLATO FONDENTE",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.06,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "frullato-banana-limone",
+      "name": "FRULLATO BANANA E LIMONE",
+      "meal": "Merende",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.youtube.com/watch?v=8Oe55LU-ds0",
+      "ingredients": [
+        {
+          "ingredient": "BANANA",
+          "qty": 1,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.125,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SUCCO DI LIMONE",
+          "qty": 0.015,
+          "unit": "l"
+        }
+      ]
     }
   ]
 }
