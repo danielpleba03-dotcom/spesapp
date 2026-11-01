@@ -1,7 +1,7 @@
-import {slots,shares,localDate,addDays,monday,energyEstimate,emptyPlan,nutrition,recipeDigest,generateWeek,suggestions,mealKcal,mealLabel,mealLogs,dayTotals,mealIngredients,shoppingPlan} from './planning-domain.mjs?v=20261101-plan';
-import {createPlanningStore} from './planning-store.mjs?v=20261101-plan';
-import {reconcile} from './ui.mjs?v=20261101-plan';
-import {formatQuantity,round} from './domain.mjs?v=20261101-plan';
+import {slots,shares,localDate,addDays,monday,energyEstimate,emptyPlan,nutrition,recipeDigest,generateWeek,suggestions,mealKcal,mealLabel,mealLogs,dayTotals,mealIngredients,shoppingPlan} from './planning-domain.mjs?v=20261101-plan2';
+import {createPlanningStore} from './planning-store.mjs?v=20261101-plan2';
+import {reconcile} from './ui.mjs?v=20261101-plan2';
+import {formatQuantity,round} from './domain.mjs?v=20261101-plan2';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),pretty=d=>new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'numeric',month:'short'}).format(new Date(d+'T12:00:00'));
 const $=s=>document.querySelector(s),btn=(action,label,extra='')=>`<button type="button" data-plan="${action}" ${extra}>${label}</button>`;
 const input=(name,label,value='',attrs='')=>`<label>${label}<input name="${name}" value="${esc(value)}" ${attrs}></label>`;
