@@ -131,3 +131,12 @@ peso esatto dalle calorie e non cambia automaticamente il target confermato.
 Il formato privato del Piano è ora schema 2, compatibile in lettura con schema 1.
 Le regole impediscono il downgrade da schema 2 per proteggere le nuove informazioni
 da versioni vecchie ancora aperte. Nessuna modifica al formato della dispensa.
+
+## Piano semplificato · 1 novembre 2026
+Palette gialla comune a Piano e Ricettario. Pronti da mangiare è una vista separata:
+Mangia registra oggi, Rimuovi toglie subito la disponibilità. Nessun selettore frigo/freezer.
+Le settimane vengono create già attive: non è più richiesta una conferma prima della spesa.
+Altra proposta conserva i pasti passati e quelli già preparati o registrati.
+La vecchia programmazione manuale è esclusa dalla vista e dai fabbisogni attivi;
+i record storici, i consumi e le preparazioni restano conservati.
+Il peso si aggiorna soltanto dal Profilo, senza richieste settimanali.

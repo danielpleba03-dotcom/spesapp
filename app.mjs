@@ -1,11 +1,11 @@
-import {createPlannerUI} from './planning-ui.mjs?v=20261101-pasti';
-import {enhanceSuggestions} from './suggestions.mjs?v=20261101-pasti';
+import {createPlannerUI} from './planning-ui.mjs?v=20261101-giallo';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261101-giallo';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261101-pasti';
+import {enhanceSelects} from './select-menu.mjs?v=20261101-giallo';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261101-pasti';
-import {createStore} from './cloud.mjs?v=20261101-pasti';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-pasti';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261101-giallo';
+import {createStore} from './cloud.mjs?v=20261101-giallo';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-giallo';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
