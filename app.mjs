@@ -1,10 +1,10 @@
-import {enhanceSuggestions} from './suggestions.mjs?v=20261101-refinements2';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261101-moremeals';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261101-refinements2';
+import {enhanceSelects} from './select-menu.mjs?v=20261101-moremeals';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,applyAction,createUndoPatch,undoStillValid,formatQuantity} from './domain.mjs?v=20261101-refinements2';
-import {createStore} from './cloud.mjs?v=20261101-refinements2';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-refinements2';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261101-moremeals';
+import {createStore} from './cloud.mjs?v=20261101-moremeals';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261101-moremeals';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -18,8 +18,7 @@ document.addEventListener('pointerdown',()=>{if(mobile()&&matchMedia('(display-m
 const seed=await fetch('./seed.json',{signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error('Impossibile caricare le ricette.');return r.json();});
 const editingBaselines=new Map();
 let store,state,meta={},page=mobile()?'shopping':'pantry',search='',pantryFilter='Disponibili',recipeFilter='Fattibili adesso',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
-const leaving=new Map();let lastUndo=null,mealFilter='Tutti i pasti';
-function renderUndo(){const bar=$('#undo-bar');if(!bar)return;bar.hidden=!lastUndo;bar.innerHTML=lastUndo?`<span>${esc(lastUndo.label)}</span><button data-command="undo-last">↶ Annulla</button>`:'';}
+const leaving=new Map();let mealFilter='Tutti i pasti';
 
 function notify(message,error=false){
  const dialog=$('#editor');
@@ -27,7 +26,7 @@ function notify(message,error=false){
  const el=$('#notice');el.textContent=message;el.classList.toggle('error',error);el.style.display='block';clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>el.style.display='none',error?6500:3000);
 }
 
-function action(type,payload){try{const before=structuredClone(state),operation={id:crypto.randomUUID(),type,payload,at:Date.now()},after=applyAction(before,operation);store.dispatch(operation);if(!payload.undo){const patch=['quantity','buy','removeShopping','exhaust'].includes(type)?createUndoPatch(before,after):null;lastUndo=patch?{patch,label:type==='buy'?'Acquisto registrato':type==='removeShopping'?'Prodotto rimosso dalla lista':type==='exhaust'?'Prodotto esaurito':'Quantità aggiornata'}:null;renderUndo();}return true;}catch(e){notify(e.message,true);renderList();return false;}}
+function action(type,payload){try{store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});return true;}catch(e){notify(e.message,true);renderList();return false;}}
 function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';page=target;search='';grace.clear();order=[];renderShell();}
 const defaultQuantity=unit=>unit==='g'?100:1;
 
@@ -40,8 +39,8 @@ function addForm(){return `<form id="add-form" class="addform" ${mobile()&&!isAd
 function renderShell(){
  if(!state)return;
  document.body.dataset.page=page;
- $('#app').innerHTML=`<header class="topbar"><span class="brand">Spesapp<span style="color:var(--bright)">.</span></span><nav class="nav" aria-label="Sezioni"><button data-nav="pantry" class="${page==='pantry'?'active':''}">Dispensa</button><button data-nav="recipes" class="recipes-nav ${page==='recipes'?'active':''}">Ricette</button><button data-nav="shopping" class="${page==='shopping'?'active':''}"><span class="desktop-only">Lista della spesa</span><span class="phone-only">Spesa</span></button></nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:''}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${page==='recipes'?`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o ingrediente" placeholder="CERCA RICETTA O INGREDIENTE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="recipe-filterbar"><div class="filters">${filterButtons(['Fattibili adesso','Non fattibili','Preferite'],recipeFilter,'recipe')}</div><label class="meal-filter"><span class="sr-only">Filtra per pasto</span><select id="meal-filter" aria-label="Filtra per pasto">${['Tutti i pasti',...mealTypes,...(state.recipes.some(r=>mealForRecipe(r)==='Da classificare')?['Da classificare']:[])].map(m=>`<option ${mealFilter===m?'selected':''}>${m}</option>`).join('')}</select></label></div>`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div><div class="filters pantry-filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>`:addForm()}<section id="list" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section><aside id="undo-bar" class="undo-bar" aria-label="Ultima operazione" hidden></aside></main>`;
- renderList();updateAddUnitError();renderUndo();
+ $('#app').innerHTML=`<header class="topbar"><span class="brand">Spesapp<span style="color:var(--bright)">.</span></span><nav class="nav" aria-label="Sezioni"><button data-nav="pantry" class="${page==='pantry'?'active':''}">Dispensa</button><button data-nav="recipes" class="recipes-nav ${page==='recipes'?'active':''}">Ricette</button><button data-nav="shopping" class="${page==='shopping'?'active':''}"><span class="desktop-only">Lista della spesa</span><span class="phone-only">Spesa</span></button></nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:''}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${page==='recipes'?`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o ingrediente" placeholder="CERCA RICETTA O INGREDIENTE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="recipe-filterbar"><div class="filters">${filterButtons(['Fattibili adesso','Non fattibili','Preferite'],recipeFilter,'recipe')}</div><label class="meal-filter"><span class="sr-only">Filtra per pasto</span><select id="meal-filter" aria-label="Filtra per pasto">${['Tutti i pasti',...mealTypes,...(state.recipes.some(r=>mealForRecipe(r)==='Da classificare')?['Da classificare']:[])].map(m=>`<option ${mealFilter===m?'selected':''}>${m}</option>`).join('')}</select></label></div>`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div><div class="filters pantry-filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>`:addForm()}<section id="list" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
+ renderList();updateAddUnitError();
 }
 function quantityControl(p,kind,buttonsOnly=false){return `<div class="stepper ${buttonsOnly?'buttons-only':''}"><button ${kind==='pantry'&&p.qty<=0?'disabled':''} data-command="decrease" data-kind="${kind}" data-id="${esc(p.id)}" aria-label="Riduci ${esc(p.name)} di ${step(p.unit)} ${p.unit}">−</button>${buttonsOnly?`<output class="quantity-value" aria-label="Quantità ${esc(p.name)}">${formatQuantity(p.qty,p.unit)}</output>`:`<input type="number" min="${kind==='shopping'?(p.unit==='pz'?1:.000001):0}" max="1000000000" step="${p.unit==='pz'?1:'any'}" value="${p.qty}" data-quantity="${kind}" data-id="${esc(p.id)}" aria-label="Quantità ${esc(p.name)} in ${p.unit}" inputmode="decimal">`}<button data-command="increase" data-kind="${kind}" data-id="${esc(p.id)}" aria-label="Aumenta ${esc(p.name)} di ${step(p.unit)} ${p.unit}">＋</button></div>`;}
 function renderList(){
@@ -134,7 +133,6 @@ document.addEventListener('click',async event=>{
  if(button.dataset.nav){nav(button.dataset.nav);return;}
  if(button.dataset.filter){const {filter,value}=button.dataset;if(filter==='recipe')recipeFilter=value;else pantryFilter=value;grace.clear();order=[];for(const item of document.querySelectorAll(`[data-filter="${filter}"]`)){const active=item.dataset.value===value;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));}renderList();return;}
  const {command,id}=button.dataset;try{switch(command){
- case 'undo-last':{if(!lastUndo)break;const entry=lastUndo;lastUndo=null;renderUndo();leaving.clear();if(action('quantity',{undo:entry.patch})){grace.clear();order=[];renderList();notify('Ultima operazione annullata.');}break;}
  case 'toggle-add':if(page==='pantry'){pantryAddOpen=!pantryAddOpen;writePreference('spesapp-pantry-add-open',pantryAddOpen?'1':'0');}else{addOpen=!addOpen;writePreference('spesapp-add-open',addOpen?'1':'0');}const form=$('#add-form');if(form){form.hidden=!isAddOpen();form.style.display=isAddOpen()?'':'none';}button.setAttribute('aria-expanded',String(isAddOpen()));button.textContent=(isAddOpen()?'−':'＋')+' Prodotto';break;
  case 'add-increase':case 'add-decrease':{const f=$('#add-form');if(!f)break;refreshUnits(f);const q=f.elements.qty,amount=step(f.elements.unit.value),current=Number(q.value);const next=round((Number.isFinite(current)?current:0)+(command==='add-increase'?amount:-amount));q.value=next>0?Math.min(LIMITS.quantity,next):(current>0?current:defaultQuantity(f.elements.unit.value));q.dispatchEvent(new Event('input',{bubbles:true}));break;}
  case 'increase':case 'decrease':{const kind=button.dataset.kind,p=state[kind].find(p=>p.id===id);if(!p)break;if(kind==='pantry')markGrace(id);action('quantity',{kind,id,delta:step(p.unit)*(command==='increase'?1:-1)});break;}
@@ -160,7 +158,7 @@ document.addEventListener('click',async event=>{
 });
 matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').open)return;if(meta.ready&&(meta.preview||meta.authenticated))renderShell();else onStoreChange(state||{pantry:[],shopping:[],recipes:[]},meta);});
 function onStoreChange(next,nextMeta){
- state=next;meta=nextMeta;if(!meta.preview&&!meta.authenticated){lastUndo=null;$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
+ state=next;meta=nextMeta;if(!meta.preview&&!meta.authenticated){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
  if(!meta.ready){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';return;}
  if(!$('.shell'))renderShell();else{renderList();refreshSuggestions();updateAddUnitError();}
  const error=$('#sync-error');if(error){error.hidden=!meta.error;error.textContent=meta.error||'';}

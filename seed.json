@@ -162,6 +162,331 @@
           "unit": "l"
         }
       ]
+    },
+    {
+      "id": "pancake-classici",
+      "name": "PANCAKE CLASSICI",
+      "meal": "Colazioni",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://cookpad.com/it/ricette/14800991",
+      "ingredients": [
+        {
+          "ingredient": "FARINA 00",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "UOVA",
+          "qty": 1,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "ZUCCHERO DI CANNA",
+          "qty": 15,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.03,
+          "unit": "l"
+        },
+        {
+          "ingredient": "LIEVITO PER DOLCI",
+          "qty": 4,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "porridge-overnight",
+      "name": "PORRIDGE OVERNIGHT",
+      "meal": "Colazioni",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.nutrizionistasantini.it/porridge-overnight/",
+      "ingredients": [
+        {
+          "ingredient": "FIOCCHI DI AVENA",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.05,
+          "unit": "l"
+        },
+        {
+          "ingredient": "YOGURT GRECO",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO DI ARACHIDI",
+          "qty": 5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CONFETTURA",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIOCCOLATO FONDENTE",
+          "qty": 10,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "pasta-pomodoro",
+      "name": "PASTA AL POMODORO",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://alimentinutrizione.it/tabelle-nutrizionali/PC0016",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PASSATA DI POMODORO",
+          "qty": 125,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BASILICO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.0082,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "pasta-ricotta",
+      "name": "PASTA E RICOTTA",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://blog.giallozafferano.it/notadolce/pasta-e-ricotta-ricetta/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "RICOTTA",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.0075,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "caprese",
+      "name": "CAPRESE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.lospicchiodaglio.it/ricetta/caprese",
+      "ingredients": [
+        {
+          "ingredient": "MOZZARELLA",
+          "qty": 125,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BASILICO",
+          "qty": 1.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.015,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ORIGANO",
+          "qty": 0.2,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "uova-sode",
+      "name": "UOVA SODE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/uova-sode/",
+      "ingredients": [
+        {
+          "ingredient": "UOVA",
+          "qty": 2,
+          "unit": "pz"
+        }
+      ]
+    },
+    {
+      "id": "budino-cacao",
+      "name": "BUDINO AL CACAO",
+      "meal": "Dolci",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.agrodolce.it/ricette/budino-al-cacao",
+      "ingredients": [
+        {
+          "ingredient": "LATTE",
+          "qty": 0.125,
+          "unit": "l"
+        },
+        {
+          "ingredient": "ZUCCHERO",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AMIDO DI MAIS",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CACAO AMARO",
+          "qty": 10,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "salame-cioccolato-senza-uova",
+      "name": "SALAME DI CIOCCOLATO SENZA UOVA",
+      "meal": "Dolci",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.unafamigliaincucina.com/salame-di-cioccolato-senza-uova/",
+      "ingredients": [
+        {
+          "ingredient": "CIOCCOLATO AL LATTE",
+          "qty": 43.3,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 23.3,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BISCOTTI SECCHI",
+          "qty": 28.3,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ZUCCHERO A VELO",
+          "qty": 2,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "yogurt-greco-miele-noci",
+      "name": "YOGURT GRECO MIELE E NOCI",
+      "meal": "Merende",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.irispiti.it/yogurt-greco-con-miele-e-noci/",
+      "ingredients": [
+        {
+          "ingredient": "YOGURT GRECO",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "MIELE",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "NOCI",
+          "qty": 5,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "frullato-fragole",
+      "name": "FRULLATO DI FRAGOLE",
+      "meal": "Merende",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://ricetta.it/frullato-di-fragole",
+      "ingredients": [
+        {
+          "ingredient": "FRAGOLE",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.25,
+          "unit": "l"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.02,
+          "unit": "l"
+        }
+      ]
     }
   ]
 }
