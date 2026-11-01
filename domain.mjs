@@ -105,6 +105,14 @@ export function validateAction(action){
  const allowed=['addPantry','addShopping','quantity','exhaust','deletePantry','removeShopping','buy','saveRecipe','deleteRecipe','cook','import'];if(!allowed.includes(action.type))fail('Operazione non riconosciuta.');
  return action;
 }
+// Undo only the affected product rows, never a whole archive snapshot.
+const productSnapshot=p=>p?{id:p.id,name:p.name,category:p.category,qty:p.qty,unit:p.unit}:null;
+export function createUndoPatch(before,after){
+ const patch=[];for(const kind of ['pantry','shopping'])for(const id of new Set([...before[kind],...after[kind]].map(p=>p.id))){const previous=productSnapshot(before[kind].find(p=>p.id===id)),next=productSnapshot(after[kind].find(p=>p.id===id));if(JSON.stringify(previous)!==JSON.stringify(next))patch.push({kind,id,before:structuredClone(previous),after:structuredClone(next)});}
+ return patch.length&&patch.length<=2?patch:null;
+}
+export function undoStillValid(state,patch){return Array.isArray(patch)&&patch.length>0&&patch.every(p=>['pantry','shopping'].includes(p.kind)&&JSON.stringify(productSnapshot(state[p.kind].find(x=>x.id===p.id)))===JSON.stringify(productSnapshot(p.after)));}
+export function formatQuantity(qty,unit){const small=unit==='l'&&Math.abs(qty)>0&&Math.abs(qty)<1;return new Intl.NumberFormat('it-IT',{maximumFractionDigits:6}).format(round(small?qty*1000:qty))+' '+(small?'ML':unit==='pz'?'P':unit.toUpperCase());}
 export function applyAction(original,action){
  validateAction(action);if(original.applied?.includes(action.id))return structuredClone(original);
  const s=structuredClone(original),a=action.payload;s.units||={};s.counts||={};s.applied||=[];
@@ -112,7 +120,11 @@ export function applyAction(original,action){
  const upsert=p=>{lockUnit(s,p.name,p.unit);const existing=s.pantry.find(x=>x.name===p.name);if(existing){const qty=round(existing.qty+p.qty);validProduct({...existing,qty,category:p.category});existing.qty=qty;existing.category=p.category;}else s.pantry.push({...p,id:p.pantryId||p.id});};
  switch(action.type){
  case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){const qty=round(existing.qty+item.qty);validProduct({...existing,qty},true);existing.qty=qty;}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
- case 'quantity':{if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;break;}
+ case 'quantity':{if(a.undo!==undefined){const patch=a.undo;if(!Array.isArray(patch)||!patch.length||patch.length>2)fail('Ripristino non valido.');const seen=new Set();for(const item of patch){if(!record(item)||!['pantry','shopping'].includes(item.kind))fail('Ripristino non valido.');identifier(item.id);const key=item.kind+':'+item.id;if(seen.has(key))fail('Ripristino duplicato.');seen.add(key);for(const value of [item.before,item.after])if(value!==null){validProduct(value,item.kind==='shopping');if(value.id!==item.id||name(value.name)!==value.name)fail('Ripristino non valido.');}if(item.before===null&&item.after===null)fail('Ripristino vuoto.');}
+ if(!undoStillValid(s,patch))fail('Questo prodotto è cambiato nel frattempo. Non posso annullare senza sovrascrivere le modifiche.');
+ for(const item of patch){s[item.kind]=s[item.kind].filter(p=>p.id!==item.id);if(item.before)s[item.kind].push({id:identifier(item.before.id),name:name(item.before.name),category:item.before.category,qty:number(item.before.qty),unit:item.before.unit});}
+ for(const item of patch)if(item.before){lockUnit(s,item.before.name,item.before.unit);if(item.before.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===item.before.name)))fail('Questo prodotto è ora usato in una ricetta.');}
+ validateState(s);break;}if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;break;}
  case 'exhaust':{const p=find('pantry',a.id);if(p)p.qty=0;break;}
  case 'deletePantry':{const p=find('pantry',a.id);if(p&&p.qty<=0)s.pantry=s.pantry.filter(x=>x.id!==p.id);break;}
  case 'removeShopping':s.shopping=s.shopping.filter(p=>p.id!==String(a.id));break;
@@ -126,3 +138,4 @@ export function applyAction(original,action){
  rebuildProductUnits(s);
  s.applied=[...new Set([...s.applied,action.id])].slice(-1500);assertCapacity(s);return s;
 }
+
