@@ -42,7 +42,7 @@ export function recipeStatus(state,r){
  return {ingredients,missing,unitConflicts,possible:ingredients.length>0&&missing.length===0&&unitConflicts.length===0,preparations:unitConflicts.length?0:preparations};
 }
 export function preparationStatus(state,recipe,people=1,actual=null){
- const factor=number(people);if(!Number.isInteger(factor)||factor<1||factor>1000)fail('Inserisci un numero intero di persone tra 1 e 1000.');
+ const factor=number(people);if(!Number.isInteger(factor)||factor<1||factor>1000)fail('Inserisci un numero intero di porzioni tra 1 e 1000.');
  const status=recipeStatus(state,recipe);if(status.unitConflicts.length)fail('Correggi unità e dosi della ricetta: '+status.unitConflicts.map(i=>`${i.ingredient} usa ${i.expected==='pz'?'P':i.expected.toUpperCase()} in dispensa o nella lista`).join(', ')+'.');
  const base=status.ingredients,byKey=new Map(base.map(i=>[i.ingredient+'|'+i.unit,i]));
  let ingredients;
