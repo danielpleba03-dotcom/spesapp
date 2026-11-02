@@ -28,3 +28,6 @@ GitHub Pages e Firebase Spark non richiedono il PC acceso. Restare su Spark senz
 
 ## Anteprima
 Servire questa cartella con HTTP e aprire ?preview=1 su localhost. L’anteprima usa dati separati nel browser e non si collega a Firebase.
+
+## Aggiornamento 20261102-diretta
+Generazione immediata senza quiz: nessun limite di tempo, priorità alla dispensa, pranzo collegato alla cena precedente. Venti nuove ricette (10 primi e 10 secondi), Colazioni e Dolci conservati, Merende rimosse dal catalogo iniziale e dalle scelte. Badge kcal per una persona: stime indicative dagli ingredienti, nessun diario o profilo calorico. Valore manuale facoltativo nel modulo ricetta; se mancano riferimenti compatibili non si mostra un totale parziale. Alimentari in dispensa in ordine alfabetico.

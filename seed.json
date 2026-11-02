@@ -138,32 +138,6 @@
       ]
     },
     {
-      "id": "frullato-banana-limone",
-      "name": "FRULLATO BANANA E LIMONE",
-      "meal": "Merende",
-      "servings": 1,
-      "instructions": "",
-      "tools": [],
-      "source_url": "https://www.youtube.com/watch?v=8Oe55LU-ds0",
-      "ingredients": [
-        {
-          "ingredient": "BANANA",
-          "qty": 1,
-          "unit": "pz"
-        },
-        {
-          "ingredient": "ACQUA",
-          "qty": 0.125,
-          "unit": "l"
-        },
-        {
-          "ingredient": "SUCCO DI LIMONE",
-          "qty": 0.015,
-          "unit": "l"
-        }
-      ]
-    },
-    {
       "id": "pancake-classici",
       "name": "PANCAKE CLASSICI",
       "meal": "Colazioni",
@@ -437,54 +411,1127 @@
       ]
     },
     {
-      "id": "yogurt-greco-miele-noci",
-      "name": "YOGURT GRECO MIELE E NOCI",
-      "meal": "Merende",
+      "id": "classic-20261102-1",
+      "name": "PASTA E CECI",
+      "meal": "Primi",
       "servings": 1,
       "instructions": "",
       "tools": [],
-      "source_url": "https://www.irispiti.it/yogurt-greco-con-miele-e-noci/",
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-e-ceci/",
       "ingredients": [
         {
-          "ingredient": "YOGURT GRECO",
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CECI SECCHI",
           "qty": 100,
           "unit": "g"
         },
         {
-          "ingredient": "MIELE",
+          "ingredient": "CAROTE",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SEDANO",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ROSMARINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
           "qty": 0.01,
           "unit": "l"
         },
         {
-          "ingredient": "NOCI",
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.3,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-2",
+      "name": "PASTA E FAGIOLI",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-pasta-fagioli/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "FAGIOLI BORLOTTI FRESCHI",
+          "qty": 130,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SEDANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CAROTE",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CONCENTRATO DI POMODORO",
+          "qty": 4,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ALLORO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ROSMARINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.3,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LARDO",
           "qty": 5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.3,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-3",
+      "name": "PASTA E PATATE",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-e-patate/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PATATE",
+          "qty": 125,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SEDANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CAROTE",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANCETTA",
+          "qty": 15,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.015,
+          "unit": "l"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
           "unit": "g"
         }
       ]
     },
     {
-      "id": "frullato-fragole",
-      "name": "FRULLATO DI FRAGOLE",
-      "meal": "Merende",
+      "id": "classic-20261102-4",
+      "name": "PASTA CON ZUCCHINE",
+      "meal": "Primi",
       "servings": 1,
       "instructions": "",
       "tools": [],
-      "source_url": "https://ricetta.it/frullato-di-fragole",
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-con-zucchine/",
       "ingredients": [
         {
-          "ingredient": "FRAGOLE",
+          "ingredient": "PASTA",
+          "qty": 62.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ZUCCHINE",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "MENTA",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-5",
+      "name": "SPAGHETTI AL POMODORO E TONNO",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/spaghetti-al-pomodoro-e-tonno/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "TONNO SOTTOLIO",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 37.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ORIGANO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ACCIUGHE SOTTOLIO",
+          "qty": 2,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BASILICO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-6",
+      "name": "PASTA PANNA E PROSCIUTTO",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-panna-e-prosciutto/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 90,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 12.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PROSCIUTTO COTTO",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANNA DA CUCINA",
+          "qty": 0.05,
+          "unit": "l"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-7",
+      "name": "PASTA ALLA NORMA",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-pasta-norma/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "MELANZANE",
           "qty": 200,
           "unit": "g"
         },
         {
-          "ingredient": "LATTE",
+          "ingredient": "POMODORI",
+          "qty": 250,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "BASILICO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "RICOTTA SALATA",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ZUCCHERO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO DI SEMI",
+          "qty": 0.03,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-8",
+      "name": "RISOTTO ALLO ZAFFERANO",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/risotto-allo-zafferano/",
+      "ingredients": [
+        {
+          "ingredient": "RISO",
+          "qty": 90,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BRODO DI CARNE",
           "qty": 0.25,
           "unit": "l"
         },
         {
-          "ingredient": "ACQUA",
-          "qty": 0.02,
+          "ingredient": "CIPOLLE",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ZAFFERANO",
+          "qty": 0.05,
+          "unit": "g"
+        },
+        {
+          "ingredient": "GRANA PADANO",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 25,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-9",
+      "name": "RISOTTO AI FUNGHI PORCINI",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-risotto-funghi/",
+      "ingredients": [
+        {
+          "ingredient": "RISO",
+          "qty": 70,
+          "unit": "g"
+        },
+        {
+          "ingredient": "FUNGHI PORCINI",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SCALOGNO",
+          "qty": 15,
+          "unit": "g"
+        },
+        {
+          "ingredient": "VINO BIANCO",
+          "qty": 0.025,
           "unit": "l"
+        },
+        {
+          "ingredient": "BRODO VEGETALE",
+          "qty": 0.375,
+          "unit": "l"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 12.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.005,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-10",
+      "name": "SPAGHETTI AGLIO OLIO E PEPERONCINO",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/spaghetti-aglio-olio-e-peperoncino/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 1.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPERONCINO",
+          "qty": 2,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.015,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-11",
+      "name": "POLLO ALLA PIZZAIOLA",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pollo-alla-pizzaiola/",
+      "ingredients": [
+        {
+          "ingredient": "PETTO DI POLLO",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "MOZZARELLA",
+          "qty": 60,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANGRATTATO",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "UOVA",
+          "qty": 1,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "PASSATA DI POMODORO",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SCORZA DI LIMONE",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 60,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BASILICO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ORIGANO",
+          "qty": 0.2,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.015,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-12",
+      "name": "SCALOPPINE AL LIMONE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/scaloppine-al-limone/",
+      "ingredients": [
+        {
+          "ingredient": "VITELLO A FETTE",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SUCCO DI LIMONE",
+          "qty": 0.015,
+          "unit": "l"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "FARINA 00",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-13",
+      "name": "POLPETTE AL SUGO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/polpette-al-sugo/",
+      "ingredients": [
+        {
+          "ingredient": "PANE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.025,
+          "unit": "l"
+        },
+        {
+          "ingredient": "MANZO MACINATO",
+          "qty": 130,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 7,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POLPA DI POMODORO",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CONCENTRATO DI POMODORO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.0075,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-14",
+      "name": "FRITTATINA PATATE E PEPERONI",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-frittatina-patate-peperoni/",
+      "ingredients": [
+        {
+          "ingredient": "PATATE",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPERONI",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "UOVA",
+          "qty": 1,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "ERBA CIPOLLINA",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PAPRIKA",
+          "qty": 0.3,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-15",
+      "name": "FRITTATA DI SPINACI",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/frittata-di-spinaci/",
+      "ingredients": [
+        {
+          "ingredient": "UOVA",
+          "qty": 2,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "SPINACI",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.025,
+          "unit": "l"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.005,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-16",
+      "name": "SALMONE AL FORNO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/salmone-al-forno/",
+      "ingredients": [
+        {
+          "ingredient": "SALMONE",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CORNFLAKES NON ZUCCHERATI",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "VINO BIANCO",
+          "qty": 0.025,
+          "unit": "l"
+        },
+        {
+          "ingredient": "FINOCCHIETTO",
+          "qty": 5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-17",
+      "name": "MERLUZZO IN UMIDO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/merluzzo-in-umido/",
+      "ingredients": [
+        {
+          "ingredient": "MERLUZZO",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POLPA DI POMODORO",
+          "qty": 62.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PATATE",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ACCIUGHE SOTTOLIO",
+          "qty": 6,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "VINO BIANCO",
+          "qty": 0.025,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-18",
+      "name": "LENTICCHIE IN UMIDO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-lenticchie-umido/",
+      "ingredients": [
+        {
+          "ingredient": "LENTICCHIE SECCHE",
+          "qty": 62.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANCETTA",
+          "qty": 7.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SEDANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CAROTE",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALVIA",
+          "qty": 0.25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POLPA DI POMODORO",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-19",
+      "name": "UOVA STRAPAZZATE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/uova-strapazzate/",
+      "ingredients": [
+        {
+          "ingredient": "UOVA",
+          "qty": 2,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 10,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-20",
+      "name": "POLLO ALLE MANDORLE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pollo-alle-mandorle/",
+      "ingredients": [
+        {
+          "ingredient": "PETTO DI POLLO",
+          "qty": 125,
+          "unit": "g"
+        },
+        {
+          "ingredient": "MANDORLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALSA DI SOIA",
+          "qty": 0.015,
+          "unit": "l"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.0075,
+          "unit": "l"
+        },
+        {
+          "ingredient": "CIPOLLOTTI",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ZENZERO",
+          "qty": 3,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO DI SEMI",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "FARINA DI RISO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
         }
       ]
     }
