@@ -1,13 +1,13 @@
-import {calorieBadge} from './recipe-calories.mjs?v=20261102-zoom';
-import {classicRecipes} from './classic-recipes.mjs?v=20261102-zoom';
-import {createWeekUI} from './week-ui.mjs?v=20261102-zoom';
-import {enhanceSuggestions} from './suggestions.mjs?v=20261102-zoom';
+import {calorieBadge} from './recipe-calories.mjs?v=20261102-ricette20';
+import {classicRecipes} from './classic-recipes.mjs?v=20261102-ricette20';
+import {createWeekUI} from './week-ui.mjs?v=20261102-ricette20';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261102-ricette20';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261102-zoom';
+import {enhanceSelects} from './select-menu.mjs?v=20261102-ricette20';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261102-zoom';
-import {createStore} from './cloud.mjs?v=20261102-zoom';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261102-zoom';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261102-ricette20';
+import {createStore} from './cloud.mjs?v=20261102-ricette20';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261102-ricette20';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -134,7 +134,7 @@ document.addEventListener('click',async event=>{
  case 'exhaust':button.disabled=true;if(!action('exhaust',{id}))button.disabled=false;break;
  case 'delete-pantry':button.disabled=true;if(!action('deletePantry',{id}))button.disabled=false;break;
  case 'catalog-review':showCatalogReview();break;
- case 'catalog-add':button.disabled=true;if(action('saveRecipe',{recipes:classicRecipes})){notify('Nuove ricette aggiunte.');showCatalogReview();}else button.disabled=false;break;
+ case 'catalog-add':{button.disabled=true;const missing=classicRecipes.filter(r=>!state.recipes.some(x=>x.name===r.name));let saved=true;for(let i=0;i<missing.length;i+=40){if(!action('saveRecipe',{recipes:missing.slice(i,i+40)})){saved=false;break;}}if(saved)notify('Nuove ricette aggiunte.');showCatalogReview();break;}
  case 'catalog-delete-snacks':button.disabled=true;for(const r of catalogReviewLegacy){if(!action('deleteRecipe',{id:r.id,expected:r}))break;}showCatalogReview();break;
  case 'recipe-catalog':recipesView='catalog';renderShell();break;
  case 'recipe-week':recipesView='week';renderShell();break;
