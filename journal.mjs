@@ -1,4 +1,4 @@
-import {validateAction,DomainError} from './domain.mjs?v=20261102-equilibrio';
+import {validateAction,DomainError} from './domain.mjs?v=20261102-calendario';
 // One immutable local entry per operation: tabs never overwrite a shared array.
 export function createJournal(storage,uid){
  const prefix='spesapp-operation-'+encodeURIComponent(uid)+':',legacy='spesapp-pending-'+uid,undoPrefix='spesapp-undo-operation-'+encodeURIComponent(uid)+':';

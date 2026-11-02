@@ -1,13 +1,13 @@
-import {calorieBadge} from './recipe-calories.mjs?v=20261102-equilibrio';
-import {classicRecipes} from './classic-recipes.mjs?v=20261102-equilibrio';
-import {createWeekUI} from './week-ui.mjs?v=20261102-equilibrio';
-import {enhanceSuggestions} from './suggestions.mjs?v=20261102-equilibrio';
+import {calorieBadge} from './recipe-calories.mjs?v=20261102-calendario';
+import {classicRecipes} from './classic-recipes.mjs?v=20261102-calendario';
+import {createWeekUI} from './week-ui.mjs?v=20261102-calendario';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261102-calendario';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261102-equilibrio';
+import {enhanceSelects} from './select-menu.mjs?v=20261102-calendario';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261102-equilibrio';
-import {createStore} from './cloud.mjs?v=20261102-equilibrio';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261102-equilibrio';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261102-calendario';
+import {createStore} from './cloud.mjs?v=20261102-calendario';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261102-calendario';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -20,7 +20,7 @@ phonePresentation();addEventListener('orientationchange',phonePresentation);scre
 document.addEventListener('pointerdown',()=>{if(mobile()&&matchMedia('(display-mode:standalone)').matches)try{screen.orientation?.lock?.('portrait').catch(()=>{});}catch{}},{once:true});
 const seed=await fetch('./seed.json',{signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error('Impossibile caricare le ricette.');return r.json();});
 const editingBaselines=new Map();
-let weekUI=null,recipesView='catalog',catalogReviewLegacy=[];const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
+let weekUI=null,recipesView='week',catalogReviewLegacy=[];const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
 let store,state,meta={},page=mobile()?'shopping':'pantry',search='',pantryFilter='Disponibili',recipeFilter='Fattibili adesso',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
 const leaving=new Map();let mealFilter='Tutti i pasti';
 
@@ -31,7 +31,7 @@ function notify(message,error=false){
 }
 
 function action(type,payload){try{store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});return true;}catch(e){notify(e.message,true);renderList();return false;}}
-function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';page=target;search='';grace.clear();order=[];renderShell();}
+function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';if(target==='recipes')recipesView='week';page=target;search='';grace.clear();order=[];renderShell();}
 const defaultQuantity=unit=>unit==='g'?100:1;
 
 
