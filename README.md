@@ -5,7 +5,7 @@ App personale installabile, solo dark, per PC e telefono.
 ## Funzioni attive
 - Spesa, Dispensa e Ricette.
 - Ricette → Preparata: numero di persone, moltiplicatori ×2–×5 e quantità effettive modificabili. La conferma scala soltanto la dispensa e non modifica la ricetta.
-- Ricette → Settimana: questionario obbligatorio prima della generazione, pranzo e cena da lunedì a venerdì, collegamento fra cena e pranzo successivo, cambio ricetta per pasto.
+- Ricette → Settimana: generazione diretta senza questionario, pranzo e cena da lunedì a venerdì, collegamento fra cena e pranzo successivo, cambio ricetta per pasto.
 - La Settimana organizza soltanto la spesa. Aprire una ricetta non consuma ingredienti. Il consumo si conferma esclusivamente dalla scheda con Preparata.
 - Spesa settimanale aggregata: sottrae dispensa e lista esistente, conta una sola volta ogni porzione di cena e pranzo collegati.
 
