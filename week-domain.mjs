@@ -1,4 +1,4 @@
-import {normalize,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=20261102-calendario';
+import {normalize,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=20261102-apertura';
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 export const localDate=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export function date(v){if(typeof v!=='string'||!/^20\d\d-\d\d-\d\d$/.test(v)||localDate(new Date(v+'T12:00:00'))!==v)fail('Data non valida.');return v;}

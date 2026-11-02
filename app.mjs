@@ -1,13 +1,13 @@
-import {calorieBadge} from './recipe-calories.mjs?v=20261102-calendario';
-import {classicRecipes} from './classic-recipes.mjs?v=20261102-calendario';
-import {createWeekUI} from './week-ui.mjs?v=20261102-calendario';
-import {enhanceSuggestions} from './suggestions.mjs?v=20261102-calendario';
+import {calorieBadge} from './recipe-calories.mjs?v=20261102-apertura';
+import {classicRecipes} from './classic-recipes.mjs?v=20261102-apertura';
+import {createWeekUI} from './week-ui.mjs?v=20261102-apertura';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261102-apertura';
 enhanceSuggestions();
-import {enhanceSelects} from './select-menu.mjs?v=20261102-calendario';
+import {enhanceSelects} from './select-menu.mjs?v=20261102-apertura';
 enhanceSelects();
-import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261102-calendario';
-import {createStore} from './cloud.mjs?v=20261102-calendario';
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261102-calendario';
+import {normalize,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261102-apertura';
+import {createStore} from './cloud.mjs?v=20261102-apertura';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261102-apertura';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -158,8 +158,8 @@ document.addEventListener('click',async event=>{
 matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').open)return;if(meta.ready&&(meta.preview||meta.authenticated))renderShell();else onStoreChange(state||{pantry:[],shopping:[],recipes:[]},meta);});
 function onStoreChange(next,nextMeta){
  state=next;meta=nextMeta;if(!meta.preview&&!meta.authenticated){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
- if(!meta.ready){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';return;}
- if(!$('.shell'))renderShell();else{renderList();refreshSuggestions();updateAddUnitError();}
+ if(!meta.ready){$('#editor').close();if(mobile()){$('#app').innerHTML='<header class="topbar startup-navigation"><span class="brand desktop-only">Spesapp.</span><nav class="nav" aria-label="Sezioni"><button disabled class="active">Spesa</button><button disabled>Dispensa</button><button disabled>Piano</button></nav></header><main class="shell opening-shell" aria-busy="true" aria-label="Caricamento della lista della spesa"><div class="opening-placeholder" aria-hidden="true"></div><div class="opening-placeholder" aria-hidden="true"></div><span class="sr-only" role="status">Caricamento dei tuoi dati</span></main>';const status=$('#app [role=status]');status.textContent=meta.error||(meta.online===false?'Connettiti per il primo caricamento dei dati.':'Caricamento dei tuoi dati');if(meta.error||meta.online===false){const main=$('.opening-shell');main.insertAdjacentHTML('beforeend','<p class="sync-error" role="alert">'+esc(status.textContent)+'</p><button data-command="retry">Riprova</button>');}return;}$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';return;}
+ if(!$('.shell')||$('.opening-shell'))renderShell();else{renderList();refreshSuggestions();updateAddUnitError();}
  weekUI?.refresh();updatePreparationAvailability();
  const error=$('#sync-error');if(error){error.hidden=!meta.error;error.textContent=meta.error||'';}
 }

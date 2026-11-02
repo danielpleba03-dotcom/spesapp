@@ -1,7 +1,7 @@
-import {calorieBadge} from './recipe-calories.mjs?v=20261102-calendario';
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,mealExpired,alternativeRecipe} from './week-domain.mjs?v=20261102-calendario';
-import {createWeekStore} from './week-store.mjs?v=20261102-calendario';
-import {reconcile} from './ui.mjs?v=20261102-calendario';
+import {calorieBadge} from './recipe-calories.mjs?v=20261102-apertura';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,mealExpired,alternativeRecipe} from './week-domain.mjs?v=20261102-apertura';
+import {createWeekStore} from './week-store.mjs?v=20261102-apertura';
+import {reconcile} from './ui.mjs?v=20261102-apertura';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),pretty=d=>new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'numeric',month:'short'}).format(new Date(d+'T12:00:00')),$=s=>document.querySelector(s);
 const btn=(action,label,extra='')=>`<button type="button" data-week="${action}" ${extra}>${label}</button>`;
 export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false,pending:0,error:''},store,start=addDays(monday(),[0,6].includes(new Date(localDate()+'T12:00:00').getDay())?7:0),selectedDay=start,variant=0,context=null;
