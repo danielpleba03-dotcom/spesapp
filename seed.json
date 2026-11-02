@@ -8,7 +8,7 @@
       "instructions": "",
       "tools": [],
       "source_url": "https://blog.giallozafferano.it/incucinadaeva/budino-banana-e-cioccolato-fondente/",
-      "source_title": "In cucina da Eva · GialloZafferano",
+      "source_title": "In cucina da Eva Â· GialloZafferano",
       "ingredients": [
         {
           "ingredient": "BANANA",
@@ -118,7 +118,7 @@
     },
     {
       "id": "mousse-cioccolato-acqua",
-      "name": "MOUSSE AL CIOCCOLATO ALL’ACQUA",
+      "name": "MOUSSE AL CIOCCOLATO ALLâ€™ACQUA",
       "meal": "Dolci",
       "servings": 1,
       "instructions": "",
@@ -1531,6 +1531,648 @@
         {
           "ingredient": "AGLIO",
           "qty": 0.75,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-21",
+      "name": "COUS COUS DI VERDURE",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-cous-cous-verdure/",
+      "ingredients": [
+        {
+          "ingredient": "COUS COUS",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ZUCCHINE",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "MELANZANE",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PISELLI",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PORRI",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIVE TAGGIASCHE",
+          "qty": 5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CAPPERI",
+          "qty": 2.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BASILICO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ACQUA",
+          "qty": 0.04,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-22",
+      "name": "RISOTTO ALLA ZUCCA",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/risotto-alla-zucca/",
+      "ingredients": [
+        {
+          "ingredient": "ZUCCA",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "RISO",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "VINO BIANCO",
+          "qty": 0.025,
+          "unit": "l"
+        },
+        {
+          "ingredient": "BRODO VEGETALE",
+          "qty": 0.25,
+          "unit": "l"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-23",
+      "name": "PASTA E PISELLI",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-e-piselli/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 87.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PISELLI",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-24",
+      "name": "PASTA E LENTICCHIE",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-e-lenticchie/",
+      "ingredients": [
+        {
+          "ingredient": "PASTA",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LENTICCHIE COTTE",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANCETTA",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PASSATA DI POMODORO",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SEDANO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CAROTE",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BRODO VEGETALE",
+          "qty": 0.25,
+          "unit": "l"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "TIMO",
+          "qty": 0.2,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-25",
+      "name": "PASTA CON SPINACI",
+      "meal": "Primi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-con-spinaci/",
+      "ingredients": [
+        {
+          "ingredient": "SPINACI",
+          "qty": 125,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PASTA",
+          "qty": 80,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 10,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-26",
+      "name": "POLLO AL LIMONE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/pollo-al-limone/",
+      "ingredients": [
+        {
+          "ingredient": "POLLO",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LIMONE",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "AGLIO",
+          "qty": 0.75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-27",
+      "name": "PETTO DI POLLO AL FORNO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/petto-di-pollo-al-forno/",
+      "ingredients": [
+        {
+          "ingredient": "PETTO DI POLLO",
+          "qty": 180,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LATTE",
+          "qty": 0.005,
+          "unit": "l"
+        },
+        {
+          "ingredient": "ROSMARINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "ORIGANO",
+          "qty": 0.2,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALVIA",
+          "qty": 0.2,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.005,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-28",
+      "name": "HAMBURGER DI CECI",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/hamburger-di-ceci/",
+      "ingredients": [
+        {
+          "ingredient": "CECI COTTI",
+          "qty": 112.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANGRATTATO",
+          "qty": 10,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SCALOGNO",
+          "qty": 15,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CAROTE",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BRODO VEGETALE",
+          "qty": 0.025,
+          "unit": "l"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-29",
+      "name": "POLPETTE DI LENTICCHIE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/polpette-di-lenticchie/",
+      "ingredients": [
+        {
+          "ingredient": "LENTICCHIE COTTE",
+          "qty": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PARMIGIANO REGGIANO",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PANGRATTATO",
+          "qty": 35,
+          "unit": "g"
+        },
+        {
+          "ingredient": "UOVA",
+          "qty": 1,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO DI SEMI",
+          "qty": 0.015,
+          "unit": "l"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-30",
+      "name": "ORATA AL FORNO",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/orata-al-forno/",
+      "ingredients": [
+        {
+          "ingredient": "ORATA",
+          "qty": 250,
+          "unit": "g"
+        },
+        {
+          "ingredient": "POMODORI",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 60,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LIMONE",
+          "qty": 75,
+          "unit": "g"
+        },
+        {
+          "ingredient": "VINO BIANCO",
+          "qty": 0.05,
+          "unit": "l"
+        },
+        {
+          "ingredient": "ALLORO",
+          "qty": 0.1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-31",
+      "name": "SOGLIOLA ALLA MUGNAIA",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/sogliola-alla-mugnaia/",
+      "ingredients": [
+        {
+          "ingredient": "SOGLIOLA",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "ingredient": "FARINA 00",
+          "qty": 15,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 25,
+          "unit": "g"
+        },
+        {
+          "ingredient": "LIMONE",
+          "qty": 37.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PREZZEMOLO",
+          "qty": 1,
+          "unit": "g"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "PEPE NERO",
+          "qty": 0.1,
+          "unit": "g"
+        }
+      ]
+    },
+    {
+      "id": "classic-20261102-32",
+      "name": "FRITTATA DI CIPOLLE",
+      "meal": "Secondi",
+      "servings": 1,
+      "instructions": "",
+      "tools": [],
+      "source_url": "https://www.cucchiaio.it/ricetta/frittata-di-cipolle/",
+      "ingredients": [
+        {
+          "ingredient": "UOVA",
+          "qty": 2,
+          "unit": "pz"
+        },
+        {
+          "ingredient": "CIPOLLE",
+          "qty": 60,
+          "unit": "g"
+        },
+        {
+          "ingredient": "MAGGIORANA",
+          "qty": 0.2,
+          "unit": "g"
+        },
+        {
+          "ingredient": "OLIO EXTRAVERGINE DI OLIVA",
+          "qty": 0.01,
+          "unit": "l"
+        },
+        {
+          "ingredient": "SALE FINO",
+          "qty": 0.5,
+          "unit": "g"
+        },
+        {
+          "ingredient": "BURRO",
+          "qty": 5,
           "unit": "g"
         }
       ]

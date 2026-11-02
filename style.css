@@ -141,3 +141,5 @@ body[data-page=plan]{--bg:#191107;--panel:#2b2011;--field:#1e160b;--surface:#342
 @media(max-width:650px){.recipe summary{gap:6px}.recipe-kcal{font-size:.64rem;padding:4px 5px}.catalog-review{columns:1}}
 
 .recipe-week-meal>.recipe-kcal{justify-self:start}
+
+.week-date-row{display:grid;grid-template-columns:44px minmax(0,190px) 44px;align-items:end;justify-content:center;gap:10px}.week-date-row>button{display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;line-height:1;font-size:1.6rem}.week-date-row>label{width:100%;max-width:none;margin:0}.week-date-row input{height:44px;max-width:100%;padding:8px;min-width:0}.recipe-week-meal.meal-past{background:#1c1c1c;border-color:#414141;box-shadow:none;filter:grayscale(1);opacity:.62}.meal-past>strong,.meal-past button{color:#aaa}.meal-past button{cursor:default;opacity:1}.meal-past button:hover{background:inherit;border-color:#414141}@media(max-width:650px){.week-date-row{grid-template-columns:44px minmax(0,180px) 44px;gap:10px;width:100%;margin:10px 0 16px}.week-date-row>button{flex:none}.week-date-row>label{min-width:0}}

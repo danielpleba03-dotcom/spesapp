@@ -31,3 +31,6 @@ Servire questa cartella con HTTP e aprire ?preview=1 su localhost. L’anteprima
 
 ## Aggiornamento 20261102-diretta
 Generazione immediata senza quiz: nessun limite di tempo, priorità alla dispensa, pranzo collegato alla cena precedente. Venti nuove ricette (10 primi e 10 secondi), Colazioni e Dolci conservati, Merende rimosse dal catalogo iniziale e dalle scelte. Badge kcal per una persona: stime indicative dagli ingredienti, nessun diario o profilo calorico. Valore manuale facoltativo nel modulo ricetta; se mancano riferimenti compatibili non si mostra un totale parziale. Alimentari in dispensa in ordine alfabetico.
+
+## Aggiornamento 20261102-equilibrio
+Sezione principale Piano, con Ricettario e Settimana. Nuove proposte alternano Primi e Secondi nello stesso giorno, mantenendo priorità alla dispensa e collegamento cena-pranzo. Cambia ricetta propone direttamente una diversa ricetta dello stesso tipo. Pranzi passati dalle 12:00 e cene dalle 20:00 sono grigi e bloccati; la rigenerazione conserva i pasti trascorsi e i relativi ingredienti. La spesa settimanale considera soltanto le porzioni future. Le operazioni offline rispettano l’orario del clic. Aggiunte 12 ricette con fonti verificate e stime kcal. Nessuna preparazione automatica.

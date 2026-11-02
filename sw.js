@@ -1,6 +1,6 @@
-const VERSION='spesapp-2026-11-02-diretta-v30';
-const MODULES=['bootstrap','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261102-diretta`);
-const LOCAL=['./','./index.html','./style.css?v=20261102-diretta',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const VERSION='spesapp-2026-11-02-equilibrio-v31';
+const MODULES=['bootstrap','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261102-equilibrio`);
+const LOCAL=['./','./index.html','./style.css?v=20261102-equilibrio',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
 const timeoutFetch=request=>fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(VERSION);await cache.addAll(LOCAL.map(url=>new Request(url,{cache:'reload'})));await Promise.allSettled(SDK.map(url=>cache.add(url)));await self.skipWaiting();})()));
