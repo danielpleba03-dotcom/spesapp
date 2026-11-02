@@ -1,142 +1,30 @@
 # Spesapp web
 
-Versione installabile, solo dark, pensata per GitHub Pages e Firebase Spark.
+App personale installabile, solo dark, per PC e telefono.
 
-## File pubblici
-Solo questa cartella `web` deve essere caricata su GitHub. Il database SQLite,
-i backup, il file `migrazione-spesapp.json` e le regole con l'indirizzo personale
-rimangono nella cartella superiore e non devono essere pubblicati.
-La configurazione web Firebase identifica il progetto: non è una credenziale
-amministrativa. La protezione dei dati è nelle regole Firestore.
+## Funzioni attive
+- Spesa, Dispensa e Ricette.
+- Ricette → Preparata: numero di persone, moltiplicatori ×2–×5 e quantità effettive modificabili. La conferma scala soltanto la dispensa e non modifica la ricetta.
+- Ricette → Settimana: questionario obbligatorio prima della generazione, pranzo e cena da lunedì a venerdì, collegamento fra cena e pranzo successivo, cambio ricetta per pasto.
+- La Settimana organizza soltanto la spesa. Aprire una ricetta non consuma ingredienti. Il consumo si conferma esclusivamente dalla scheda con Preparata.
+- Spesa settimanale aggregata: sottrae dispensa e lista esistente, conta una sola volta ogni porzione di cena e pranzo collegati.
 
-## Attivazione
-1. Creare il progetto Firebase senza Analytics, Gemini o fatturazione.
-2. Attivare Authentication con Google e Firestore Standard in area europea.
-3. Pubblicare le regole private nella console Firestore: solo il proprietario
-   verificato può leggere o modificare il suo documento. Gli altri utenti non
-   possono accedere; nessuna regola di test pubblica.
-4. Inserire i dati della registrazione web in firebase-config.mjs.
-5. Caricare solo i file web nel repository GitHub pubblico e attivare Pages
-   dalla radice del ramo main. Non serve GitHub Actions.
-6. Aggiungere il dominio github.io del proprietario ai domini autorizzati di
-   Firebase Authentication. Accedere con il proprio Google account.
-7. Non importare dati di prova nel sito pubblico: le installazioni esistenti mantengono il proprio archivio.
+Non sono attivi Piano, profilo alimentare, calorie, diario dei consumi o elenco delle porzioni pronte. Il precedente archivio privato è conservato e reso di sola lettura; la nuova app non lo carica.
+
+## Distribuzione
+Pubblicare soltanto i file di questa cartella sul repository GitHub Pages.
+Database locali, backup, credenziali, dati personali e firestore.private.rules restano fuori dalla cartella pubblica.
+La configurazione web Firebase identifica il progetto e non è una credenziale amministrativa. La protezione è nelle regole Firestore riservate al proprietario verificato.
+
+Prima di distribuire la versione 20261102-settimana, pubblicare le regole private aggiornate per users/{uid}/recipeWeeks/main e le ricevute di tipo week. L’archivio dei prodotti rimane users/{uid}/data/main con schema 1. Non importare dati di prova nell’archivio reale.
 
 ## Dati e uso offline
-Le modifiche vengono applicate tramite transazioni Firestore con identificativo
-univoco: un acquisto ripetuto non viene conteggiato due volte. Le azioni offline
-sono accodate sul dispositivo e inviate quando la connessione ritorna.
-Usare l'app offline solo dopo un primo accesso e caricamento completo online.
-Non uscire dall'account finché rimangono modifiche da sincronizzare.
-La prima modifica giornaliera crea una copia immutabile dello stato precedente
-su Firestore. Importazione ed esportazione manuali sono state rimosse dall'interfaccia. Il logout non è esposto nella navigazione personale.
+Le operazioni hanno identificativo univoco e ricevuta server: un invio ripetuto non duplica acquisti o preparazioni. Le operazioni offline rimangono sul dispositivo e vengono ritentate al ritorno della connessione. Il primo uso richiede accesso e caricamento online.
+Le settimane usano un archivio e una coda separati dai prodotti. Generare o cambiare un menu non modifica la dispensa. Soltanto Mancanti alla spesa può aggiornare la lista dal menu.
+La prima modifica giornaliera dei prodotti salva una copia immutabile dello stato precedente su Firestore.
 
-## Gratuità
-GitHub Pages e Firebase Spark non richiedono un server locale. Restare su Spark,
-senza collegare un account di fatturazione. Le quote gratuite sono limitate:
-se vengono superate il servizio può sospendersi. Nessuna garanzia di gratuità
-immutabile o disponibilità senza interruzioni per sempre.
+## Costi
+GitHub Pages e Firebase Spark non richiedono il PC acceso. Restare su Spark senza collegare fatturazione. Le quote gratuite sono limitate e non costituiscono una garanzia di disponibilità o gratuità immutabile per sempre.
 
 ## Anteprima
-Servire questa cartella con un server HTTP e aprire ?preview=1 su localhost.
-L'anteprima usa dati separati nel browser e non si collega a Firebase.
-## Revisione qualità · 28 ottobre 2026
-Le quantità delle ricette sono sempre per una persona. La conferma Preparata
-accetta il numero di persone e le quantità effettivamente consumate; questi
-valori non cambiano la ricetta salvata. La ricetta aperta mostra solo dosi e link alla fonte; procedimento e strumenti non sono richiesti né mostrati.
-
-Le operazioni in attesa hanno una chiave locale per ciascuna azione e una
-ricevuta immutabile sul server. Prima di pubblicare questa versione web è
-necessario pubblicare le regole private aggiornate che autorizzano le ricevute
-solo al proprietario verificato. Non caricare tali regole nel repository pubblico.
-Le ricevute e le copie giornaliere occupano spazio e consumano quote Spark;
-il piano resta gratuito entro i limiti del servizio.
-
-La vista telefono è attiva: lista della spesa e dispensa in consultazione con
-ricerca e quantità, inclusi gli esauriti; ricette disponibili solo sul PC.
-Il modulo di aggiunta alla spesa mantiene lo stato aperto/chiuso sul dispositivo.
-Il manifesto richiede orientamento verticale. Se il browser non permette il
-blocco nativo, la vista orizzontale mostra l'invito a ruotare il telefono.
-
-## Interfaccia compatta
-L'archivio iniziale include solo i pancake banana e uova. Questo non elimina
-automaticamente le ricette salvate: la pulizia di quelle esistenti avviene solo
-con conferma dell'utente. I suggerimenti prodotto derivano esclusivamente
-dalla dispensa, inclusi gli esauriti, senza un catalogo preimpostato. I moduli
-consentono inserimento libero, passi di 50 G / 1 L / 1 P e unità abbreviate;
-Altro viene sempre inviato in pezzi, conservando i vincoli sulle unità dei
-prodotti già registrati. Le ricette si salvano con nome, link e ingredienti.
-
-## Aggiornamento mobile · 29 ottobre 2026
-Valori preimpostati di inserimento: 100 G, 1 L e 1 P, ripristinati dopo ogni
-aggiunta e cambio di unità; i pulsanti procedono di 50 G, 1 L e 1 P.
-Gli indicatori ordinari di sincronizzazione non sono mostrati. Gli errori di
-salvataggio restano visibili quando richiedono un intervento. Le righe acquistate si chiudono con un'animazione
-compatta e i controlli vengono disabilitati subito per evitare doppi acquisti.
-La ricetta iniziale è BUDINO BANANA E CIOCCOLATO: per persona, una banana
-(P) e 25 G di cioccolato fondente, con fonte In cucina da Eva / GialloZafferano.
-Gli aggiornamenti non cancellano automaticamente gli archivi esistenti.
-
-## Unità condivise · 29 ottobre 2026
-Dispensa (anche esauriti), lista e ricette condividono la stessa unità per
-ogni prodotto. Un inserimento incompatibile viene rifiutato subito, senza
-conversioni arbitrarie. Solo i metadati storici privi di riferimenti reali
-vengono ignorati. Modificando una ricetta si può cambiare esplicitamente
-unità e dose solo se non esistono altri riferimenti che la vincolano.
-Sul telefono le quantità in dispensa sono leggibili e modificabili soltanto
-con +/−, in passi di 50 G, 1 L o 1 P, senza scendere sotto zero.
-Sul telefono sono applicate regole touch e viewport per evitare zoom
-involontario: i doppi tocchi sui controlli restano due azioni normali e lo
-scorrimento verticale resta attivo.
-
-## Ricette mobile e orientamento · 31 ottobre 2026
-Ricette disponibili anche sul telefono: ricerca, filtri, ingredienti/link, creazione/modifica e conferma delle dosi effettive. La stessa logica dati è condivisa con il PC.
-Un contenitore della stessa origine mantiene un viewport verticale anche se il browser non supporta il blocco nativo. La rotazione modifica solo dimensioni e trasformazione del contenitore, preservando pagina e modali. Il manifesto continua a preferire portrait; tastiera e barre di sistema dipendono dal dispositivo. Nessuna schermata blocca l'uso in orizzontale. Desktop invariato e dati non reinizializzati.
-
-
-## Preferite e mancanti in spesa · 31 ottobre 2026
-Filtri ricette: Fattibili adesso, Non fattibili e Preferite; nessuna vista Tutte. Il flag favorite booleano è salvato nella ricetta e conservato nella validazione e nelle modifiche. La stella usa saveRecipe con payload dedicato senza alterare dosi.
-Il comando Mancanti in spesa calcola le scorte per una persona e arrotonda per eccesso a 50 G, 1 L, 1 P. Considera le quantità già pianificate e completa la prima riga esistente anziché duplicarla. Esegue il piano atomicamente con addShopping; ripetizione dell'operazione e doppi clic non duplicano le quantità. Nessuna modifica alle regole di accesso o ai permessi Firebase.
-
-
-## Dispensa mobile e quantità · 31 ottobre 2026
-Filtri Disponibili, Da rifornire ed Esauriti presenti anche su telefono, con la stessa logica del PC. Il comando ingredienti mancanti mantiene l'arrotondamento a passi di 50 G ma impone un target minimo di 100 G, 1 L o 1 P, contando la spesa già pianificata.
-Le operazioni confermate restano protette in memoria fino all'eco del servizio. Aggiornamenti riconoscibilmente precedenti, in base alla cronologia delle operazioni applicate, vengono ignorati per impedire ritorni temporanei delle quantità durante i clic rapidi. I pulsanti quantità non selezionano testo al doppio clic.
-
-
-## Tipi di pasto · 1 novembre 2026
-Nuove ricette e modifiche richiedono la scelta di Colazioni, Primi, Secondi, Dolci o Merende nel modulo. Ogni vista delle ricette raggruppa per questo ordine, mantenendo ricerca e filtri di fattibilità/preferiti. Il campo meal è validato e conservato tra salvataggi e caricamenti. Le vecchie ricette senza campo restano leggibili in Da classificare; il budino iniziale è riconosciuto come Dolci, modificabile dall'utente. Nessuna cancellazione o modifica delle dosi.
-
-
-## Piano settimanale · 1 novembre 2026
-La sezione Piano usa un documento privato separato dall’archivio dei prodotti.
-Il profilo e il valore calorico richiedono conferma esplicita; nessun dato personale
-è incluso nei file pubblici. Le kcal sono stime modificabili, non una prescrizione.
-La preparazione scala gli ingredienti per tutte le porzioni e registra solo quelle
-mangiate; le porzioni conservate si consumano senza scalare nuovamente la dispensa.
-La spesa della settimana richiede la revisione e conferma del menu, sottrae le
-scorte e la lista esistente, e conta una sola volta cena e pranzo collegati.
-Prima di distribuire questi file pubblicare le regole private aggiornate per
-planning/main e per le ricevute di tipo plan, mantenendo l’accesso al proprietario.
-
-## Gestione pasti e porzioni · 1 novembre 2026
-Ricettario interno al Piano, senza conferma di preparazione nel ricettario.
-I pasti preparati conservano una firma delle dosi della ricetta: le porzioni pronte
-sono riconosciute anche in altri giorni e settimane compatibili. Mangia registra
-il consumo nella data del pasto selezionato, senza una seconda conferma.
-Rimuovere un consumo dal diario restituisce la porzione pronta e le calorie,
-lasciando avvenuta la preparazione e invariata la dispensa.
-Il riepilogo settimanale aggiorna il profilo con il peso misurato: non deduce un
-peso esatto dalle calorie e non cambia automaticamente il target confermato.
-Il formato privato del Piano è ora schema 2, compatibile in lettura con schema 1.
-Le regole impediscono il downgrade da schema 2 per proteggere le nuove informazioni
-da versioni vecchie ancora aperte. Nessuna modifica al formato della dispensa.
-
-## Piano semplificato · 1 novembre 2026
-Palette gialla comune a Piano e Ricettario. Pronti da mangiare è una vista separata:
-Mangia registra oggi, Rimuovi toglie subito la disponibilità. Nessun selettore frigo/freezer.
-Le settimane vengono create già attive: non è più richiesta una conferma prima della spesa.
-Altra proposta conserva i pasti passati e quelli già preparati o registrati.
-La vecchia programmazione manuale è esclusa dalla vista e dai fabbisogni attivi;
-i record storici, i consumi e le preparazioni restano conservati.
-Il peso si aggiorna soltanto dal Profilo, senza richieste settimanali.
+Servire questa cartella con HTTP e aprire ?preview=1 su localhost. L’anteprima usa dati separati nel browser e non si collega a Firebase.
