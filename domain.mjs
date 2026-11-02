@@ -24,6 +24,9 @@ export function validProduct(p,positive=false){
  if(p.unit==='pz'&&!Number.isInteger(qty))fail('I pezzi devono essere interi.');
 }
 function unitReferences(state,productName,excludeRecipeId){const key=normalize(productName);return [...(state.pantry||[]),...(state.shopping||[])].filter(p=>p.name===key).concat((state.recipes||[]).filter(r=>r.id!==excludeRecipeId).flatMap(r=>r.ingredients.filter(i=>normalize(i.ingredient)===key)));}
+// A fresh read-only view index preserves reference order and recipe exclusions.
+// Rebuild it for each render/operation; do not reuse it after mutating the state.
+export function createUnitLookup(state){const refs=new Map(),add=(key,unit,id,product)=>{if(!refs.has(key))refs.set(key,[]);refs.get(key).push([unit,id,product]);};for(const p of [...(state.pantry||[]),...(state.shopping||[])])add(p.name,p.unit,null,true);for(const r of state.recipes||[])for(const i of r.ingredients)add(normalize(i.ingredient),i.unit,r.id,false);return (productName,excludeRecipeId)=>refs.get(normalize(productName))?.find(item=>item[2]||item[1]!==excludeRecipeId)?.[0];}
 export function productUnit(state,productName,excludeRecipeId){return unitReferences(state,productName,excludeRecipeId)[0]?.unit;}
 export function lockUnit(state,productName,unit,excludeRecipeId){
  const key=name(productName);if(!['g','l','pz'].includes(unit))fail('Unità non valida: scegli grammi, litri oppure pezzi.');
@@ -34,10 +37,11 @@ export function lockUnit(state,productName,unit,excludeRecipeId){
 }
 function rebuildProductUnits(state){const units={};for(const p of [...state.pantry,...state.shopping]){if(units[p.name]&&units[p.name]!==p.unit)fail(`${p.name}: unità diverse tra dispensa e lista della spesa.`);units[p.name]=p.unit;}for(const r of state.recipes)for(const i of r.ingredients)units[i.ingredient]??=i.unit;state.units=units;}
 export function emptyState(recipes=[]){const state={schema:1,pantry:[],shopping:[],units:{},recipes:recipes.map(r=>validateRecipe(r,true)),counts:{},applied:[]};rebuildProductUnits(state);return state;}
-export function recipeStatus(state,r){
+export function recipeStatus(state,r,unitLookup=null){
+ const findUnit=unitLookup||createUnitLookup(state);
  const needs=new Map();for(const i of r.ingredients){const key=normalize(i.ingredient)+'|'+i.unit;needs.set(key,{...i,ingredient:normalize(i.ingredient),qty:round((needs.get(key)?.qty||0)+Number(i.qty))});}
  const ingredients=[...needs.values()];const missing=ingredients.filter(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);return (Number(p?.qty)||0)+1e-9<i.qty;});
- const unitConflicts=ingredients.flatMap(i=>{const expected=productUnit(state,i.ingredient,r.id);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
+ const unitConflicts=ingredients.flatMap(i=>{const expected=findUnit(i.ingredient,r.id);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
  const preparations=ingredients.length?Math.min(...ingredients.map(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);const required=Math.round(Number(i.qty)*1e6),available=Math.round(Number(p?.qty||0)*1e6);return required>0?Math.floor(available/required):0;})):0;
  return {ingredients,missing,unitConflicts,possible:ingredients.length>0&&missing.length===0&&unitConflicts.length===0,preparations:unitConflicts.length?0:preparations};
 }
@@ -56,8 +60,8 @@ export function preparationStatus(state,recipe,people=1,actual=null){
  return {ingredients,missing:ingredients.filter(i=>!i.enough),possible:ingredients.every(i=>i.enough),people:factor};
 }
 
-export function recipeShoppingPlan(state,recipe){
- const status=recipeStatus(state,recipe);if(status.unitConflicts.length)fail('Correggi le unità della ricetta prima di aggiungere gli ingredienti alla spesa.');
+export function recipeShoppingPlan(state,recipe,unitLookup=null){
+ const status=recipeStatus(state,recipe,unitLookup);if(status.unitConflicts.length)fail('Correggi le unità della ricetta prima di aggiungere gli ingredienti alla spesa.');
  return status.ingredients.flatMap(i=>{
   const stocked=state.pantry.find(p=>p.name===i.ingredient&&p.category==='Alimentari'&&p.unit===i.unit)?.qty||0;
   const missing=Math.max(0,round(i.qty-stocked));if(!missing)return [];
