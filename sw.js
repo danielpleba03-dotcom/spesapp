@@ -1,8 +1,8 @@
-const VERSION='spesapp-2026-11-03-spese-v40';
+const VERSION='spesapp-2026-11-03-senzaeuro-v41';
 
-const MODULES=['price-domain','price-store','price-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261103-spese`);
+const MODULES=['bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261103-senzaeuro`);
 
-const LOCAL=['./','./index.html','./style.css?v=20261103-spese',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const LOCAL=['./','./index.html','./style.css?v=20261103-senzaeuro',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
 

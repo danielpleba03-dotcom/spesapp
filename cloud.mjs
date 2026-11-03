@@ -1,9 +1,8 @@
-import {validatePriceBook,expenseDay,recordPurchase} from './price-domain.mjs?v=20261103-spese';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261103-spese';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261103-senzaeuro';
 
-import {createJournal} from './journal.mjs?v=20261103-spese';
+import {createJournal} from './journal.mjs?v=20261103-senzaeuro';
 
-import {firebaseConfig} from './firebase-config.mjs?v=20261103-spese';
+import {firebaseConfig} from './firebase-config.mjs?v=20261103-senzaeuro';
 
 export function cloudMessage(error){
 
@@ -37,7 +36,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   const notify=()=>onChange(structuredClone(value),{preview:true,authenticated:true,ready:true,online:true,pending:0});
 
-  const store={dispatch:action=>{const next=applyAction(value,action);if(action.type==='buy'){const product=value.shopping.find(p=>p.id===action.payload.id);if(product&&!value.applied.includes(action.id)){const days=JSON.parse(localStorage.getItem('spesapp-expense-preview')||'[]'),key=expenseDay(action.at||Date.now()),book=validatePriceBook(JSON.parse(localStorage.getItem('spesapp-price-preview')||'{"schema":1,"prices":[]}')),day=recordPurchase(days.find(d=>d.day===key),product,book,action);localStorage.setItem('spesapp-expense-preview',JSON.stringify([...days.filter(d=>d.day!==key),day]));}}localStorage.setItem('spesapp-preview',JSON.stringify(next));value=next;notify();},logout:()=>location.reload(),login:()=>{},get state(){return structuredClone(value);},user:{displayName:'Anteprima locale'},preview:true};
+  const store={dispatch:action=>{const next=applyAction(value,action);localStorage.setItem('spesapp-preview',JSON.stringify(next));value=next;notify();},logout:()=>location.reload(),login:()=>{},get state(){return structuredClone(value);},user:{displayName:'Anteprima locale'},preview:true};
 
   queueMicrotask(notify);return store;
 
@@ -95,12 +94,11 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
      if(before.backupDate!==today){backupRef=fire.doc(db,'users',s.user.uid,'backups',today);backup=await tx.get(backupRef);after.backupDate=today;}
 
-     let expenseRef,expense;if(action.type==='buy'){const product=before.shopping.find(p=>p.id===action.payload.id);if(product){const priceSnap=await tx.get(fire.doc(db,'users',s.user.uid,'data','prices'));const book=priceSnap.exists()?validatePriceBook(priceSnap.data()):{schema:1,prices:[]};expenseRef=fire.doc(db,'users',s.user.uid,'expenseDays',expenseDay(action.at||Date.now()));const prior=await tx.get(expenseRef);expense=recordPurchase(prior.exists()?prior.data():null,product,book,action);}}
      assertCapacity(after);
 
      if(backupRef&&!backup.exists())tx.set(backupRef,before);
 
-     if(expenseRef)tx.set(expenseRef,expense);tx.set(ref,after);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
+     tx.set(ref,after);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
 
     });
 

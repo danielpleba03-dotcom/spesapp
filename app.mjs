@@ -1,23 +1,22 @@
-import {createPriceUI} from './price-ui.mjs?v=20261103-spese';
-import {calorieBadge} from './recipe-calories.mjs?v=20261103-spese';
+import {calorieBadge} from './recipe-calories.mjs?v=20261103-senzaeuro';
 
-import {classicRecipes} from './classic-recipes.mjs?v=20261103-spese';
+import {classicRecipes} from './classic-recipes.mjs?v=20261103-senzaeuro';
 
-import {createWeekUI} from './week-ui.mjs?v=20261103-spese';
+import {createWeekUI} from './week-ui.mjs?v=20261103-senzaeuro';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=20261103-spese';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261103-senzaeuro';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=20261103-spese';
+import {enhanceSelects} from './select-menu.mjs?v=20261103-senzaeuro';
 
 enhanceSelects();
 
-import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261103-spese';
+import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261103-senzaeuro';
 
-import {createStore} from './cloud.mjs?v=20261103-spese';
+import {createStore} from './cloud.mjs?v=20261103-senzaeuro';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261103-spese';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261103-senzaeuro';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -43,7 +42,7 @@ const seed=await fetch('./seed.json',{signal:AbortSignal.timeout(15000)}).then(r
 
 const editingBaselines=new Map();
 
-let priceUI=null,weekUI=null,recipesView='week',catalogReviewLegacy=[];const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
+let weekUI=null,recipesView='week',catalogReviewLegacy=[];const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
 
 let store,state,meta={},page=mobile()?'shopping':'recipes',search='',pantryFilter='Disponibili',recipeFilter='Fattibili adesso',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
 
@@ -93,7 +92,7 @@ function renderShell(){
 
  document.body.dataset.page=page;
 
- $('#app').innerHTML=`<header class="topbar"><span class="brand">Spesapp<span style="color:var(--bright)">.</span></span><nav class="nav" aria-label="Sezioni"><button data-nav="pantry" class="${page==='pantry'?'active':''}">Dispensa</button><button data-nav="recipes" class="${page==='recipes'?'active':''}">Piano</button><button data-nav="shopping" class="${page==='shopping'?'active':''}"><span class="desktop-only">Spesa</span><span class="phone-only">Spesa</span></button></nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:'<span class="mobile-add mobile-add-placeholder" aria-hidden="true">＋ Prodotto</span>'}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${page==='recipes'?`<div class="recipe-view-tabs"><button data-command="recipe-catalog" aria-pressed="${recipesView==='catalog'}">Ricettario</button><button data-command="recipe-week" aria-pressed="${recipesView==='week'}">Settimana</button>${recipesView==='week'?'<button class="bulk-trash week-calorie-tool" data-week="calories" aria-label="Calorie della settimana" title="Calorie della settimana" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M13 3c1 5 5 6 5 11a6 6 0 0 1-12 0c0-3 2-5 4-7 0 3 1 4 2 4 2-2 1-5 1-8Z" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></button>':''}</div>${catalogMaintenance?'<button data-command="catalog-review">Aggiorna ricettario · nuove ricette e merende</button>':''}${recipesView==='week'?'':`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o ingrediente" placeholder="CERCA RICETTA O INGREDIENTE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="recipe-filterbar"><div class="filters">${filterButtons(['Fattibili adesso','Non fattibili','Preferite'],recipeFilter,'recipe')}</div><label class="meal-filter"><span class="sr-only">Filtra per pasto</span><select id="meal-filter" aria-label="Filtra per pasto">${['Tutti i pasti',...mealTypes,...(state.recipes.some(r=>mealForRecipe(r)==='Da classificare')?['Da classificare']:[])].map(m=>`<option ${mealFilter===m?'selected':''}>${m}</option>`).join('')}</select></label></div>`}`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div><div class="stock-toolbar"><div class="filters pantry-filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div><button class="bulk-trash price-tool" data-command="product-prices" aria-label="Prezzo dei prodotti" title="Prezzo dei prodotti">€</button>${bulkButton()}</div>`:`${addForm()}<div class="shopping-list-tools"><div id="shopping-total" aria-live="polite"></div><button class="bulk-trash history-tool" data-command="expense-history" aria-label="Ultime spese" title="Ultime spese">↶</button>${bulkButton()}</div>`}<section id="list" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
+ $('#app').innerHTML=`<header class="topbar"><span class="brand">Spesapp<span style="color:var(--bright)">.</span></span><nav class="nav" aria-label="Sezioni"><button data-nav="pantry" class="${page==='pantry'?'active':''}">Dispensa</button><button data-nav="recipes" class="${page==='recipes'?'active':''}">Piano</button><button data-nav="shopping" class="${page==='shopping'?'active':''}"><span class="desktop-only">Spesa</span><span class="phone-only">Spesa</span></button></nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:'<span class="mobile-add mobile-add-placeholder" aria-hidden="true">＋ Prodotto</span>'}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${page==='recipes'?`<div class="recipe-view-tabs"><button data-command="recipe-catalog" aria-pressed="${recipesView==='catalog'}">Ricettario</button><button data-command="recipe-week" aria-pressed="${recipesView==='week'}">Settimana</button>${recipesView==='week'?'<button class="bulk-trash week-calorie-tool" data-week="calories" aria-label="Calorie della settimana" title="Calorie della settimana" disabled><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M13 3c1 5 5 6 5 11a6 6 0 0 1-12 0c0-3 2-5 4-7 0 3 1 4 2 4 2-2 1-5 1-8Z" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></button>':''}</div>${catalogMaintenance?'<button data-command="catalog-review">Aggiorna ricettario · nuove ricette e merende</button>':''}${recipesView==='week'?'':`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o ingrediente" placeholder="CERCA RICETTA O INGREDIENTE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="recipe-filterbar"><div class="filters">${filterButtons(['Fattibili adesso','Non fattibili','Preferite'],recipeFilter,'recipe')}</div><label class="meal-filter"><span class="sr-only">Filtra per pasto</span><select id="meal-filter" aria-label="Filtra per pasto">${['Tutti i pasti',...mealTypes,...(state.recipes.some(r=>mealForRecipe(r)==='Da classificare')?['Da classificare']:[])].map(m=>`<option ${mealFilter===m?'selected':''}>${m}</option>`).join('')}</select></label></div>`}`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div><div class="stock-toolbar"><div class="filters pantry-filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>${bulkButton()}</div>`:`${addForm()}<div class="shopping-list-tools">${bulkButton()}</div>`}<section id="list" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
 
  renderList();updateAddUnitError();
 
@@ -103,7 +102,7 @@ function quantityControl(p,kind,buttonsOnly=false){return `<div class="stepper $
 
 function renderList(){
 
- if(!$('#list')||!state)return;updateBulkButton();const total=$('#shopping-total');if(total)reconcile(total,priceUI?.total(state.shopping)||'');const query=normalize(search),terms=query.split(' ').filter(Boolean);
+ if(!$('#list')||!state)return;updateBulkButton();const query=normalize(search),terms=query.split(' ').filter(Boolean);
 
  if(page==='recipes'&&recipesView==='week'){if(weekUI)weekUI.render();else $('#list').innerHTML='<p class="empty">Caricamento delle settimane…</p>';return;}
 
@@ -127,7 +126,7 @@ function renderList(){
 
  const ids=new Set(items.map(p=>p.id));order=order.filter(id=>ids.has(id));for(const p of [...items].sort((a,b)=>a.qty-b.qty||a.name.localeCompare(b.name,'it')))if(!order.includes(p.id))order.push(p.id);
 
- reconcile($('#list'),['Alimentari','Altro'].map(category=>{const products=items.filter(p=>p.category===category).sort((a,b)=>page==='shopping'||category==='Alimentari'?a.name.localeCompare(b.name,'it'):order.indexOf(a.id)-order.indexOf(b.id));if(!products.length)return '';return `<h2 class="group-title ${page==='shopping'&&products.every(p=>leaving.has(p.id))?'leaving-group':''}" data-key="group-${category}">${category}</h2>`+products.map(p=>`<article data-key="${page}-${esc(p.id)}" class="product ${page==='shopping'?'shopping-product':'pantry-product'} ${page==='shopping'&&leaving.has(p.id)?'is-leaving':''}" ${page==='shopping'&&leaving.has(p.id)?`style="--row-height:${leaving.get(p.id).height}px"`:''}><div class="product-name">${esc(p.name)} ${page==='pantry'?priceUI?.badge(p)||'':''}<span class="unit">· ${p.unit==='l'&&p.qty>0&&p.qty<1?formatQuantity(p.qty,p.unit):unitLabel(p.unit)}</span>${page==='pantry'&&low(p)?'<span class="stock-label">Scorta bassa</span>':page==='pantry'&&p.qty<=0?'<span class="stock-label">Esaurito</span>':''}</div>${page==='pantry'&&mobile()?quantityControl(p,'pantry',true):page==='pantry'?`${quantityControl(p,'pantry')}<button class="pantry-actions ${p.qty<=0&&pantryFilter==='Esauriti'?'danger':''}" data-command="${p.qty<=0&&pantryFilter==='Esauriti'?'delete-pantry':'exhaust'}" data-id="${esc(p.id)}">${p.qty<=0&&pantryFilter==='Esauriti'?'Elimina':'Esaurito'}</button>`:`<div class="shopping-controls">${quantityControl(p,'shopping')}<button class="primary buy" data-command="buy" data-id="${esc(p.id)}" aria-label="Segna comprato ${esc(p.name)}">✓ Comprato</button><button class="remove" data-command="remove-shopping" data-id="${esc(p.id)}" aria-label="Rimuovi ${esc(p.name)} dalla lista">×</button></div>`}</article>`).join('');}).join('')||'<p class="empty">'+(query?'Nessun prodotto corrisponde alla ricerca.':page==='shopping'?'La lista è vuota.':'Nessun prodotto in questa sezione.')+'</p>');
+ reconcile($('#list'),['Alimentari','Altro'].map(category=>{const products=items.filter(p=>p.category===category).sort((a,b)=>page==='shopping'||category==='Alimentari'?a.name.localeCompare(b.name,'it'):order.indexOf(a.id)-order.indexOf(b.id));if(!products.length)return '';return `<h2 class="group-title ${page==='shopping'&&products.every(p=>leaving.has(p.id))?'leaving-group':''}" data-key="group-${category}">${category}</h2>`+products.map(p=>`<article data-key="${page}-${esc(p.id)}" class="product ${page==='shopping'?'shopping-product':'pantry-product'} ${page==='shopping'&&leaving.has(p.id)?'is-leaving':''}" ${page==='shopping'&&leaving.has(p.id)?`style="--row-height:${leaving.get(p.id).height}px"`:''}><div class="product-name">${esc(p.name)} <span class="unit">· ${p.unit==='l'&&p.qty>0&&p.qty<1?formatQuantity(p.qty,p.unit):unitLabel(p.unit)}</span>${page==='pantry'&&low(p)?'<span class="stock-label">Scorta bassa</span>':page==='pantry'&&p.qty<=0?'<span class="stock-label">Esaurito</span>':''}</div>${page==='pantry'&&mobile()?quantityControl(p,'pantry',true):page==='pantry'?`${quantityControl(p,'pantry')}<button class="pantry-actions ${p.qty<=0&&pantryFilter==='Esauriti'?'danger':''}" data-command="${p.qty<=0&&pantryFilter==='Esauriti'?'delete-pantry':'exhaust'}" data-id="${esc(p.id)}">${p.qty<=0&&pantryFilter==='Esauriti'?'Elimina':'Esaurito'}</button>`:`<div class="shopping-controls">${quantityControl(p,'shopping')}<button class="primary buy" data-command="buy" data-id="${esc(p.id)}" aria-label="Segna comprato ${esc(p.name)}">✓ Comprato</button><button class="remove" data-command="remove-shopping" data-id="${esc(p.id)}" aria-label="Rimuovi ${esc(p.name)} dalla lista">×</button></div>`}</article>`).join('');}).join('')||'<p class="empty">'+(query?'Nessun prodotto corrisponde alla ricerca.':page==='shopping'?'La lista è vuota.':'Nessun prodotto in questa sezione.')+'</p>');
 
  for(const row of document.querySelectorAll('.is-leaving'))for(const control of row.querySelectorAll('button,input'))control.disabled=true;
 
@@ -229,7 +228,7 @@ document.addEventListener('toggle',event=>{const el=event.target;if(el.isConnect
 
 document.addEventListener('submit',event=>{
 
- event.preventDefault();const form=event.target;if(form.matches('.price-row'))return;
+ event.preventDefault();const form=event.target;
 
  if(form.id==='preparation-form'){try{if(!preparation)return;if(meta.pending)throw Error('Attendi il salvataggio delle ultime modifiche.');const button=form.querySelector('.primary');button.disabled=true;const success=action('cook',{id:preparation.recipe.id,people:preparation.people,ingredients:preparationAmounts(),expectedRecipe:preparation.recipe});if(success){preparation=null;$('#editor').close();notify('Preparazione registrata. Dispensa aggiornata.');}else updatePreparationAvailability();}catch(e){$('#preparation-error').textContent=e.message;updatePreparationAvailability();}return;}
 
@@ -330,13 +329,13 @@ function onStoreChange(next,nextMeta){
 
  if(!$('.shell'))renderShell();else{renderList();refreshSuggestions();updateAddUnitError();}
 
- weekUI?.refresh();priceUI?.refresh();updatePreparationAvailability();
+ weekUI?.refresh();updatePreparationAvailability();
 
  const error=$('#sync-error');if(error){error.hidden=!meta.error;error.textContent=meta.error||'';}
 
 }
 
-try{store=await createStore(seed.recipes,onStoreChange,error=>notify(error.message,true));try{priceUI=await createPriceUI({store,main:()=>state||store.state,notify,changed:()=>renderList()});renderList();}catch(e){notify('Prezzi non disponibili: '+e.message,true);}try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:id=>showRecipeSheet(id),notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore(seed.recipes,onStoreChange,error=>notify(error.message,true));try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:id=>showRecipeSheet(id),notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 
