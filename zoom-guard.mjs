@@ -1,3 +1,6 @@
 // Preserve scrolling and typing; intercept only desktop browser zoom gestures.
+
 export function isZoomShortcut(event){return !event.altKey&&!event.isComposing&&(event.ctrlKey||event.metaKey)&&(['+','=','-','_'].includes(event.key)||['NumpadAdd','NumpadSubtract'].includes(event.code));}
+
 export function installZoomGuard(target=document){const desktop=()=>!/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)&&matchMedia('(any-pointer:fine)').matches;target.addEventListener('wheel',event=>{if(desktop()&&event.ctrlKey)event.preventDefault();},{capture:true,passive:false});target.addEventListener('keydown',event=>{if(desktop()&&isZoomShortcut(event))event.preventDefault();},{capture:true});for(const name of ['gesturestart','gesturechange'])target.addEventListener(name,event=>{if(desktop())event.preventDefault();},{capture:true,passive:false});}
+
