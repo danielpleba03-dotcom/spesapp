@@ -1,8 +1,8 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261103-senzaeuro';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261103-colazioni';
 
-import {createJournal} from './journal.mjs?v=20261103-senzaeuro';
+import {createJournal} from './journal.mjs?v=20261103-colazioni';
 
-import {firebaseConfig} from './firebase-config.mjs?v=20261103-senzaeuro';
+import {firebaseConfig} from './firebase-config.mjs?v=20261103-colazioni';
 
 export function cloudMessage(error){
 

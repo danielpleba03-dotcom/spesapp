@@ -4,7 +4,7 @@ export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDI
 
 export const categories=['Alimentari','Altro'];
 
-export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:500,ingredients:100,instructions:20000,bytes:780000};
+export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:600,ingredients:100,instructions:20000,bytes:780000};
 
 export class DomainError extends Error {constructor(message){super(message);this.name='DomainError';this.code='validation';}}
 
