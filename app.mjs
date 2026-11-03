@@ -1,23 +1,23 @@
-import {createPriceUI} from './price-ui.mjs?v=20261103-rapido';
-import {calorieBadge} from './recipe-calories.mjs?v=20261103-rapido';
+import {createPriceUI} from './price-ui.mjs?v=20261103-spese';
+import {calorieBadge} from './recipe-calories.mjs?v=20261103-spese';
 
-import {classicRecipes} from './classic-recipes.mjs?v=20261103-rapido';
+import {classicRecipes} from './classic-recipes.mjs?v=20261103-spese';
 
-import {createWeekUI} from './week-ui.mjs?v=20261103-rapido';
+import {createWeekUI} from './week-ui.mjs?v=20261103-spese';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=20261103-rapido';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261103-spese';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=20261103-rapido';
+import {enhanceSelects} from './select-menu.mjs?v=20261103-spese';
 
 enhanceSelects();
 
-import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261103-rapido';
+import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261103-spese';
 
-import {createStore} from './cloud.mjs?v=20261103-rapido';
+import {createStore} from './cloud.mjs?v=20261103-spese';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261103-rapido';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261103-spese';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

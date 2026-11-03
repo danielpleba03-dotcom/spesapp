@@ -1,9 +1,9 @@
-import {validatePriceBook,expenseDay,recordPurchase} from './price-domain.mjs?v=20261103-rapido';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261103-rapido';
+import {validatePriceBook,expenseDay,recordPurchase} from './price-domain.mjs?v=20261103-spese';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261103-spese';
 
-import {createJournal} from './journal.mjs?v=20261103-rapido';
+import {createJournal} from './journal.mjs?v=20261103-spese';
 
-import {firebaseConfig} from './firebase-config.mjs?v=20261103-rapido';
+import {firebaseConfig} from './firebase-config.mjs?v=20261103-spese';
 
 export function cloudMessage(error){
 

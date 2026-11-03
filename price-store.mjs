@@ -1,4 +1,4 @@
-import {validatePrice,validatePriceBook,validateExpenseDay} from './price-domain.mjs?v=20261103-rapido';
+import {validatePrice,validatePriceBook,validateExpenseDay} from './price-domain.mjs?v=20261103-spese';
 export async function createPriceStore(main,onChange){
  if(main.preview){let book=validatePriceBook(JSON.parse(localStorage.getItem('spesapp-price-preview')||'{"schema":1,"prices":[]}'));const emit=()=>onChange(book,JSON.parse(localStorage.getItem('spesapp-expense-preview')||'[]'),{ready:true});queueMicrotask(emit);return {save:async raw=>{const p=validatePrice(raw);book={schema:1,prices:[...book.prices.filter(x=>x.name!==p.name),p]};localStorage.setItem('spesapp-price-preview',JSON.stringify(book));emit();},refresh:emit};}
  const base='https://www.gstatic.com/firebasejs/13.1.0/',[apps,auth,fire]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]),app=apps.getApp(),db=fire.getFirestore(app);let user=null,book={schema:1,prices:[]},days=[],stops=[],ready=false,error='';const emit=()=>onChange(book,days,{ready,error});

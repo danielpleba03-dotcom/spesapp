@@ -1,4 +1,4 @@
-import {normalize,round,DomainError,validProduct} from './domain.mjs?v=20261103-rapido';
+import {normalize,round,DomainError,validProduct} from './domain.mjs?v=20261103-spese';
 const fail=m=>{throw new DomainError(m);},record=x=>x&&typeof x==='object'&&!Array.isArray(x);
 export const referenceQuantity=unit=>unit==='g'?100:1;
 export function validatePrice(raw){if(!record(raw)||typeof raw.name!=='string'||!normalize(raw.name)||normalize(raw.name).length>120)fail('Prodotto non valido.');const p={name:normalize(raw.name),unit:raw.unit,qty:Number(raw.qty),cents:Number(raw.cents)};validProduct({...p,category:'Alimentari'},true);if(!Number.isSafeInteger(p.cents)||p.cents<0||p.cents>100000000)fail('Inserisci un prezzo valido, con al massimo due decimali.');return p;}

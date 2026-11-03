@@ -1,6 +1,6 @@
-import {createPriceStore} from './price-store.mjs?v=20261103-rapido';
-import {referenceQuantity,expenseGroups,priceCents} from './price-domain.mjs?v=20261103-rapido';
-import {formatQuantity} from './domain.mjs?v=20261103-rapido';
+import {createPriceStore} from './price-store.mjs?v=20261103-spese';
+import {referenceQuantity,expenseGroups,priceCents} from './price-domain.mjs?v=20261103-spese';
+import {formatQuantity} from './domain.mjs?v=20261103-spese';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(n/100),time=at=>new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',hour:'2-digit',minute:'2-digit'}).format(new Date(at));
 export async function createPriceUI(api){let book={schema:1,prices:[]},days=[],meta={ready:false},view=null;const editor=()=>document.querySelector('#editor');
  function modal(title,body){editor().innerHTML=`<div class="dialog-head"><h2>${title}</h2><button type="button" data-command="close-dialog" aria-label="Chiudi">×</button></div>${body}<p class="input-error" id="price-error" role="alert"></p>`;if(!editor().open)editor().showModal();}
