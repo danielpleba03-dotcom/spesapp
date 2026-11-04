@@ -1,22 +1,22 @@
-import {calorieBadge} from './recipe-calories.mjs?v=20261104-fattori';
+import {calorieBadge} from './recipe-calories.mjs?v=20261104-calorie-extra';
 
-import {classicRecipes} from './classic-recipes.mjs?v=20261104-fattori';
+import {classicRecipes} from './classic-recipes.mjs?v=20261104-calorie-extra';
 
-import {createWeekUI} from './week-ui.mjs?v=20261104-fattori';
+import {createWeekUI} from './week-ui.mjs?v=20261104-calorie-extra';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=20261104-fattori';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261104-calorie-extra';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=20261104-fattori';
+import {enhanceSelects} from './select-menu.mjs?v=20261104-calorie-extra';
 
 enhanceSelects();
 
-import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261104-fattori';
+import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261104-calorie-extra';
 
-import {createStore} from './cloud.mjs?v=20261104-fattori';
+import {createStore} from './cloud.mjs?v=20261104-calorie-extra';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261104-fattori';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261104-calorie-extra';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -230,7 +230,7 @@ document.addEventListener('submit',event=>{
 
  event.preventDefault();const form=event.target;
 
- if(form.id==='preparation-form'){try{if(!preparation)return;if(meta.pending)throw Error('Attendi il salvataggio delle ultime modifiche.');const button=form.querySelector('.primary');button.disabled=true;const success=action('cook',{id:preparation.recipe.id,people:preparation.people,ingredients:preparationAmounts(),expectedRecipe:preparation.recipe});if(success){preparation=null;$('#editor').close();notify('Preparazione registrata. Dispensa aggiornata.');}else updatePreparationAvailability();}catch(e){$('#preparation-error').textContent=e.message;updatePreparationAvailability();}return;}
+ if(form.id==='preparation-form'){try{if(!preparation)return;if(meta.pending)throw Error('Attendi il salvataggio delle ultime modifiche.');const button=form.querySelector('.primary');button.disabled=true;if(!weekUI)throw Error('Attendi il caricamento del riepilogo settimanale.');const success=weekUI.prepare({id:preparation.recipe.id,people:preparation.people,ingredients:preparationAmounts(),expectedRecipe:preparation.recipe});if(success){preparation=null;$('#editor').close();notify('Preparazione registrata. Dispensa aggiornata.');}else updatePreparationAvailability();}catch(e){$('#preparation-error').textContent=e.message;updatePreparationAvailability();}return;}
 
  if(form.id==='add-form'){
 
