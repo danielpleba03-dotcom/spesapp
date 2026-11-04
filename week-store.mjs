@@ -1,6 +1,6 @@
-import {emptyWeeks,validateWeeks,applyWeekAction} from './week-domain.mjs?v=20261104-calorie-extra';
+import {emptyWeeks,validateWeeks,applyWeekAction} from './week-domain.mjs?v=20261104-calorie-settimana';
 
-import {validateState,DomainError} from './domain.mjs?v=20261104-calorie-extra';
+import {validateState,DomainError} from './domain.mjs?v=20261104-calorie-settimana';
 
 const validAction=a=>{if(!a||typeof a.id!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(a.id)||typeof a.type!=='string'||!a.payload||typeof a.payload!=='object'||Array.isArray(a.payload)||!Number.isFinite(a.at)||JSON.stringify(a).length>180000)throw Error('Una modifica della settimana non è leggibile. I dati locali sono conservati.');return a;};
 

@@ -1,8 +1,8 @@
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261104-calorie-extra';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261104-calorie-settimana';
 
-import {createJournal} from './journal.mjs?v=20261104-calorie-extra';
+import {createJournal} from './journal.mjs?v=20261104-calorie-settimana';
 
-import {firebaseConfig} from './firebase-config.mjs?v=20261104-calorie-extra';
+import {firebaseConfig} from './firebase-config.mjs?v=20261104-calorie-settimana';
 
 export function cloudMessage(error){
 
