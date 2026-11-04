@@ -34,3 +34,8 @@ Generazione immediata senza quiz: nessun limite di tempo, priorità alla dispens
 
 ## Aggiornamento 20261102-equilibrio
 Sezione principale Piano, con Ricettario e Settimana. Nuove proposte alternano Primi e Secondi nello stesso giorno, mantenendo priorità alla dispensa e collegamento cena-pranzo. Cambia ricetta propone direttamente una diversa ricetta dello stesso tipo. Pranzi passati dalle 12:00 e cene dalle 20:00 sono grigi e bloccati; la rigenerazione conserva i pasti trascorsi e i relativi ingredienti. La spesa settimanale considera soltanto le porzioni future. Le operazioni offline rispettano l’orario del clic. Aggiunte 12 ricette con fonti verificate e stime kcal. Nessuna preparazione automatica.
+
+## Aggiornamento 20261104-porzioni
+Preparata propone 2 porzioni aprendo una ricetta dalla Settimana e 1 dal Ricettario. I pulsanti rapidi offrono le altre quantità da 1 a 5. Comprato tutto trasferisce in dispensa i prodotti presenti nella lista con un unico aggiornamento, senza duplicare un invio ripetuto.
+
+La versione dell’app si verifica nel file sw.js: spesapp-2026-11-04-porzioni-v43. Il caricamento dei file su main non equivale alla pubblicazione: attendere il completamento di GitHub Pages prima di verificare la versione servita dal sito.
