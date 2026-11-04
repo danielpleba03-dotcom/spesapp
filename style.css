@@ -288,3 +288,5 @@ html{overflow-y:scroll;scrollbar-gutter:stable}body{overflow-anchor:none}.topbar
 .recipe[data-recipe] .recipe-actions>a,.recipe[data-recipe] .recipe-actions>[data-command="edit-recipe"]{order:1}
 
 @media(min-width:651px){.recipe-week-days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}.recipe-week-days button{text-transform:capitalize}.recipe-week-days button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-line)}.recipe-week-grid{display:block}.recipe-week-day[data-mobile-hidden=true]{display:none}.recipe-week-day{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.recipe-week-day h3{grid-column:1/-1;margin:6px 0}.recipe-week-meal{margin-bottom:0}}
+
+.week-meal-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-right:24px}.week-meal-header strong{font-size:.85rem;color:var(--accent)}.meal-lock{display:inline-flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;padding:4px;background:transparent;font-size:1rem}.meal-lock[aria-pressed=true]{border-color:var(--accent-line);background:var(--accent-deep)}
