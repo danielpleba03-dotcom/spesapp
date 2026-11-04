@@ -1,12 +1,12 @@
-import {createUnitLookup} from './domain.mjs?v=20261104-porzioni';
+import {createUnitLookup} from './domain.mjs?v=20261104-fattori';
 
-import {calorieBadge,recipeCalories} from './recipe-calories.mjs?v=20261104-porzioni';
+import {calorieBadge,recipeCalories} from './recipe-calories.mjs?v=20261104-fattori';
 
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,alternativeRecipe,mealStockStatus} from './week-domain.mjs?v=20261104-porzioni';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,alternativeRecipe,mealStockStatus} from './week-domain.mjs?v=20261104-fattori';
 
-import {createWeekStore} from './week-store.mjs?v=20261104-porzioni';
+import {createWeekStore} from './week-store.mjs?v=20261104-fattori';
 
-import {reconcile} from './ui.mjs?v=20261104-porzioni';
+import {reconcile} from './ui.mjs?v=20261104-fattori';
 
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),pretty=d=>new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'numeric',month:'short'}).format(new Date(d+'T12:00:00')),$=s=>document.querySelector(s);
 

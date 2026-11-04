@@ -1,22 +1,22 @@
-import {calorieBadge} from './recipe-calories.mjs?v=20261104-porzioni';
+import {calorieBadge} from './recipe-calories.mjs?v=20261104-fattori';
 
-import {classicRecipes} from './classic-recipes.mjs?v=20261104-porzioni';
+import {classicRecipes} from './classic-recipes.mjs?v=20261104-fattori';
 
-import {createWeekUI} from './week-ui.mjs?v=20261104-porzioni';
+import {createWeekUI} from './week-ui.mjs?v=20261104-fattori';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=20261104-porzioni';
+import {enhanceSuggestions} from './suggestions.mjs?v=20261104-fattori';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=20261104-porzioni';
+import {enhanceSelects} from './select-menu.mjs?v=20261104-fattori';
 
 enhanceSelects();
 
-import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261104-porzioni';
+import {normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,formatQuantity} from './domain.mjs?v=20261104-fattori';
 
-import {createStore} from './cloud.mjs?v=20261104-porzioni';
+import {createStore} from './cloud.mjs?v=20261104-fattori';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261104-porzioni';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261104-fattori';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -169,7 +169,7 @@ function openDialog(){if(!$('#editor').open)$('#editor').showModal();}
 
 function showRecipeSheet(id){const r=state.recipes.find(r=>r.id===id);if(!r){notify('Questa ricetta non è più nel ricettario.',true);return;}$('#editor').innerHTML=editorHead(r.name)+calorieBadge(r)+`<div class="recipe-body">${(r.id.startsWith('classic-20261102-')||r.id.startsWith('classic-20261103-sweet-'))?'<small class="recipe-dose-note">Dosi orientative per una porzione; condimenti q.b. e pesi dei singoli ortaggi adattati dalla fonte. Verifica il procedimento nel link.</small>':''}<div class="recipe-actions">${r.source_url?`<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">Apri la ricetta ↗</a>`:''}<button class="primary" data-command="cook" data-portions="2" data-id="${esc(r.id)}">Preparata</button></div><ul class="ingredients compact-ingredients">${r.ingredients.map(i=>`<li><strong>${esc(i.ingredient)}</strong><span>${formatQuantity(i.qty,i.unit)}</span></li>`).join('')}</ul><p class="plan-caption">Quantità per una persona. Aprire questa scheda non modifica la dispensa.</p></div>`;openDialog();}
 
-function showPreparation(recipe,people=1){if(!recipe)throw Error('Questa ricetta non è più disponibile.');preparation={recipe:structuredClone(recipe),people,base:recipeStatus(state,recipe).ingredients.map(i=>({ingredient:i.ingredient,unit:i.unit,qty:i.qty}))};$('#editor').innerHTML=editorHead('Preparata · '+recipe.name)+`<form id="preparation-form" class="editor-form"><label>Numero di porzioni<input type="number" id="preparation-people" name="people" min="1" max="1000" step="1" value="${people}" required></label><div class="prep-factors">${[1,2,3,4,5].filter(n=>n!==people).map(n=>`<button type="button" data-command="preparation-factor" data-value="${n}">×${n}</button>`).join('')}</div><p class="plan-caption">Modifica le quantità effettivamente usate per questa preparazione. La ricetta salvata resta invariata.</p><div id="preparation-rows"></div><p class="input-error" role="alert" id="preparation-error"></p><div class="editor-footer"><button type="button" data-command="close-dialog">Annulla</button><button class="primary">Conferma preparazione</button></div></form>`;renderPreparationRows();openDialog();}
+function showPreparation(recipe,people=1){if(!recipe)throw Error('Questa ricetta non è più disponibile.');preparation={recipe:structuredClone(recipe),people,base:recipeStatus(state,recipe).ingredients.map(i=>({ingredient:i.ingredient,unit:i.unit,qty:i.qty}))};$('#editor').innerHTML=editorHead('Preparata · '+recipe.name)+`<form id="preparation-form" class="editor-form"><label>Numero di porzioni<input type="number" id="preparation-people" name="people" min="1" max="1000" step="1" value="${people}" required></label><div class="prep-factors">${[1,2,3].map(n=>`<button type="button" data-command="preparation-factor" data-value="${n}">×${n}</button>`).join('')}</div><p class="plan-caption">Modifica le quantità effettivamente usate per questa preparazione. La ricetta salvata resta invariata.</p><div id="preparation-rows"></div><p class="input-error" role="alert" id="preparation-error"></p><div class="editor-footer"><button type="button" data-command="close-dialog">Annulla</button><button class="primary">Conferma preparazione</button></div></form>`;renderPreparationRows();openDialog();}
 
 function preparationAmounts(){return preparation?.base.map((i,n)=>({...i,qty:document.querySelector(`[name="used-${n}"]`)?.valueAsNumber}));}
 
