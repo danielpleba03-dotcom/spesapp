@@ -1,4 +1,4 @@
-import {validateAction,DomainError} from './domain.mjs?v=20261103-colazioni';
+import {validateAction,DomainError} from './domain.mjs?v=20261104-porzioni';
 
 // One immutable local entry per operation: tabs never overwrite a shared array.
 
