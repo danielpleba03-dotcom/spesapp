@@ -62,7 +62,7 @@ function notify(message,error=false){
 
 function action(type,payload){try{store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});return true;}catch(e){notify(e.message,true);renderList();return false;}}
 
-function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';if(target==='recipes')recipesView='week';page=target;search='';grace.clear();order=[];renderShell();}
+function nav(target){clearTimeout(noticeTimer);$('#notice').style.display='none';if(target==='recipes'){recipesView='week';weekUI?.openToday();}page=target;search='';grace.clear();order=[];renderShell();}
 
 const defaultQuantity=unit=>unit==='g'?100:1;
 
@@ -285,7 +285,7 @@ document.addEventListener('click',async event=>{
 
  case 'recipe-catalog':recipesView='catalog';renderShell();break;
 
- case 'recipe-week':recipesView='week';renderShell();break;
+ case 'recipe-week':recipesView='week';weekUI?.openToday();renderShell();break;
 
  case 'cook':showPreparation(state.recipes.find(r=>r.id===id),button.dataset.portions==='2'?2:1);break;
 
