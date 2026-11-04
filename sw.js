@@ -1,4 +1,4 @@
-const VERSION='spesapp-2026-11-04-fattori-v44';
+const VERSION='spesapp-2026-11-04-preparata-destra-v45';
 
 const MODULES=['bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261104-fattori`);
 

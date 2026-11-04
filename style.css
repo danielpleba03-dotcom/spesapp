@@ -282,3 +282,7 @@ html{overflow-y:scroll;scrollbar-gutter:stable}body{overflow-anchor:none}.topbar
 .recipe-view-tabs{align-items:center}.recipe-view-tabs .week-calorie-tool{margin-left:auto;color:var(--accent);flex:none}
 
 .mobile-add-placeholder{visibility:hidden;pointer-events:none;border:1px solid transparent;border-radius:10px;line-height:normal}
+
+/* Keep the catalog preparation action on the right on desktop and phone. */
+.recipe[data-recipe] .recipe-actions>[data-command="cook"]{order:2;margin-left:auto}
+.recipe[data-recipe] .recipe-actions>a,.recipe[data-recipe] .recipe-actions>[data-command="edit-recipe"]{order:1}
