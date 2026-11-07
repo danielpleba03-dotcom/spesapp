@@ -1,3 +1,4 @@
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=20261104-calorie-settimana';
 import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261104-calorie-settimana';
 
 import {createJournal} from './journal.mjs?v=20261104-calorie-settimana';
@@ -34,9 +35,10 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   let value=saved?validateState(JSON.parse(saved)):emptyState(recipes);
 
+  let previewHistory=emptyWeeks();
   const notify=()=>onChange(structuredClone(value),{preview:true,authenticated:true,ready:true,online:true,pending:0});
 
-  const store={dispatch:action=>{const next=applyAction(value,action);localStorage.setItem('spesapp-preview',JSON.stringify(next));value=next;notify();},logout:()=>location.reload(),login:()=>{},get state(){return structuredClone(value);},user:{displayName:'Anteprima locale'},preview:true};
+  const store={dispatch:action=>{const next=applyAction(value,action),history=action.type==='cook'?recordPreparation(previewHistory,value.recipes.find(r=>r.id===action.payload.id),action):previewHistory;localStorage.setItem('spesapp-preview',JSON.stringify(next));value=next;previewHistory=history;notify();},getPreparationHistory:async()=>preparationHistory(previewHistory),logout:()=>location.reload(),login:()=>{},get state(){return structuredClone(value);},user:{displayName:'Anteprima locale'},preview:true};
 
   queueMicrotask(notify);return store;
 
@@ -88,7 +90,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
      if(done.exists())return {state:before,receipt:true};
 
-     const after=applyAction(before,action),today=new Date().toISOString().slice(0,10);
+     const after=applyAction(before,action),historyRef=action.type==='cook'?fire.doc(db,'users',s.user.uid,'recipeWeeks','main'):null,historySnap=historyRef?await tx.get(historyRef):null,history=historyRef?recordPreparation(historySnap.exists()?historySnap.data():emptyWeeks(),before.recipes.find(r=>r.id===action.payload.id),action):null,today=new Date().toISOString().slice(0,10);
 
      let backupRef,backup;
 
@@ -98,7 +100,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
      if(backupRef&&!backup.exists())tx.set(backupRef,before);
 
-     tx.set(ref,after);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
+     tx.set(ref,after);if(historyRef)tx.set(historyRef,history);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
 
     });
 
@@ -124,6 +126,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   login:()=>authSDK.signInWithPopup(auth,new authSDK.GoogleAuthProvider()).catch(e=>{throw Error(cloudMessage(e));}),
 
+  async getPreparationHistory(){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');const snap=await fire.getDoc(fire.doc(db,'users',s.user.uid,'recipeWeeks','main'));if(s!==session)throw Error('La sessione è cambiata. Riapri lo storico.');let plan=snap.exists()?validateWeeks(snap.data()):emptyWeeks();for(const a of [...s.confirmed.values(),...s.journal.list()])if(a.type==='cook'){const r=a.payload.expectedRecipe||s.remote.recipes.find(r=>r.id===a.payload.id);if(r)plan=recordPreparation(plan,r,a);}return preparationHistory(plan);},
   async logout(){if(session?.journal?.list().length)throw Error('Attendi il salvataggio delle modifiche prima di uscire.');await authSDK.signOut(auth);},
 
   dispatch(action){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');applyAction(visible(s),action);s.journal.put(action);emit();void flush(s);},
