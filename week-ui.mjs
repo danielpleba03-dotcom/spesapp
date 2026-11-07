@@ -12,7 +12,7 @@ const btn=(action,label,extra='')=>`<button type="button" data-week="${action}" 
 
 export function defaultWeekDay(start,today=localDate()){return today>=start&&today<=addDays(start,4)?today:start;}
 
-export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false,pending:0,error:''},store,start=addDays(monday(),[0,6].includes(new Date(localDate()+'T12:00:00').getDay())?7:0),selectedDay=defaultWeekDay(start),variant=0,context=null,preparedCaloriesOpen=false;
+export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false,pending:0,error:''},store,start=monday(),selectedDay=defaultWeekDay(start),variant=0,context=null,preparedCaloriesOpen=false;
 
  const main=()=>api.main(),close=()=>{preparedCaloriesOpen=false;$('#editor').close();},requireReady=()=>{if(!meta.ready)throw Error(meta.error||'Attendi il caricamento delle settimane.');},refresh=()=>{if(api.visible())render();};
 
@@ -44,7 +44,7 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
 
  setInterval(()=>{if(api.visible()&&!document.hidden)render();},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 
- store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;refresh();if(preparedCaloriesOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,refresh:()=>store.refresh(),openToday:()=>{start=addDays(monday(),[0,6].includes(new Date(localDate()+'T12:00:00').getDay())?7:0);selectedDay=defaultWeekDay(start);}};
+ store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;refresh();if(preparedCaloriesOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,refresh:()=>store.refresh(),openToday:()=>{start=monday();selectedDay=defaultWeekDay(start);}};
 
 }
 
