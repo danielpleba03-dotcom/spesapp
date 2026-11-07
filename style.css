@@ -294,3 +294,28 @@ html{overflow-y:scroll;scrollbar-gutter:stable}body{overflow-anchor:none}.topbar
 .week-meal-actions{display:grid;grid-template-columns:1fr;gap:6px}.week-meal-actions button{font-size:.76rem;min-height:42px;padding:8px;white-space:normal;line-height:1.35}.move-source{font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:10px}.move-source strong{display:block;font-size:1rem;color:var(--text);overflow-wrap:anywhere}.move-meal-days{display:grid;gap:12px;margin-top:14px}.move-meal-day{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.move-meal-day h3{grid-column:1/-1;font-size:.85rem;text-transform:capitalize;margin:0}.move-meal-choice{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;min-height:68px;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.4}.move-meal-choice span{font-size:.75rem;color:var(--muted)}.move-meal-choice strong{font-size:.84rem}.move-meal-choice:disabled{opacity:.4}@media(max-width:650px){.week-meal-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.week-meal-actions button{min-height:44px}.move-meal-day{grid-template-columns:1fr}.move-meal-choice{min-height:68px;padding:12px}.move-meal-days{gap:16px}}
 
 @media(min-width:651px){.week-meal-actions{grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:stretch}.week-meal-actions button{font-size:.7rem;min-height:36px;padding:6px 5px;white-space:nowrap}.week-meal-actions [data-week="swap-open"]{font-size:.65rem;padding:6px 4px}.week-meal-actions [data-week="change"]{min-width:0}}
+
+/* Shared rows keep every lunch and dinner aligned across the five days. */
+.week-meal-actions [data-week="swap-open"]{display:inline-flex;align-items:center;justify-content:center;padding:0;width:36px;min-width:36px;flex:none}
+.week-meal-actions [data-week="swap-open"] svg{display:block;pointer-events:none}
+.recipe-week-grid,.recipe-week-day,.recipe-week-meal,.week-meal-actions,.week-recipe-link{min-width:0;max-width:100%}
+@media(min-width:651px){
+ .recipe-week-grid{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:auto auto auto;align-items:stretch;gap:12px}
+ .recipe-week-day{display:grid;grid-template-rows:subgrid;grid-row:span 3;row-gap:12px;align-items:stretch}
+ .recipe-week-day h3{align-self:end;margin:10px 0 0;line-height:1.4;overflow-wrap:anywhere}
+ .recipe-week-meal{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin:0;padding:12px}
+ .week-meal-header{flex:none;min-height:36px}
+ .week-recipe-link{display:flex;align-items:center;flex:1;min-height:4.8em;white-space:normal;overflow-wrap:anywhere;line-height:1.45}
+ .week-meal-actions{display:grid;grid-template-columns:minmax(0,1fr) 36px;align-items:stretch;gap:6px;margin-top:auto;flex:none}
+ .week-meal-actions button{min-height:36px;line-height:1.25}
+ .week-meal-actions [data-week="change"]{white-space:normal;overflow-wrap:anywhere;font-size:.73rem;padding:6px}
+ .week-meal-actions [data-week="swap-open"]{padding:0}
+}
+@media(min-width:651px) and (max-width:850px){
+ .recipe-week-grid{gap:7px}.recipe-week-day{row-gap:7px}.recipe-week-meal{padding:8px;gap:8px}
+ .week-meal-actions{grid-template-columns:minmax(0,1fr) 30px;gap:3px}
+ .week-meal-actions [data-week="swap-open"]{width:30px;min-width:30px}
+ .week-meal-actions [data-week="change"]{font-size:.66rem;padding:4px}
+ .week-meal-header{padding-right:20px;gap:3px}.week-meal-header strong{font-size:.72rem}.meal-lock{min-width:28px;padding:2px}
+}
+@media(max-width:650px){.week-meal-actions{grid-template-columns:minmax(0,1fr) 44px}.week-meal-actions [data-week="swap-open"]{width:44px;min-width:44px;min-height:44px}}
