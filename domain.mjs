@@ -96,7 +96,7 @@ export function preparationStatus(state,recipe,people=1,actual=null){
 
  const factor=number(people);if(!Number.isInteger(factor)||factor<1||factor>1000)fail('Inserisci un numero intero di porzioni tra 1 e 1000.');
 
- const status=recipeStatus(state,recipe);if(status.unitConflicts.length)fail('Correggi unità e dosi della ricetta: '+status.unitConflicts.map(i=>`${i.ingredient} usa ${i.expected==='pz'?'P':i.expected.toUpperCase()} in dispensa o nella lista`).join(', ')+'.');
+ const status=recipeStatus(state,recipe);if(actual===null&&status.unitConflicts.length)fail('Correggi unità e dosi della ricetta: '+status.unitConflicts.map(i=>`${i.ingredient} usa ${i.expected==='pz'?'P':i.expected.toUpperCase()} in dispensa o nella lista`).join(', ')+'.');
 
  const base=status.ingredients,byKey=new Map(base.map(i=>[i.ingredient+'|'+i.unit,i]));
 
@@ -106,9 +106,11 @@ export function preparationStatus(state,recipe,people=1,actual=null){
 
   if(!Array.isArray(actual)||actual.length!==base.length)fail('Controlla tutti gli ingredienti della preparazione.');
 
-  const seen=new Set();ingredients=actual.map(item=>{if(!record(item))fail('Ingrediente non valido.');const ingredient=name(item.ingredient),key=ingredient+'|'+item.unit;if(!byKey.has(key)||seen.has(key))fail('Gli ingredienti e le unità devono corrispondere alla ricetta.');seen.add(key);const qty=number(item.qty);validProduct({name:ingredient,category:'Alimentari',qty,unit:item.unit});return {ingredient,unit:item.unit,qty};});
+  const seen=new Set();ingredients=actual.map(item=>{if(!record(item))fail('Ingrediente non valido.');const ingredient=name(item.ingredient),key=(item.sourceIngredient===undefined?ingredient:name(item.sourceIngredient))+'|'+(item.sourceUnit??item.unit);if(!byKey.has(key)||seen.has(key))fail('Gli ingredienti e le unità devono corrispondere alla ricetta.');seen.add(key);const qty=number(item.qty);validProduct({name:ingredient,category:'Alimentari',qty,unit:item.unit});if(key!==ingredient+'|'+item.unit&&!state.pantry.some(p=>p.category==='Alimentari'&&p.name===ingredient&&p.unit===item.unit&&p.qty>0))fail('Scegli un sostituto disponibile in dispensa.');const expected=productUnit(state,ingredient,recipe.id);if(expected&&expected!==item.unit)fail(ingredient+' deve usare la stessa unità della dispensa.');return {ingredient,unit:item.unit,qty};});
 
  }else ingredients=base.map(i=>({...i,qty:round(i.qty*factor)}));
+
+ const combined=new Map();for(const i of ingredients){const key=i.ingredient+'|'+i.unit,old=combined.get(key);combined.set(key,{...i,qty:round((old?.qty||0)+i.qty)});}ingredients=[...combined.values()];
 
  for(const i of ingredients)validProduct({name:i.ingredient,category:'Alimentari',qty:i.qty,unit:i.unit});
 
@@ -314,4 +316,10 @@ export function recipeMatchesSearch(recipe,query){
  }
  const haystack=[clean(recipe.name),...ingredients].join(' ');
  return text.split(/\s+/).filter(Boolean).every(word=>haystack.includes(word));
+}
+
+export function preparationAlternatives(state,ingredient){
+ const groups=[['SPINACI','ZUCCHINE','BIETOLE','BROCCOLI','CAVOLFIORE','MELANZANE','PEPERONI'],['POLLO','TACCHINO'],['CECI','FAGIOLI','LENTICCHIE','PISELLI'],['PASTA','RISO','COUS COUS','FARRO','ORZO'],['RICOTTA','FORMAGGIO SPALMABILE']];
+ const group=groups.find(g=>g.some(t=>normalize(ingredient).includes(t)));
+ return state.pantry.filter(p=>p.category==='Alimentari'&&p.qty>0&&p.name!==normalize(ingredient)).map(p=>({...p,suggested:!!group?.some(t=>p.name.includes(t))})).sort((a,b)=>Number(b.suggested)-Number(a.suggested)||a.name.localeCompare(b.name,'it'));
 }
