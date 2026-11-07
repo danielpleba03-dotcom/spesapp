@@ -16,6 +16,9 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
 
  const main=()=>api.main(),close=()=>{preparedCaloriesOpen=false;freeMealOpen=false;$('#editor').close();},requireReady=()=>{if(!meta.ready)throw Error(meta.error||'Attendi il caricamento delle settimane.');},refresh=()=>{if(api.visible())render();};
 
+ let cleanupRequested=false;
+ function requestedCleanup(){const id='cleanup-20261107-owner-request';if(cleanupRequested||!store||!meta.ready||meta.pending||meta.preview||!api.mainMeta().ready||api.mainMeta().pending||!navigator.onLine||Date.now()>new Date('2026-11-09T00:00:00+01:00').getTime()||archive.applied?.includes(id))return;cleanupRequested=true;try{store.dispatch({id,type:'clearPreparedAndStock',payload:{},at:Date.now()});}catch(e){cleanupRequested=false;api.notify('Svuotamento non ancora eseguito: '+e.message,true);}}
+
  function send(type,payload,message=''){requireReady();store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});if(message)api.notify(message);}
 
  function dialog(title,html){$('#editor').innerHTML=`<div class="dialog-head"><h2>${esc(title)}</h2><button type="button" data-week="close" aria-label="Chiudi">×</button></div>${html}<p id="week-error" class="input-error" role="alert"></p>`;if(!$('#editor').open)$('#editor').showModal();}
@@ -45,7 +48,7 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
 
  setInterval(()=>{if(api.visible()&&!document.hidden)render();},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 
- store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;refresh();if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,refresh:()=>store.refresh(),openToday:()=>{start=monday();selectedDay=defaultWeekDay(start);}};
+ store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;queueMicrotask(requestedCleanup);refresh();if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,refresh:()=>store.refresh(),openToday:()=>{start=monday();selectedDay=defaultWeekDay(start);}};
 
 }
 
