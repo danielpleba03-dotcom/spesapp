@@ -303,3 +303,15 @@ export function applyAction(original,action){
 }
 
 
+
+// Commas separate ingredients; plain text also searches recipe names.
+export function recipeMatchesSearch(recipe,query){
+ const clean=value=>normalize(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ const text=clean(query),ingredients=recipe.ingredients.map(i=>clean(i.ingredient));
+ if(/[,;\n]/.test(text)){
+  const groups=text.split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
+  return groups.every(group=>ingredients.some(ingredient=>group.split(/\s+/).every(word=>ingredient.includes(word))));
+ }
+ const haystack=[clean(recipe.name),...ingredients].join(' ');
+ return text.split(/\s+/).filter(Boolean).every(word=>haystack.includes(word));
+}
