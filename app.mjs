@@ -45,7 +45,7 @@ const seed=await fetch('./seed.json',{signal:AbortSignal.timeout(15000)}).then(r
 
 const editingBaselines=new Map();
 
-let cookingFilters={minutes:0,difficulty:''},cookingPanelOpen=false,sheetPreparation=null;const getCookingPreferences=()=>weekUI?.getPreferences()||defaultCookingPreferences();
+let cookingFilters={minutes:0,difficulty:''},cookingPanelOpen=false;const getCookingPreferences=()=>weekUI?.getPreferences()||defaultCookingPreferences();
 let weekUI=null,recipesView='week',catalogReviewLegacy=[];const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
 
 let store,state,meta={},page=mobile()?'shopping':'recipes',search='',pantryFilter='Disponibili',recipeFilter='Fattibili adesso',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
@@ -171,7 +171,7 @@ function updateIngredientUnitHint(index){const item=draftIngredients[index],fiel
 
 function openDialog(){if(!$('#editor').open)$('#editor').showModal();}
 
-function showRecipeSheet(id,options=null){weekUI?.observeRecipes([id],'open',options?'easy':'week');sheetPreparation=options?{id,...options}:null;const r=state.recipes.find(r=>r.id===id);if(!r){notify('Questa ricetta non è più nel ricettario.',true);return;}$('#editor').innerHTML=editorHead(r.name)+calorieBadge(r)+effortBadge(r,getCookingPreferences())+`<div class="recipe-body">${(r.id.startsWith('classic-20261102-')||r.id.startsWith('classic-20261103-sweet-'))?'<small class="recipe-dose-note">Dosi orientative per una porzione; condimenti q.b. e pesi dei singoli ortaggi adattati dalla fonte. Verifica il procedimento nel link.</small>':''}<div class="recipe-actions">${r.source_url?`<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">Apri la ricetta ↗</a>`:''}<button class="primary" data-command="cook" data-portions="1" data-id="${esc(r.id)}">Preparata</button></div><ul class="ingredients compact-ingredients">${r.ingredients.map(i=>{const replacement=options?.substitutions?.find(x=>x.sourceIngredient===i.ingredient&&x.sourceUnit===i.unit);return `<li><strong>${replacement?`${esc(replacement.ingredient)}<small class="ingredient-stock">Al posto di ${esc(i.ingredient)} · da confermare</small>`:esc(i.ingredient)}</strong><span>${formatQuantity(replacement?.qty??i.qty,replacement?.unit??i.unit)}</span></li>`;}).join('')}</ul>${favoriteButton(r)}<p class="plan-caption">Quantità per una persona. ${options?.substitutions?.length?'Controlla sostituzioni e dosi in Preparata. ':''}Aprire questa scheda non modifica la dispensa.</p></div>`;openDialog();}
+function showRecipeSheet(id){weekUI?.observeRecipes([id],'open','week');const r=state.recipes.find(r=>r.id===id);if(!r){notify('Questa ricetta non è più nel ricettario.',true);return;}$('#editor').innerHTML=`<article class="recipe-sheet"><header class="recipe-sheet-head"><h2>${esc(r.name)}</h2><div class="recipe-sheet-tools">${favoriteButton(r,true)}<button type="button" data-command="close-dialog" aria-label="Chiudi">×</button></div><div class="recipe-sheet-meta">${calorieBadge(r)}${effortBadge(r,getCookingPreferences())}<span class="recipe-sheet-dose">Per 1 porzione</span></div></header><div class="recipe-sheet-body"><ul class="ingredients compact-ingredients sheet-ingredients">${r.ingredients.map(i=>`<li><strong>${esc(i.ingredient)}</strong><span>${formatQuantity(i.qty,i.unit)}</span></li>`).join('')}</ul>${(r.id.startsWith('classic-20261102-')||r.id.startsWith('classic-20261103-sweet-'))?'<small class="sheet-dose-note">Pesi dei singoli ortaggi e condimenti indicativi: verifica le dosi nella fonte.</small>':''}</div><footer class="recipe-sheet-actions">${r.source_url?`<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">Apri la ricetta ↗</a>`:'<span></span>'}<button type="button" class="primary" data-command="cook" data-id="${esc(r.id)}">Preparata</button></footer></article>`;openDialog();}
 
 let historyRequest=0;
 async function showPreparationHistory(){const request=++historyRequest;$('#editor').innerHTML=editorHead('Ultime ricette preparate')+'<div data-preparation-history><p class="empty" role="status">Caricamento…</p></div>';openDialog();try{const entries=await store.getPreparationHistory();const root=$('[data-preparation-history]');if(request!==historyRequest||!root||!$('#editor').open)return;const dates=new Intl.DateTimeFormat('it-IT',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});root.innerHTML=entries.length?'<ul class="preparation-history">'+entries.map(e=>`<li><div><strong>${esc(e.name)}</strong><small>${esc(dates.format(new Date(e.at)))}</small></div><div class="history-entry-tools"><span>${e.people} ${e.people===1?'porzione':'porzioni'}</span>${state.recipes.some(r=>r.id===e.recipeId)?favoriteButton(state.recipes.find(r=>r.id===e.recipeId),true):''}</div></li>`).join('')+'</ul>':'<p class="empty">Nessuna preparazione con data registrata.</p>';}catch(e){const root=$('[data-preparation-history]');if(request===historyRequest&&root&&$('#editor').open)root.innerHTML='<p class="input-error" role="alert">Non è stato possibile caricare lo storico. Controlla la connessione e riprova.</p><button data-command="preparation-history">Riprova</button>';}}
@@ -299,7 +299,7 @@ document.addEventListener('click',async event=>{
  case 'recipe-week':recipesView='week';weekUI?.openToday();renderShell();break;
 
  case 'preparation-history':await showPreparationHistory();break;
- case 'cook':{const choice=sheetPreparation?.id===id?sheetPreparation:null;showPreparation(state.recipes.find(r=>r.id===id),choice?.people||1,choice?.substitutions||[]);sheetPreparation=null;break;}
+ case 'cook':showPreparation(state.recipes.find(r=>r.id===id),1);break;
 
  case 'preparation-factor':if(preparation){preparation.people=Number(button.dataset.value);preparation.amounts=[];$('#preparation-people').value=preparation.people;renderPreparationRows();}break;
 
@@ -316,7 +316,7 @@ document.addEventListener('click',async event=>{
  case 'recipe-shopping':{const recipe=state.recipes.find(r=>r.id===id);if(!recipe)break;button.disabled=true;if(action('addShopping',{recipeId:id,expectedRecipe:recipe}))notify('Ingredienti mancanti aggiunti alla lista della spesa.');break;}
 
 
- case 'close-dialog':sheetPreparation=null;preparation=null;$('#editor').close();break;
+ case 'close-dialog':preparation=null;$('#editor').close();break;
 
  case 'add-ingredient':if(draftIngredients.length>=LIMITS.ingredients){notify('Puoi inserire al massimo 100 ingredienti.',true);break;}draftIngredients.push({ingredient:'',qty:50,unit:'g'});renderIngredientEditor();break;
 
@@ -351,7 +351,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{store=await createStore(seed.recipes,onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:(id,options)=>showRecipeSheet(id,options),onPreferencesChange:()=>{const panel=$('#cooking-preferences');if(panel&&!panel.open)panel.outerHTML=preferencesPanel(getCookingPreferences(),cookingFilters);if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore(seed.recipes,onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:id=>showRecipeSheet(id),onPreferencesChange:()=>{const panel=$('#cooking-preferences');if(panel&&!panel.open)panel.outerHTML=preferencesPanel(getCookingPreferences(),cookingFilters);if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 

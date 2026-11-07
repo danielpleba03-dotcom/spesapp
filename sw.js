@@ -1,4 +1,4 @@
-const VERSION='spesapp-2026-11-07-gusti-progressivi-v65';
+const VERSION='spesapp-2026-11-07-scheda-orari-v66';
 
 const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','recipe-additions','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261104-calorie-settimana`);
 

@@ -26,7 +26,9 @@ export function estimatedMinutes(r){if(/SODE|CAPRESE/.test(r.name))return 15;if(
 
 function abundance(main,r){const parts=r.ingredients.filter(i=>i.qty>0&&!['SALE FINO','PEPE NERO','ACQUA','BASILICO','PREZZEMOLO','ORIGANO'].includes(i.ingredient));if(!parts.length)return 0;return Math.min(3,parts.reduce((n,i)=>{const qty=main.pantry.filter(p=>p.name===i.ingredient&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0);return n+Math.min(8,qty/i.qty);},0)/parts.length/3);}
 
-export function mealExpired(meal,now=new Date()){const today=localDate(now);return meal.date<today||meal.date===today&&now.getHours()>=(meal.slot==='Pranzo'?12:20);}
+export function mealWindow(slot){if(slot==='Pranzo')return {start:11,end:13};if(slot==='Cena')return {start:18,end:22};fail('Tipo di pasto non valido.');}
+
+export function mealExpired(meal,now=new Date()){const today=localDate(now);return meal.date<today||meal.date===today&&now.getHours()>=mealWindow(meal.slot).end;}
 
 // Stable weighted sampling: pantry is a preference, never a feasibility filter.
 
