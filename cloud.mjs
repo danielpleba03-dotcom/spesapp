@@ -35,10 +35,10 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   let value=saved?validateState(JSON.parse(saved)):emptyState(recipes);
 
-  let previewHistory=emptyWeeks();
+  const readPreviewHistory=()=>{const raw=localStorage.getItem('spesapp-recipe-weeks-preview');return raw?validateWeeks(JSON.parse(raw)):emptyWeeks();};
   const notify=()=>onChange(structuredClone(value),{preview:true,authenticated:true,ready:true,online:true,pending:0});
 
-  const store={dispatch:action=>{const next=applyAction(value,action),history=action.type==='cook'?recordPreparation(previewHistory,value.recipes.find(r=>r.id===action.payload.id),action):previewHistory;localStorage.setItem('spesapp-preview',JSON.stringify(next));value=next;previewHistory=history;notify();},getPreparationHistory:async()=>preparationHistory(previewHistory),logout:()=>location.reload(),login:()=>{},get state(){return structuredClone(value);},user:{displayName:'Anteprima locale'},preview:true};
+  const store={dispatch:action=>{const next=applyAction(value,action),history=action.type==='cook'?recordPreparation(readPreviewHistory(),value.recipes.find(r=>r.id===action.payload.id),action):null;localStorage.setItem('spesapp-preview',JSON.stringify(next));if(history)localStorage.setItem('spesapp-recipe-weeks-preview',JSON.stringify(history));value=next;notify();},getPreparationHistory:async()=>preparationHistory(readPreviewHistory()),logout:()=>location.reload(),login:()=>{},get state(){return structuredClone(value);},user:{displayName:'Anteprima locale'},preview:true};
 
   queueMicrotask(notify);return store;
 

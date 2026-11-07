@@ -1,16 +1,14 @@
-const VERSION='spesapp-2026-11-07-cucina-personale-v64';
+const VERSION='spesapp-2026-11-07-gusti-progressivi-v65';
 
 const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','recipe-additions','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261104-calorie-settimana`);
 
 const LOCAL=['./','./index.html','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 
-const PREVIOUS=['./previous/index.html','./previous/style.css?v=20261104-calorie-settimana','./previous/seed.json','./previous/icon.svg','./previous/icon-192.png','./previous/icon-512.png',...MODULES.filter(url=>!url.includes('cooking-')).map(url=>url.replace('./','./previous/'))];
-
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
 
 const timeoutFetch=request=>fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
 
-self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(VERSION);await cache.addAll(LOCAL.map(url=>new Request(url,{cache:'reload'})));await Promise.allSettled([...SDK,...PREVIOUS].map(url=>cache.add(url)));await self.skipWaiting();})()));
+self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(VERSION);await cache.addAll(LOCAL.map(url=>new Request(url,{cache:'reload'})));await Promise.allSettled(SDK.map(url=>cache.add(url)));await self.skipWaiting();})()));
 
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith('spesapp-')&&name!==VERSION)await caches.delete(name);await self.clients.claim();})()));
 
