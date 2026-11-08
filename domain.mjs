@@ -1,10 +1,10 @@
-export const mealTypes=['Colazioni','Primi','Secondi','Dolci'];
+export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';
 
 export const categories=['Alimentari','Altro'];
 
-export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:600,ingredients:100,instructions:20000,bytes:780000};
+export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:1200,ingredients:100,instructions:20000,bytes:780000};
 
 export class DomainError extends Error {constructor(message){super(message);this.name='DomainError';this.code='validation';}}
 
@@ -151,7 +151,7 @@ export function validateRecipe(raw,allowMissingSource=true){
 
  const r={tools:[...new Set((raw.tools||[]).map(normalize))],id:identifier(raw.id),name:name(raw.name),instructions:String(raw.instructions||'').trim(),source_url:String(raw.source_url||'').trim(),source_title:String(raw.source_title||'').trim(),servings:1,ingredients:raw.ingredients.map(i=>{if(!record(i))fail('Ingrediente non valido.');return {ingredient:name(i.ingredient),qty:number(i.qty),unit:i.unit};})};
 
- if(raw.meal!==undefined){if(typeof raw.meal!=='string'||!mealTypes.includes(raw.meal)&&raw.meal!=='Merende')fail('Scegli il tipo di pasto: Colazioni, Primi, Secondi o Dolci.');r.meal=raw.meal;}
+ if(raw.meal!==undefined){if(typeof raw.meal!=='string'||!mealTypes.includes(raw.meal))fail('Scegli una categoria del ricettario.');r.meal=raw.meal;}
 
  if(raw.favorite!==undefined){if(typeof raw.favorite!=='boolean')fail('Preferenza della ricetta non valida.');r.favorite=raw.favorite;}
 
@@ -166,7 +166,7 @@ export function validateRecipe(raw,allowMissingSource=true){
 
  const aggregated=recipeStatus({pantry:[]},r);for(const i of aggregated.ingredients)validProduct({name:i.ingredient,qty:i.qty,category:'Alimentari',unit:i.unit},true);
 
- r.source_title||=url?.hostname||'Link da aggiungere';if(raw.kcal!==undefined&&raw.kcal!==null){const kcal=number(raw.kcal);if(kcal<0||kcal>10000)fail('Inserisci calorie valide per una porzione.');r.kcal=kcal;}return r;
+ r.source_title||=url?.hostname||(r.instructions?'Ricettario Spesapp':'Link da aggiungere');if(raw.kcal!==undefined&&raw.kcal!==null){const kcal=number(raw.kcal);if(kcal<0||kcal>10000)fail('Inserisci calorie valide per una porzione.');r.kcal=kcal;}return r;
 
 }
 
