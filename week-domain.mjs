@@ -1,4 +1,4 @@
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity} from './cooking-domain.mjs?v=20261104-calorie-settimana';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes} from './cooking-domain.mjs?v=20261104-calorie-settimana';
 import {recipeCalories} from './recipe-calories.mjs?v=20261104-calorie-settimana';
 import {normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=20261104-calorie-settimana';
 
@@ -38,9 +38,14 @@ function remember(history,recipeId){return [...history.filter(x=>x!==recipeId),r
 
 function randomFraction(seed,recipeId){let h=2166136261;for(const c of seed+'|'+recipeId){h=Math.imul(h^c.charCodeAt(0),16777619);}h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846ca68b);h^=h>>>16;return ((h>>>0)+1)/4294967297;}
 
-function choose(main,choices,p,history,used,otherRecipe,seed,cooking=null){
+function choose(main,choices,p,history,used,otherRecipe,seed,cooking=null,avoidRecipe=null){
 
  let options=choices;
+ const usedRecipes=[...used.keys()].map(id=>main.recipes.find(r=>r.id===id)).filter(Boolean);
+ const distinct=options.filter(r=>!usedRecipes.some(prior=>similarRecipes(r,prior))&&(!avoidRecipe||!similarRecipes(r,avoidRecipe)));
+ if(distinct.length)options=distinct;
+ else if(avoidRecipe){const changed=options.filter(r=>!similarRecipes(r,avoidRecipe));if(changed.length)options=changed;}
+
 
  const least=Math.min(...options.map(r=>used.get(r.id)||0));options=options.filter(r=>(used.get(r.id)||0)===least);
 
@@ -55,18 +60,19 @@ function choose(main,choices,p,history,used,otherRecipe,seed,cooking=null){
 
  else {const ordered=[...options].sort((a,b)=>history.indexOf(a.id)-history.indexOf(b.id));options=ordered.slice(0,Math.max(1,Math.ceil(ordered.length/4)));}
 
- return options.map(r=>({r,score:-Math.log(randomFraction(seed,r.id))/((1+(p.pantryPriority?abundance(main,r):0))*(p.minutes&&estimatedMinutes(r)>p.minutes?.25:1)*(cooking?preferenceWeight(r,cooking)*proposalDiversity(r,cooking,used,otherRecipe):1))})).sort((a,b)=>a.score-b.score||a.r.id.localeCompare(b.r.id))[0].r;
+ const groups=groupSimilarRecipes(options),sizes=new Map(groups.flatMap(g=>g.map(r=>[r.id,g.length])));
+ return options.map(r=>({r,score:-Math.log(randomFraction(seed,r.id))/((1/sizes.get(r.id))*(1+(p.pantryPriority?abundance(main,r):0))*(p.minutes&&estimatedMinutes(r)>p.minutes?.25:1)*(cooking?preferenceWeight(r,cooking)*proposalDiversity(r,cooking,used,otherRecipe):1))})).sort((a,b)=>a.score-b.score||a.r.id.localeCompare(b.r.id))[0].r;
 
 }
 
-export function alternativeRecipe(main,w,m,variant=0,cooking=null){const old=w.recipes[m.recipeId],pool=candidates(main,w.settings).filter(r=>r.id!==m.recipeId&&r.meal===old.meal&&(!cooking||recipeEffort(r,cooking).tools.every(t=>cooking.tools.includes(t))));if(!pool.length)fail('Non ci sono altre ricette dello stesso tipo disponibili.');const other=w.meals.find(x=>x.date===m.date&&x.id!==m.id),otherRecipe=other&&w.recipes[other.recipeId],used=new Map();for(const x of w.meals)if(!x.from&&x.id!==m.id)used.set(x.recipeId,(used.get(x.recipeId)||0)+1);const history=[...new Set([...(w.history||[]),...w.meals.map(x=>x.recipeId)])];return choose(main,pool,w.settings,history,used,otherRecipe,w.start+'|change|'+m.id+'|'+w.revision+'|'+variant,cooking);}
+export function alternativeRecipe(main,w,m,variant=0,cooking=null){const old=w.recipes[m.recipeId],pool=candidates(main,w.settings).filter(r=>r.id!==m.recipeId&&r.meal===old.meal&&(!cooking||recipeEffort(r,cooking).tools.every(t=>cooking.tools.includes(t))));if(!pool.length)fail('Non ci sono altre ricette dello stesso tipo disponibili.');const other=w.meals.find(x=>x.date===m.date&&x.id!==m.id),otherRecipe=other&&w.recipes[other.recipeId],used=new Map();for(const x of w.meals)if(!x.from&&x.id!==m.id)used.set(x.recipeId,(used.get(x.recipeId)||0)+1);const history=[...new Set([...(w.history||[]),...w.meals.map(x=>x.recipeId)])];return choose(main,pool,w.settings,history,used,otherRecipe,w.start+'|change|'+m.id+'|'+w.revision+'|'+variant,cooking,old);}
 
 
 const isPasta=r=>r.ingredients.some(i=>/^(PASTA|SPAGHETTI|PENNE|FUSILLI|RIGATONI|TAGLIATELLE)$/.test(i.ingredient));
 
 export function generateWeek(main,preferences,start,variant=0,previous=null,now=new Date(),cooking=null){const p=settings(preferences);date(start);if(monday(start)!==start)fail('Scegli una settimana da lunedì.');const old=previous?validateWeek(previous):null;const frozenIds=new Set(old?.meals.filter(m=>mealExpired(m,now)||m.locked).map(m=>m.recipeId)||[]),pool=candidates(main,p).filter(r=>(!cooking||recipeEffort(r,cooking).tools.every(t=>cooking.tools.includes(t)))&&(!frozenIds.has(r.id)||digest(r)===digest(old.recipes[r.id])));if(!pool.length)fail('Non ci sono primi o secondi compatibili. Aggiungi ricette al ricettario.');if(old&&old.start!==start)fail('La settimana precedente non corrisponde.');const w={start,revision:0,settings:p,recipes:{},meals:[],history:[...(old?.history||[])]},used=new Map();for(const m of old?.meals||[])w.history=remember(w.history,m.recipeId);let rootIndex=0;
 
- function pick(day,slot){const other=w.meals.find(m=>m.date===day),otherRecipe=other&&w.recipes[other.recipeId],opposite=otherRecipe?.meal==='Primi'?'Secondi':otherRecipe?.meal==='Secondi'?'Primi':null,balanced=opposite?pool.filter(r=>r.meal===opposite):pool,choices=balanced.length?balanced:pool,prior=old?.meals.find(m=>m.date===day&&m.slot===slot),fresh=choices.filter(r=>r.id!==prior?.recipeId),options=fresh.length?fresh:choices;const r=choose(main,options,p,w.history,used,otherRecipe,start+'|generate|'+(old?.revision||0)+'|'+variant+'|'+rootIndex++,cooking);w.history=remember(w.history,r.id);return r;}
+ function pick(day,slot){const other=w.meals.find(m=>m.date===day),otherRecipe=other&&w.recipes[other.recipeId],opposite=otherRecipe?.meal==='Primi'?'Secondi':otherRecipe?.meal==='Secondi'?'Primi':null,balanced=opposite?pool.filter(r=>r.meal===opposite):pool,choices=balanced.length?balanced:pool,prior=old?.meals.find(m=>m.date===day&&m.slot===slot),fresh=choices.filter(r=>r.id!==prior?.recipeId),options=fresh.length?fresh:choices;const r=choose(main,options,p,w.history,used,otherRecipe,start+'|generate|'+(old?.revision||0)+'|'+variant+'|'+rootIndex++,cooking,prior&&old.recipes[prior.recipeId]);w.history=remember(w.history,r.id);return r;}
 
 
  for(let i=0;i<5;i++){const d=addDays(start,i);for(const slot of ['Pranzo','Cena']){const before=old?.meals.find(m=>m.date===d&&m.slot===slot);if(before&&(mealExpired(before,now)||before.locked)){const r=old.recipes[before.recipeId],kept=structuredClone(before);if(kept.from&&w.meals.find(m=>m.id===kept.from)?.recipeId!==kept.recipeId)kept.from=null;w.meals.push(kept);w.recipes[r.id]=structuredClone(r);if(!kept.from)used.set(r.id,(used.get(r.id)||0)+1);continue;}const linked=slot==='Pranzo'&&i>0&&(p.leftovers==='always'||p.leftovers==='some'&&[1,3].includes(i)),parent=linked?w.meals.find(m=>m.date===addDays(d,-1)&&m.slot==='Cena'):null,r=parent?w.recipes[parent.recipeId]:pick(d,slot);w.meals.push({id:before?.id||'week-'+d+'-'+slot.toLowerCase(),date:d,slot,recipeId:r.id,from:parent?.id||null});w.recipes[r.id]=structuredClone(r);if(!parent)used.set(r.id,(used.get(r.id)||0)+1);}}return validateWeek(w);}
