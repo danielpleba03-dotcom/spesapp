@@ -221,7 +221,7 @@ export function validateState(raw){
 
  if(raw.applied!==undefined&&(!Array.isArray(raw.applied)||raw.applied.length>1500||!raw.applied.every(id=>typeof id==='string'&&idPattern.test(id))))fail('Cronologia delle operazioni non valida.');
 
- s.applied=raw.applied||[];
+ s.applied=appliedOperations(raw.applied||[]);
 
  if(raw.backupDate!==undefined){if(typeof raw.backupDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(raw.backupDate))fail('Data del backup non valida.');s.backupDate=raw.backupDate;}
 
@@ -275,11 +275,28 @@ export function addShoppingRequirements(state,requirements,actionId,expectedReci
 
 }
 
+// Older bulk imports recorded internal steps as if they were standalone actions.
+const legacyCatalogStep = /^release-(?:20261108|20261110)-[a-zA-Z0-9_-]+-recipe-(?:[0-9]|[1-3][0-9])$/;
+const appliedOperations = ids => ids.filter(id=>!legacyCatalogStep.test(id));
+
+function saveRecipe(state,recipe,fallbackId,expected){
+ if(!record(recipe))fail('Ricetta non valida.');
+ const r=validateRecipe({...recipe,id:recipe.id||fallbackId});
+ if(expected!==undefined&&JSON.stringify(state.recipes.find(x=>x.id===r.id))!==JSON.stringify(expected))fail('La ricetta è stata modificata o eliminata da un altro dispositivo. Riaprila prima di salvare.');
+ if(state.recipes.some(x=>x.id!==r.id&&x.name===r.name))fail('Esiste già una ricetta con questo nome.');
+ for(const i of r.ingredients){
+  if([...state.pantry,...state.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))fail(`${i.ingredient} appartiene ad Altro: nelle ricette usa prodotti alimentari.`);
+  lockUnit(state,i.ingredient,i.unit,r.id);
+ }
+ state.recipes=state.recipes.filter(x=>x.id!==r.id);
+ state.recipes.push(r);
+}
+
 export function applyAction(original,action){
 
  validateAction(action);if(original.applied?.includes(action.id))return structuredClone(original);
 
- const s=structuredClone(original),a=action.payload;s.units||={};s.counts||={};s.applied||=[];
+ const s=structuredClone(original),a=action.payload;s.units||={};s.counts||={};s.applied=appliedOperations(s.applied||[]);
 
  const find=(kind,id)=>s[kind].find(p=>p.id===String(id));
 
@@ -307,7 +324,25 @@ export function applyAction(original,action){
 
  case 'buy':{const ids=a.ids!==undefined?selectedIds(a):new Set([String(a.id)]);for(const p of s.shopping.filter(p=>ids.has(p.id))){validProduct(p,true);upsert({...p,pantryId:'bought-'+p.id});}s.shopping=s.shopping.filter(p=>!ids.has(p.id));break;}
 
- case 'saveRecipe':{if(Array.isArray(a.recipes)){if(a.recipes.length>40)fail('Troppe ricette in un aggiornamento.');for(const [n,raw]of a.recipes.entries()){const r=validateRecipe(raw);if(s.recipes.some(x=>x.name===r.name))continue;if(s.recipes.some(x=>x.id===r.id))fail('Identificativo di ricetta già in uso.');Object.assign(s,applyAction(s,{id:String(action.id).slice(0,100)+'-recipe-'+n,type:'saveRecipe',payload:{recipe:r}}));}break;}if(a.favoriteOnly===true){const recipe=s.recipes.find(r=>r.id===String(a.id));if(!recipe)fail('Questa ricetta non è più disponibile.');if(typeof a.favorite!=='boolean')fail('Preferenza non valida.');recipe.favorite=a.favorite;break;}if(!record(a.recipe))fail('Ricetta non valida.');const r=validateRecipe({...a.recipe,id:a.recipe.id||action.id});if(a.expected!==undefined&&JSON.stringify(s.recipes.find(x=>x.id===r.id))!==JSON.stringify(a.expected))fail('La ricetta è stata modificata o eliminata da un altro dispositivo. Riaprila prima di salvare.');if(s.recipes.some(x=>x.id!==r.id&&x.name===r.name))fail('Esiste già una ricetta con questo nome.');for(const i of r.ingredients){if([...s.pantry,...s.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))fail(`${i.ingredient} appartiene ad Altro: nelle ricette usa prodotti alimentari.`);lockUnit(s,i.ingredient,i.unit,r.id);}s.recipes=s.recipes.filter(x=>x.id!==r.id);s.recipes.push(r);break;}
+ case 'saveRecipe':{
+  if(Array.isArray(a.recipes)){
+   if(a.recipes.length>40)fail('Troppe ricette in un aggiornamento.');
+   for(const raw of a.recipes){
+    const recipe=validateRecipe(raw);
+    if(s.recipes.some(x=>x.name===recipe.name))continue;
+    if(s.recipes.some(x=>x.id===recipe.id))fail('Identificativo di ricetta già in uso.');
+    saveRecipe(s,recipe);
+   }
+  }else if(a.favoriteOnly===true){
+   const recipe=s.recipes.find(r=>r.id===String(a.id));
+   if(!recipe)fail('Questa ricetta non è più disponibile.');
+   if(typeof a.favorite!=='boolean')fail('Preferenza non valida.');
+   recipe.favorite=a.favorite;
+  }else{
+   saveRecipe(s,a.recipe,action.id,a.expected);
+  }
+  break;
+ }
 
  case 'deleteRecipe':if(a.expected!==undefined&&JSON.stringify(s.recipes.find(r=>r.id===String(a.id)))!==JSON.stringify(a.expected))fail('La ricetta è cambiata. Riapri prima di eliminarla.');s.recipes=s.recipes.filter(r=>r.id!==String(a.id));delete s.counts[String(a.id)];break;
 
@@ -321,7 +356,12 @@ export function applyAction(original,action){
 
  rebuildProductUnits(s);
 
- s.applied=[...new Set([...s.applied,action.id])].slice(-1500);assertCapacity(s);return s;
+ s.applied=[...new Set([...s.applied,action.id])].slice(-1500);
+ if(s.applied.length>256&&new TextEncoder().encode(JSON.stringify(s)).length>LIMITS.bytes-12000){
+  // Firestore keeps a separate receipt for each committed operation.
+  s.applied=s.applied.filter((id,index)=>index>=s.applied.length-256||id.startsWith('release-')||id.startsWith('cleanup-'));
+ }
+ assertCapacity(s);return s;
 
 }
 
