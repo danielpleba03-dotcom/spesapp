@@ -20,6 +20,27 @@ function identifier(value){if(!['number','string'].includes(typeof value)||!idPa
 
 export const normalize=s=>String(s??'').normalize('NFC').trim().toLocaleUpperCase('it-IT').replace(/\s+/g,' ');
 
+const dishPatterns = [
+ ['Pasta', /\b(PASTA(?! (?:DI ARACHIDI|FROLLA|SFOGLIA|BRIS))|SPAGHETTI|PENNE|FUSILLI|RIGATONI|TAGLIATELLE|TROFIE|LINGUINE|BUCATINI|LASAGNE|RAVIOLI|GNOCCHI|PACCHERI|ORECCHIETTE|MACCHERONI|FARFALLE|VERMICELLI)\b/],
+ ['Riso', /\b(RISO|RISOTTO|RISOTTI)\b/],
+ ['Pesce e frutti di mare', /\b(PESCE|SALMONE|MERLUZZO|ORATA|BRANZINO|TROTA|TONNO|GAMBER[IO]|GAMBERETTI|CALAMAR[IO]|SEPPI[AE]|POLPO|SOGLIOLA|BACCAL[AÀ]|ALICI|ACCIUGHE|COZZE|VONGOLE|SGOMBRO|SARDE)\b/],
+ ['Carne', /\b(CARNE|POLLO|TACCHINO|MANZO|VITELLO|MAIALE|CONIGLIO|AGNELLO|ANATRA|SALSICCIA|PANCETTA|GUANCIALE|PROSCIUTTO|SPECK|MORTADELLA|LARDO|BRESAOLA)\b/],
+ ['Uova', /\b(UOVA?|FRITTAT[AE]|OMELETTE)\b/],
+ ['Legumi e soia', /\b(CECI|FAGIOLI|LENTICCHIE|PISELLI|FAVE|TOFU|TEMPEH|EDAMAME)\b/],
+ ['Altri cereali', /\b(ORZO|FARRO|QUINOA|COUS COUS|POLENTA|MIGLIO|BULGUR|AVENA)\b/],
+];
+const vegetablePattern = /\b(ZUCCHINE|MELANZANE|PEPERONI|PATATE|CAROTE|ZUCCA|POMODORI|BROCCOLI|CAVOLFIORE|FINOCCHI|ASPARAGI|FAGIOLINI|SPINACI|BIETOLE|RADICCHIO|INSALATA|RUCOLA|CARCIOFI|PORRI|SCAROLA|FUNGHI|CIPOLLE|SEDANO|LATTUGA|MAIS|VERZA)\b/;
+export const dishTypes = [...dishPatterns.map(([label])=>label), 'Verdure', 'Altro'];
+export function recipeDishTypes(recipe){
+ const names = [normalize(recipe.name), ...recipe.ingredients.map(item=>normalize(item.ingredient)).filter(name=>!name.startsWith('BRODO DI '))];
+ const matches = dishPatterns.filter(([label, pattern])=>names.some(name=>
+  pattern.test(name) && !(label==='Riso' && /^(FARINA|AMIDO|LATTE|BEVANDA|ACETO) DI RISO$/.test(name))
+ )).map(([label])=>label);
+ if(names.some(name=>vegetablePattern.test(name)))matches.push('Verdure');
+ return matches.length ? matches : ['Altro'];
+}
+
+
 function name(value){if(typeof value!=='string')fail('Scrivi il nome del prodotto.');const n=normalize(value);if(!n||n.length>LIMITS.name||/[\x00-\x1f\x7f]/.test(n))fail('Inserisci un nome tra 1 e 120 caratteri, senza caratteri di controllo.');return n;}
 
 function number(value){if(!['number','string'].includes(typeof value)||(typeof value==='string'&&!value.trim()))fail('Inserisci una quantità valida.');const n=Number(value);if(!Number.isFinite(n)||Math.abs(n)>LIMITS.quantity)fail('La quantità deve essere un numero valido, non superiore a un miliardo.');return n;}
