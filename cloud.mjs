@@ -1,4 +1,4 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=80';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=82';
 import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261104-calorie-settimana';
 
 import {createJournal} from './journal.mjs?v=20261104-calorie-settimana';
