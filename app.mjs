@@ -7,7 +7,7 @@ import {calorieBadge} from './recipe-calories.mjs?v=20261104-calorie-settimana';
 
 import {classicRecipes} from './classic-recipes.mjs?v=20261104-calorie-settimana';
 
-import {createWeekUI} from './week-ui.mjs?v=20261104-calorie-settimana';
+import {createWeekUI} from './week-ui.mjs?v=79';
 
 import {enhanceSuggestions} from './suggestions.mjs?v=20261104-calorie-settimana';
 

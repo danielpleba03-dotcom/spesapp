@@ -1,4 +1,4 @@
-import {emptyWeeks,validateWeeks,applyWeekAction} from './week-domain.mjs?v=20261104-calorie-settimana';
+import {emptyWeeks,validateWeeks,applyWeekAction} from './week-domain.mjs?v=79';
 
 import {validateState,DomainError} from './domain.mjs?v=20261104-calorie-settimana';
 

@@ -1,6 +1,6 @@
-const VERSION='spesapp-2026-11-10-porzioni-v78';
+const VERSION='spesapp-2026-11-10-porzioni-v79';
 
-const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','recipe-additions','catalogo-71','catalogo-72','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=20261104-calorie-settimana`);
+const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','recipe-additions','catalogo-71','catalogo-72','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=${['bootstrap','app','week-ui','week-domain','week-store'].includes(n)?'79':'20261104-calorie-settimana'}`);
 
 const LOCAL=['./','./index.html','./workspace.css?v=74','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 

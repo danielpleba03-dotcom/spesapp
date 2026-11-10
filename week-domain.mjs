@@ -106,7 +106,7 @@ export function portions(w,m){return w.meals.filter(x=>x.id===m.id||x.from===m.i
 
 // Read current pantry only: no simulation or stock reservation for later meals.
 
-export function mealStockStatus(main,w,meal,unitLookup=null){const recipe=main.recipes.find(r=>r.id===meal.recipeId);if(!recipe)return {possible:false,missing:[],unitConflicts:[],portions:portions(w,meal),removed:true};const count=portions(w,meal),status=recipeStatus(main,{...recipe,ingredients:recipe.ingredients.map(i=>({...i,qty:round(i.qty*count)}))},unitLookup);return {...status,portions:count,removed:false};}
+export function mealStockStatus(main,w,meal,unitLookup=null,covered=new Set(),now=new Date()){const recipe=main.recipes.find(r=>r.id===meal.recipeId);if(!recipe)return {possible:false,missing:[],unitConflicts:[],portions:portions(w,meal),removed:true};const count=w.meals.filter(m=>(m.id===meal.id||m.from===meal.id)&&!covered.has(m.id)&&!mealExpired(m,now)).length,status=recipeStatus(main,{...recipe,ingredients:recipe.ingredients.map(i=>({...i,qty:round(i.qty*count)}))},unitLookup);return {...status,portions:count,removed:false};}
 
 export function shoppingRequirements(main,w,now=new Date(),archive=null){w=validateWeek(w);const readyIds=new Set(archive?readyPortions(archive,now).flatMap(item=>item.remaining.map(p=>p.meal?.id)):[]);const map=new Map(),unitLookup=createUnitLookup(main);for(const meal of w.meals.filter(m=>!m.from)){const count=w.meals.filter(m=>(m.id===meal.id||m.from===meal.id)&&!mealExpired(m,now)&&!readyIds.has(m.id)).length;if(!count)continue;const r=w.recipes[meal.recipeId],current=main.recipes.find(x=>x.id===r.id);if(!current||digest(current)!==digest(r))fail('Una ricetta della settimana è cambiata. Sostituiscila prima di aggiungere la spesa.');for(const i of r.ingredients){const unit=unitLookup(i.ingredient);if(unit&&unit!==i.unit)fail(i.ingredient+': correggi l’unità nella ricetta.');if([...main.pantry,...main.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))fail(i.ingredient+' appartiene ad Altro: correggi la categoria.');const key=i.ingredient+'|'+i.unit;map.set(key,{name:i.ingredient,category:'Alimentari',unit:i.unit,qty:round((map.get(key)?.qty||0)+i.qty*count)});}}return [...map.values()];}
 
@@ -117,7 +117,7 @@ function readyEntries(plan){
 }
 function readyReservations(plan){
  const result=new Map();
- const meals=new Map(Object.values(plan.weeks||{}).flatMap(w=>w.meals).map(m=>[m.id,m]));
+ const meals=new Map(Object.values(plan.weeks||{}).flatMap(w=>w.meals.map(m=>[m.id,{...m,recipeName:normalize(w.recipes[m.recipeId]?.name||'')}])));
  const entries=readyEntries(plan).sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id));
  const occupied=new Set();
  for(const entry of entries){
@@ -134,10 +134,11 @@ function readyReservations(plan){
  const ordered=[...meals.values()].sort((a,b)=>a.date.localeCompare(b.date)||mealWindow(a.slot).end-mealWindow(b.slot).end);
  for(const entry of entries){
   const preparedAt=new Date(entry.at);
-  const matches=ordered.filter(m=>m.recipeId===entry.recipeId&&!occupied.has(m.id)&&!mealExpired(m,preparedAt));
+  const name=normalize(entry.name);
+  const matches=ordered.filter(m=>(m.recipeId===entry.recipeId||m.recipeName===name)&&!occupied.has(m.id)&&!mealExpired(m,preparedAt));
   for(let index=0;index<entry.people&&matches.length;index++){
    const key=entry.id+'|'+index;
-   if(result.has(key)||entry.ready.meals.some(meal=>meal.index===index))continue;
+   if(result.has(key))continue;
    const meal=matches.shift();
    result.set(key,meal);
    occupied.add(meal.id);
