@@ -2,9 +2,9 @@ import {cookingPreferences,proposalReason,createRecommendationContext} from './c
 
 import {createUnitLookup} from './domain.mjs?v=20261104-calorie-settimana';
 
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,readyPortions,preparedMealIds} from './week-domain.mjs?v=79';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,readyPortions,preparedMealIds} from './week-domain.mjs?v=80';
 
-import {createWeekStore} from './week-store.mjs?v=79';
+import {createWeekStore} from './week-store.mjs?v=80';
 
 import {reconcile} from './ui.mjs?v=20261104-calorie-settimana';
 
@@ -65,7 +65,7 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
   const rows=items.map(item=>{
    const count=item.remaining.length,portion=item.remaining[0],planned=item.remaining.filter(p=>p.meal).length;
    return `<li><div><strong>${esc(item.name)}</strong><small>${count} ${count===1?'porzione':'porzioni'} · Preparato ${esc(pretty(localDate(new Date(item.at))))}${planned?' · '+planned+' nel piano':''}</small></div>
-    ${btn('ready-remove','Togli 1',`data-entry-id="${esc(item.id)}" data-index="${portion.index}" aria-label="Togli una porzione di ${esc(item.name)}"`)}</li>`;
+    ${btn('ready-remove','Togli 1',`data-entry-id="${esc(item.id)}" data-index="${portion.index}" ${store?.canRemoveReadyPortion?.(item.id)===false?'disabled title="Salvataggio in corso"':''} aria-label="Togli una porzione di ${esc(item.name)}"`)}</li>`;
   }).join('');
   const content=`<p class="summary-note">I pasti collegati scalano una porzione alle 13:00 o alle 22:00. Usa «Togli 1» per registrare una porzione mangiata fuori orario o da un’altra persona.</p>${rows?'<ul class="ready-list">'+rows+'</ul>':'<p class="empty">Nessuna porzione pronta.</p>'}`;
   reconcile(list,content);

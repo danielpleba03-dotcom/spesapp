@@ -1,4 +1,4 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=79';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=80';
 import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261104-calorie-settimana';
 
 import {createJournal} from './journal.mjs?v=20261104-calorie-settimana';
@@ -126,6 +126,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   login:()=>authSDK.signInWithPopup(auth,new authSDK.GoogleAuthProvider()).catch(e=>{throw Error(cloudMessage(e));}),
 
+  pendingPreparations(){const s=session;if(!s?.journal)return [];return [...s.confirmed.values(),...s.journal.list()].filter(action=>action.type==='cook');},
   async getPreparationHistory(){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');const snap=await fire.getDoc(fire.doc(db,'users',s.user.uid,'recipeWeeks','main'));if(s!==session)throw Error('La sessione è cambiata. Riapri lo storico.');let plan=snap.exists()?validateWeeks(snap.data()):emptyWeeks();for(const a of [...s.confirmed.values(),...s.journal.list()])if(a.type==='cook'){const r=a.payload.expectedRecipe||s.remote.recipes.find(r=>r.id===a.payload.id);if(r)plan=recordPreparation(plan,r,a);}return preparationHistory(plan);},
   async logout(){if(session?.journal?.list().length)throw Error('Attendi il salvataggio delle modifiche prima di uscire.');await authSDK.signOut(auth);},
 

@@ -1,4 +1,4 @@
-import {emptyWeeks,validateWeeks,applyWeekAction} from './week-domain.mjs?v=79';
+import {emptyWeeks,validateWeeks,applyWeekAction,recordPreparation} from './week-domain.mjs?v=80';
 
 import {validateState,DomainError} from './domain.mjs?v=20261104-calorie-settimana';
 
@@ -14,7 +14,7 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
 
  const base='https://www.gstatic.com/firebasejs/13.1.0/',[apps,authSDK,fire]=dependencies.sdk||await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);const app=apps.getApp(),auth=authSDK.getAuth(app),db=fire.getFirestore(app);let session=null,unsubscribe;
 
- const visible=s=>{let value=structuredClone(s.remote);for(const a of [...s.confirmed.values(),...s.journal.list()]){try{value=applyWeekAction(value,mainStore.state,a).plan;}catch{/* Transaction rejection is reported by flush, not silently committed. */}}return value;};
+ const visible=s=>{let value=structuredClone(s.remote);for(const a of [...s.confirmed.values(),...s.journal.list()]){try{value=applyWeekAction(value,mainStore.state,a).plan;}catch{/* Transaction rejection is reported by flush, not silently committed. */}}for(const action of mainStore.pendingPreparations?.()||[]){const recipe=action.payload.expectedRecipe;if(!recipe)continue;try{value=recordPreparation(value,recipe,action);}catch(error){if(!(error instanceof DomainError))throw error;}}return value;};
 
  function emit(){const s=session;if(!s){onChange(emptyWeeks(),{ready:false,pending:0,error:''});return;}if(!s.journal){onChange(s.remote,{ready:false,pending:0,error:s.error});return;}try{onChange(visible(s),{ready:s.ready,pending:s.journal.list().length,error:s.error,preview:false});}catch(e){s.ready=false;s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});}}
 
@@ -26,7 +26,7 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
 
  addEventListener('storage',e=>{if(session?.journal?.matches(e.key)){emit();void flush();}});addEventListener('online',()=>{emit();void flush();});
 
- return {get state(){return session?.journal?visible(session):emptyWeeks();},dispatch:a=>{const s=session;if(!s?.ready)throw Error('Attendi il caricamento della settimana.');validAction(a);applyWeekAction(visible(s),mainStore.state,a);s.journal.put(a);emit();void flush(s);},refresh:emit};
+ return {canRemoveReadyPortion:id=>Object.values(session?.remote.weeks||{}).some(week=>week.preparations?.some(entry=>entry.id===id)),get state(){return session?.journal?visible(session):emptyWeeks();},dispatch:a=>{const s=session;if(!s?.ready)throw Error('Attendi il caricamento della settimana.');validAction(a);applyWeekAction(visible(s),mainStore.state,a);s.journal.put(a);emit();void flush(s);},refresh:emit};
 
 }
 
