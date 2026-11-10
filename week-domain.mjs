@@ -118,16 +118,43 @@ function readyEntries(plan){
 function readyReservations(plan){
  const result=new Map();
  const meals=new Map(Object.values(plan.weeks||{}).flatMap(w=>w.meals).map(m=>[m.id,m]));
- for(const entry of readyEntries(plan)){
+ const entries=readyEntries(plan).sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id));
+ const occupied=new Set();
+ for(const entry of entries){
   for(const meal of entry.ready.meals){
    const current=meals.get(meal.id);
    // A changed recipe releases its prepared portion back to the inventory.
    if(current&&current.recipeId===entry.recipeId){
     result.set(entry.id+'|'+meal.index,{...meal,date:current.date,slot:current.slot,recipeId:entry.recipeId});
+    occupied.add(current.id);
    }
   }
  }
+ // Keep a stable match across meal cutoffs, including portions removed manually.
+ const ordered=[...meals.values()].sort((a,b)=>a.date.localeCompare(b.date)||mealWindow(a.slot).end-mealWindow(b.slot).end);
+ for(const entry of entries){
+  const preparedAt=new Date(entry.at);
+  const matches=ordered.filter(m=>m.recipeId===entry.recipeId&&!occupied.has(m.id)&&!mealExpired(m,preparedAt));
+  for(let index=0;index<entry.people&&matches.length;index++){
+   const key=entry.id+'|'+index;
+   if(result.has(key)||entry.ready.meals.some(meal=>meal.index===index))continue;
+   const meal=matches.shift();
+   result.set(key,meal);
+   occupied.add(meal.id);
+  }
+ }
  return result;
+}
+export function preparedMealIds(plan){
+ const reservations=readyReservations(plan),ids=new Set();
+ for(const entry of readyEntries(plan)){
+  for(let index=0;index<entry.people;index++){
+   if(entry.ready.removed.includes(index))continue;
+   const meal=reservations.get(entry.id+'|'+index);
+   if(meal)ids.add(meal.id);
+  }
+ }
+ return ids;
 }
 export function readyPortions(plan,now=new Date()){
  const reservations=readyReservations(plan),items=[];

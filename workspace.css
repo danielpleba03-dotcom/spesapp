@@ -246,7 +246,9 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
 .ready-list strong { display: block; overflow-wrap: anywhere; font-size: .9rem; }
 .ready-list small { display: block; color: var(--muted); margin-top: 4px; }
 .ready-list button { min-height: 44px; white-space: nowrap; }
-.ready-badge { color: #a5e3bd; font-weight: 650; }
+.recipe-week-meal > small.ready-badge { color: #a5e3bd; font-weight: 650; }
 @media (max-width: 650px) {
  .recipe-view-tabs { grid-template-columns: repeat(2,minmax(0,1fr)) repeat(3,44px); }
 }
+
+.recipe-week-meal.meal-past > small.ready-badge { color: var(--muted); }
