@@ -252,3 +252,22 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
 }
 
 .recipe-week-meal.meal-past > small.ready-badge { color: var(--muted); }
+
+#editor[open]:has(#ready-portions) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: min(30rem, 82dvh);
+  animation: none;
+  overflow: hidden;
+}
+#ready-portions {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+#ready-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+}

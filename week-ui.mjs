@@ -64,10 +64,10 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
   }
   const rows=items.map(item=>{
    const count=item.remaining.length,portion=item.remaining[0],planned=item.remaining.filter(p=>p.meal).length;
-   return `<li><div><strong>${esc(item.name)}</strong><small>${count} ${count===1?'porzione':'porzioni'} · Preparato ${esc(pretty(localDate(new Date(item.at))))}${planned?' · '+planned+' nel piano':''}</small></div>
+   return `<li data-key="${esc(item.id)}"><div><strong>${esc(item.name)}</strong><small>${count} ${count===1?'porzione':'porzioni'} · Preparato ${esc(pretty(localDate(new Date(item.at))))}${planned?' · '+planned+' nel piano':''}</small></div>
     ${btn('ready-remove','Togli 1',`data-entry-id="${esc(item.id)}" data-index="${portion.index}" ${store?.canRemoveReadyPortion?.(item.id)===false?'disabled title="Salvataggio in corso"':''} aria-label="Togli una porzione di ${esc(item.name)}"`)}</li>`;
   }).join('');
-  const content=`<p class="summary-note">I pasti collegati scalano una porzione alle 13:00 o alle 22:00. Usa «Togli 1» per registrare una porzione mangiata fuori orario o da un’altra persona.</p>${rows?'<ul class="ready-list">'+rows+'</ul>':'<p class="empty">Nessuna porzione pronta.</p>'}`;
+  const content=`<p class="summary-note">I pasti collegati scalano una porzione alle 13:00 o alle 22:00. Usa «Togli 1» per registrare una porzione mangiata fuori orario o da un’altra persona.</p>${rows?'<ul class="ready-list" id="ready-scroll">'+rows+'</ul>':'<p class="empty">Nessuna porzione pronta.</p>'}`;
   reconcile(list,content);
  }
  function profile(){const value=main(),minute=Math.floor(Date.now()/60000);if(!profileCache||profileMain!==value||profileArchive!==archive||profileMinute!==minute){profileCache=createRecommendationContext(value,cookingPreferences(archive),archive);profileMain=value;profileArchive=archive;profileMinute=minute;}return profileCache;}
