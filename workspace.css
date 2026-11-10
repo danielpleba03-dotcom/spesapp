@@ -236,3 +236,5 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
     transition-duration: .01ms !important;
   }
 }
+
+.recipe-week-day h3.week-day-current { color: var(--accent); }
