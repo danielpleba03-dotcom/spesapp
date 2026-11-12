@@ -7,7 +7,7 @@ import {calorieBadge} from './recipe-calories.mjs?v=84';
 
 import {classicRecipes} from './classic-recipes.mjs?v=84';
 
-import {createWeekUI} from './week-ui.mjs?v=87';
+import {createWeekUI} from './week-ui.mjs?v=88';
 
 import {enhanceSuggestions} from './suggestions.mjs?v=84';
 
@@ -19,7 +19,7 @@ enhanceSelects();
 
 import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=84';
 
-import {createStore} from './cloud.mjs?v=87';
+import {createStore} from './cloud.mjs?v=88';
 
 import {reconcile,readPreference,writePreference} from './ui.mjs?v=84';
 

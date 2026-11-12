@@ -2,9 +2,9 @@ import {cookingPreferences,proposalReason,createRecommendationContext} from './c
 
 import {createUnitLookup} from './domain.mjs?v=84';
 
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=87';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=88';
 
-import {createWeekStore} from './week-store.mjs?v=87';
+import {createWeekStore} from './week-store.mjs?v=88';
 
 import {reconcile} from './ui.mjs?v=84';
 
