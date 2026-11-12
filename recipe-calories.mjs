@@ -1,4 +1,4 @@
-import {normalize} from './domain.mjs?v=20261104-calorie-settimana';
+import {normalize} from './domain.mjs?v=84';
 
 // Valori medi orientativi per dose: non etichette certificate.
 

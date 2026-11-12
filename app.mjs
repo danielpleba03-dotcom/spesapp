@@ -1,27 +1,27 @@
-import {catalogo72} from './catalogo-72.mjs?v=20261104-calorie-settimana';
-import {catalogo71} from './catalogo-71.mjs?v=20261104-calorie-settimana';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=20261104-calorie-settimana';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=20261104-calorie-settimana';
-import {recipeAdditions} from './recipe-additions.mjs?v=20261104-calorie-settimana';
-import {calorieBadge} from './recipe-calories.mjs?v=20261104-calorie-settimana';
+import {catalogo72} from './catalogo-72.mjs?v=84';
+import {catalogo71} from './catalogo-71.mjs?v=84';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=84';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=84';
+import {recipeAdditions} from './recipe-additions.mjs?v=84';
+import {calorieBadge} from './recipe-calories.mjs?v=84';
 
-import {classicRecipes} from './classic-recipes.mjs?v=20261104-calorie-settimana';
+import {classicRecipes} from './classic-recipes.mjs?v=84';
 
-import {createWeekUI} from './week-ui.mjs?v=83';
+import {createWeekUI} from './week-ui.mjs?v=84';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=20261104-calorie-settimana';
+import {enhanceSuggestions} from './suggestions.mjs?v=84';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=20261104-calorie-settimana';
+import {enhanceSelects} from './select-menu.mjs?v=84';
 
 enhanceSelects();
 
-import {preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=20261104-calorie-settimana';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=84';
 
-import {createStore} from './cloud.mjs?v=82';
+import {createStore} from './cloud.mjs?v=84';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=20261104-calorie-settimana';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=84';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -74,7 +74,7 @@ const defaultQuantity=unit=>unit==='g'?100:1;
 
 
 
-function catalog(){const map=new Map();for(const p of state.pantry)map.set(p.name,p);return [...map.values()].sort((a,b)=>a.category===b.category?a.name.localeCompare(b.name,'it'):a.category==='Alimentari'?-1:1);}
+function catalog(){const map=new Map();for(const p of state.pantry)if(page!=='pantry'||p.category==='Alimentari')map.set(p.name,p);return [...map.values()].sort((a,b)=>a.category===b.category?a.name.localeCompare(b.name,'it'):a.category==='Alimentari'?-1:1);}
 
 const unitLabel=unit=>unit==='pz'?'P':unit.toUpperCase();
 
@@ -82,15 +82,15 @@ function filterButtons(values,current,group){return values.map(v=>`<button class
 
 const isAddOpen=()=>page==='pantry'?pantryAddOpen:addOpen;
 
-function addForm(){return `<form id="add-form" class="addform" ${mobile()&&!isAddOpen()?'hidden style="display:none"':''}><label class="product-field">Prodotto<input name="name" list="product-options" placeholder="SCRIVI O SCEGLI UN PRODOTTO" autocomplete="off" maxlength="120" required></label><datalist id="product-options">${catalog().map(p=>`<option value="${esc(p.name)}">${esc(p.category)}</option>`).join('')}</datalist><label class="category-field">Categoria<select name="category"><option>Alimentari</option><option>Altro</option></select></label><label class="qty-field" for="add-qty">Quantità<span class="add-stepper"><button type="button" data-command="add-decrease" aria-label="Riduci quantità da aggiungere">−</button><input type="number" id="add-qty" aria-label="Quantità da aggiungere" name="qty" value="100" step="any" min="0.000001" max="1000000000" required inputmode="decimal"><button type="button" data-command="add-increase" aria-label="Aumenta quantità da aggiungere">＋</button></span></label><label class="unit-field">Unità<select name="unit"><option value="g">G</option><option value="l">L</option><option value="pz">P</option></select></label><button class="primary submit-add">＋ Aggiungi</button><p id="add-unit-error" class="add-unit-error" role="alert" hidden></p></form>`;}
+function addForm(){return `<form id="add-form" class="addform" ${mobile()&&!isAddOpen()?'hidden style="display:none"':''}><label class="product-field">Prodotto<input name="name" list="product-options" placeholder="SCRIVI O SCEGLI UN PRODOTTO" autocomplete="off" maxlength="120" required></label><datalist id="product-options">${catalog().map(p=>`<option value="${esc(p.name)}">${esc(p.category)}</option>`).join('')}</datalist><label class="category-field">Categoria<select name="category"><option>Alimentari</option>${page==='shopping'?'<option>Altro</option>':''}</select></label><label class="qty-field" for="add-qty">Quantità<span class="add-stepper"><button type="button" data-command="add-decrease" aria-label="Riduci quantità da aggiungere">−</button><input type="number" id="add-qty" aria-label="Quantità da aggiungere" name="qty" value="100" step="any" min="0.000001" max="1000000000" required inputmode="decimal"><button type="button" data-command="add-increase" aria-label="Aumenta quantità da aggiungere">＋</button></span></label><label class="unit-field">Unità<select name="unit"><option value="g">G</option><option value="l">L</option><option value="pz">P</option></select></label><button class="primary submit-add">＋ Aggiungi</button><p id="add-unit-error" class="add-unit-error" role="alert" hidden></p></form>`;}
 
 const trashIcon='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 10v7m4-7v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function bulkButton(){const label=page==='shopping'?'Svuota lista della spesa':pantryFilter==='Esauriti'?'Elimina tutti gli esauriti':'Segna tutti i prodotti come esauriti';return `<button class="bulk-trash" data-command="bulk-open" aria-label="${label}" title="${label}">${trashIcon}</button>`;}
 
-function updateBulkButton(){const buyAll=$('[data-command="buy-all"]');if(buyAll)buyAll.disabled=!state.shopping.length;const b=$('[data-command="bulk-open"]');if(!b)return;const items=page==='shopping'?state.shopping:state.pantry.filter(p=>pantryFilter==='Esauriti'?p.qty<=0:pantryFilter==='Da rifornire'?low(p):p.qty>0);b.disabled=!items.length;const label=page==='shopping'?'Svuota lista della spesa':pantryFilter==='Esauriti'?'Elimina tutti gli esauriti':'Segna tutti i prodotti come esauriti';b.setAttribute('aria-label',label);b.title=label;}
+function updateBulkButton(){const buyAll=$('[data-command="buy-all"]');if(buyAll)buyAll.disabled=!state.shopping.length;const b=$('[data-command="bulk-open"]');if(!b)return;const items=page==='shopping'?state.shopping:state.pantry.filter(p=>p.category==='Alimentari').filter(p=>pantryFilter==='Esauriti'?p.qty<=0:pantryFilter==='Da rifornire'?low(p):p.qty>0);b.disabled=!items.length;const label=page==='shopping'?'Svuota lista della spesa':pantryFilter==='Esauriti'?'Elimina tutti gli esauriti':'Segna tutti i prodotti come esauriti';b.setAttribute('aria-label',label);b.title=label;}
 
-function showBulkOperation(){const items=page==='shopping'?state.shopping:state.pantry.filter(p=>pantryFilter==='Esauriti'?p.qty<=0:pantryFilter==='Da rifornire'?low(p):p.qty>0);if(!items.length)return;const type=page==='shopping'?'removeShopping':pantryFilter==='Esauriti'?'deletePantry':'exhaust';bulkOperation={type,ids:items.map(p=>p.id)};const deleting=type!=='exhaust',title=type==='removeShopping'?'Svuotare la lista?':deleting?'Eliminare gli esauriti?':'Segnare tutto come esaurito?';$('#editor').innerHTML=editorHead(title)+`<p class="bulk-description">${items.length} ${items.length===1?'prodotto':'prodotti'}. ${deleting?'La rimozione è definitiva.':'I prodotti resteranno nella sezione Esauriti.'}</p><div class="editor-footer"><button data-command="close-dialog">Annulla</button><button class="${deleting?'danger':'primary'}" data-command="bulk-confirm">${deleting?'Elimina tutti':'Segna tutti esauriti'}</button></div>`;openDialog();}
+function showBulkOperation(){const items=page==='shopping'?state.shopping:state.pantry.filter(p=>p.category==='Alimentari').filter(p=>pantryFilter==='Esauriti'?p.qty<=0:pantryFilter==='Da rifornire'?low(p):p.qty>0);if(!items.length)return;const type=page==='shopping'?'removeShopping':pantryFilter==='Esauriti'?'deletePantry':'exhaust';bulkOperation={type,ids:items.map(p=>p.id)};const deleting=type!=='exhaust',title=type==='removeShopping'?'Svuotare la lista?':deleting?'Eliminare gli esauriti?':'Segnare tutto come esaurito?';$('#editor').innerHTML=editorHead(title)+`<p class="bulk-description">${items.length} ${items.length===1?'prodotto':'prodotti'}. ${deleting?'La rimozione è definitiva.':'I prodotti resteranno nella sezione Esauriti.'}</p><div class="editor-footer"><button data-command="close-dialog">Annulla</button><button class="${deleting?'danger':'primary'}" data-command="bulk-confirm">${deleting?'Elimina tutti':'Segna tutti esauriti'}</button></div>`;openDialog();}
 
 const workspaceSections = {
  pantry: {title:'Dispensa', description:'Le tue scorte, a colpo d’occhio.', icon:'<path d="M4 8h16M6 8v12h12V8M9 12h6M5 4h14l1 4H4z"/>'},
@@ -137,6 +137,12 @@ function renderShell(){
 
 function quantityControl(p,kind,buttonsOnly=false){return `<div class="stepper ${buttonsOnly?'buttons-only':''}"><button ${kind==='pantry'&&p.qty<=0?'disabled':''} data-command="decrease" data-kind="${kind}" data-id="${esc(p.id)}" aria-label="Riduci ${esc(p.name)} di ${step(p.unit)} ${p.unit}">−</button>${buttonsOnly?`<output class="quantity-value" aria-label="Quantità ${esc(p.name)}">${formatQuantity(p.qty,p.unit)}</output>`:`<input type="number" min="${kind==='shopping'?(p.unit==='pz'?1:.000001):0}" max="1000000000" step="${p.unit==='pz'?1:'any'}" value="${p.qty}" data-quantity="${kind}" data-id="${esc(p.id)}" aria-label="Quantità ${esc(p.name)} in ${p.unit}" inputmode="decimal">`}<button data-command="increase" data-kind="${kind}" data-id="${esc(p.id)}" aria-label="Aumenta ${esc(p.name)} di ${step(p.unit)} ${p.unit}">＋</button></div>`;}
 
+function householdSuggestionsHTML(){
+ const suggestions=householdSuggestions(state);
+ if(!suggestions.length)return '';
+ return '<section class="household-suggestions" aria-label="Da ricomprare"><h2>Da ricomprare?</h2><p>In base ai tuoi acquisti, potrebbero essere quasi finiti.</p><div>'+suggestions.map(item=>'<button type="button" data-command="household-add" data-name="'+esc(item.name)+'">＋ '+esc(item.name)+' <span>'+item.qty+' P</span></button>').join('')+'</div></section>';
+}
+
 function renderList(){
 
  if(!$('#list')||!state)return;updateWorkspaceMetric();updateBulkButton();const query=normalize(search),terms=query.split(' ').filter(Boolean);
@@ -159,11 +165,11 @@ function renderList(){
 
  let items=rows.filter(p=>terms.every(t=>p.name.includes(t)));
 
- if(page==='pantry')items=items.filter(p=>((pantryFilter==='Disponibili'?p.qty>0:stockView(p)===pantryFilter)||((grace.get(p.id)||0)>Date.now())));
+ if(page==='pantry')items=items.filter(p=>p.category==='Alimentari').filter(p=>((pantryFilter==='Disponibili'?p.qty>0:stockView(p)===pantryFilter)||((grace.get(p.id)||0)>Date.now())));
 
  const ids=new Set(items.map(p=>p.id));order=order.filter(id=>ids.has(id));for(const p of [...items].sort((a,b)=>a.qty-b.qty||a.name.localeCompare(b.name,'it')))if(!order.includes(p.id))order.push(p.id);
 
- reconcile($('#list'),['Alimentari','Altro'].map(category=>{const products=items.filter(p=>p.category===category).sort((a,b)=>page==='shopping'||category==='Alimentari'?a.name.localeCompare(b.name,'it'):order.indexOf(a.id)-order.indexOf(b.id));if(!products.length)return '';return `<h2 class="group-title ${page==='shopping'&&products.every(p=>leaving.has(p.id))?'leaving-group':''}" data-key="group-${category}">${category}<span class="section-count">${products.length}</span></h2>`+products.map(p=>`<article data-key="${page}-${esc(p.id)}" class="product ${page==='shopping'?'shopping-product':'pantry-product'} ${page==='shopping'&&leaving.has(p.id)?'is-leaving':''}" ${page==='shopping'&&leaving.has(p.id)?`style="--row-height:${leaving.get(p.id).height}px"`:''}><div class="product-name">${esc(p.name)} <span class="unit">· ${p.unit==='l'&&p.qty>0&&p.qty<1?formatQuantity(p.qty,p.unit):unitLabel(p.unit)}</span>${page==='pantry'&&low(p)?'<span class="stock-label">Scorta bassa</span>':page==='pantry'&&p.qty<=0?'<span class="stock-label">Esaurito</span>':''}</div>${page==='pantry'&&mobile()?quantityControl(p,'pantry',true):page==='pantry'?`${quantityControl(p,'pantry')}<button class="pantry-actions ${p.qty<=0&&pantryFilter==='Esauriti'?'danger':''}" data-command="${p.qty<=0&&pantryFilter==='Esauriti'?'delete-pantry':'exhaust'}" data-id="${esc(p.id)}">${p.qty<=0&&pantryFilter==='Esauriti'?'Elimina':'Esaurito'}</button>`:`<div class="shopping-controls">${quantityControl(p,'shopping')}<button class="primary buy" data-command="buy" data-id="${esc(p.id)}" aria-label="Segna comprato ${esc(p.name)}">✓ Comprato</button><button class="remove" data-command="remove-shopping" data-id="${esc(p.id)}" aria-label="Rimuovi ${esc(p.name)} dalla lista">×</button></div>`}</article>`).join('');}).join('')||'<p class="empty">'+(query?'Nessun prodotto corrisponde alla ricerca.':page==='shopping'?'La lista è vuota.':'Nessun prodotto in questa sezione.')+'</p>');
+ reconcile($('#list'),(page==='shopping'&&!query?householdSuggestionsHTML():'')+(['Alimentari','Altro'].map(category=>{const products=items.filter(p=>p.category===category).sort((a,b)=>page==='shopping'||category==='Alimentari'?a.name.localeCompare(b.name,'it'):order.indexOf(a.id)-order.indexOf(b.id));if(!products.length)return '';return `<h2 class="group-title ${page==='shopping'&&products.every(p=>leaving.has(p.id))?'leaving-group':''}" data-key="group-${category}">${category}<span class="section-count">${products.length}</span></h2>`+products.map(p=>`<article data-key="${page}-${esc(p.id)}" class="product ${page==='shopping'?'shopping-product':'pantry-product'} ${page==='shopping'&&leaving.has(p.id)?'is-leaving':''}" ${page==='shopping'&&leaving.has(p.id)?`style="--row-height:${leaving.get(p.id).height}px"`:''}><div class="product-name">${esc(p.name)} <span class="unit">· ${p.unit==='l'&&p.qty>0&&p.qty<1?formatQuantity(p.qty,p.unit):unitLabel(p.unit)}</span>${page==='pantry'&&low(p)?'<span class="stock-label">Scorta bassa</span>':page==='pantry'&&p.qty<=0?'<span class="stock-label">Esaurito</span>':''}</div>${page==='pantry'&&mobile()?quantityControl(p,'pantry',true):page==='pantry'?`${quantityControl(p,'pantry')}<button class="pantry-actions ${p.qty<=0&&pantryFilter==='Esauriti'?'danger':''}" data-command="${p.qty<=0&&pantryFilter==='Esauriti'?'delete-pantry':'exhaust'}" data-id="${esc(p.id)}">${p.qty<=0&&pantryFilter==='Esauriti'?'Elimina':'Esaurito'}</button>`:`<div class="shopping-controls">${quantityControl(p,'shopping')}<button class="primary buy" data-command="buy" data-id="${esc(p.id)}" aria-label="Segna comprato ${esc(p.name)}">✓ Comprato</button><button class="remove" data-command="remove-shopping" data-id="${esc(p.id)}" aria-label="Rimuovi ${esc(p.name)} dalla lista">×</button></div>`}</article>`).join('');}).join('')||'<p class="empty">'+(query?'Nessun prodotto corrisponde alla ricerca.':page==='shopping'?'La lista è vuota.':'Nessun prodotto in questa sezione.')+'</p>'));
 
  for(const row of document.querySelectorAll('.is-leaving'))for(const control of row.querySelectorAll('button,input'))control.disabled=true;
 
@@ -330,6 +336,7 @@ document.addEventListener('click',async event=>{
 
  const {command,id}=button.dataset;try{switch(command){
 
+ case 'household-add':{const item=householdSuggestions(state).find(item=>item.name===button.dataset.name);if(item)action('addShopping',{name:item.name,category:'Altro',qty:item.qty,unit:'pz'});break;}
  case 'toggle-add':if(page==='pantry'){pantryAddOpen=!pantryAddOpen;writePreference('spesapp-pantry-add-open',pantryAddOpen?'1':'0');}else{addOpen=!addOpen;writePreference('spesapp-add-open',addOpen?'1':'0');}const form=$('#add-form');if(form){form.hidden=!isAddOpen();form.style.display=isAddOpen()?'':'none';}button.setAttribute('aria-expanded',String(isAddOpen()));button.textContent=(isAddOpen()?'−':'＋')+' Prodotto';break;
 
  case 'add-increase':case 'add-decrease':{const f=$('#add-form');if(!f)break;refreshUnits(f);const q=f.elements.qty,amount=step(f.elements.unit.value),current=Number(q.value);const next=round((Number.isFinite(current)?current:0)+(command==='add-increase'?amount:-amount));q.value=next>0?Math.min(LIMITS.quantity,next):(current>0?current:defaultQuantity(f.elements.unit.value));q.dispatchEvent(new Event('input',{bubbles:true}));break;}

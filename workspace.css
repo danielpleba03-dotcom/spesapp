@@ -271,3 +271,10 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
   overflow-anchor: none;
   scrollbar-gutter: stable;
 }
+
+.household-suggestions { padding: 14px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+.household-suggestions h2 { font-size: .9rem; margin: 0 0 5px; }
+.household-suggestions p { color: var(--muted); font-size: .8rem; margin: 0 0 10px; }
+.household-suggestions > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.household-suggestions button { white-space: normal; text-align: left; overflow-wrap: anywhere; min-height: 44px; }
+.household-suggestions button span { color: var(--muted); margin-left: 5px; }

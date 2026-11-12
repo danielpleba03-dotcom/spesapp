@@ -199,7 +199,16 @@ export function validateImport(raw){
 
  const s=emptyState();
 
- for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');lockUnit(s,p.name,p.unit);if(ids.has(p.id)||kind==='pantry'&&names.has(p.name))fail('Prodotto o identificativo duplicato nel backup.');ids.add(p.id);names.add(p.name);s[kind].push(p);}}
+ for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');
+if(kind==='pantry'&&p.category==='Altro'&&item.purchases!==undefined){
+ if(!Array.isArray(item.purchases)||item.purchases.length>12)fail('Storico acquisti non valido.');
+ p.purchases=item.purchases.map(event=>{
+  if(!record(event)||!Number.isFinite(event.at)||event.at<Date.UTC(2000,0,1)||event.at>=Date.UTC(2100,0,1)||!Number.isSafeInteger(event.qty)||event.qty<=0||event.qty>LIMITS.quantity)fail('Acquisto non valido.');
+  return {at:event.at,qty:event.qty};
+ }).sort((a,b)=>a.at-b.at);
+ p.qty=0;
+}
+lockUnit(s,p.name,p.unit);if(ids.has(p.id)||kind==='pantry'&&names.has(p.name))fail('Prodotto o identificativo duplicato nel backup.');ids.add(p.id);names.add(p.name);s[kind].push(p);}}
 
  if(Object.keys(raw.units||{}).length>5000)fail('Troppe unità nel backup.');
 
@@ -292,6 +301,26 @@ function saveRecipe(state,recipe,fallbackId,expected){
  state.recipes.push(r);
 }
 
+export function householdSuggestions(state,now=Date.now()){
+ const listed=new Set(state.shopping.map(item=>item.name)),result=[];
+ for(const product of state.pantry){
+  const events=product.purchases;
+  if(product.category!=='Altro'||listed.has(product.name)||!events||events.length<3)continue;
+  const rates=[];
+  for(let i=1;i<events.length;i++){
+   const days=(events[i].at-events[i-1].at)/86400000;
+   if(days>=1)rates.push(days/events[i-1].qty);
+  }
+  if(rates.length<2)continue;
+  rates.sort((a,b)=>a-b);
+  const middle=Math.floor(rates.length/2),daysPerPiece=rates.length%2?rates[middle]:(rates[middle-1]+rates[middle])/2;
+  const last=events.at(-1),due=last.at+Math.max(1,daysPerPiece*last.qty)*86400000;
+  if(now<due-86400000||now<last.at)continue;
+  result.push({name:product.name,qty:last.qty,unit:'pz',category:'Altro',due});
+ }
+ return result.sort((a,b)=>a.due-b.due||a.name.localeCompare(b.name,'it')).slice(0,5);
+}
+
 export function applyAction(original,action){
 
  validateAction(action);if(original.applied?.includes(action.id))return structuredClone(original);
@@ -322,7 +351,17 @@ export function applyAction(original,action){
 
  case 'removeShopping':{const ids=a.ids!==undefined?selectedIds(a):new Set([String(a.id)]);s.shopping=s.shopping.filter(p=>!ids.has(p.id));break;}
 
- case 'buy':{const ids=a.ids!==undefined?selectedIds(a):new Set([String(a.id)]);for(const p of s.shopping.filter(p=>ids.has(p.id))){validProduct(p,true);upsert({...p,pantryId:'bought-'+p.id});}s.shopping=s.shopping.filter(p=>!ids.has(p.id));break;}
+ case 'buy':{const ids=a.ids!==undefined?selectedIds(a):new Set([String(a.id)]);for(const p of s.shopping.filter(p=>ids.has(p.id))){validProduct(p,true);
+if(p.category==='Alimentari')upsert({...p,pantryId:'bought-'+p.id});
+else{
+ let history=s.pantry.find(item=>item.name===p.name&&item.category==='Altro');
+ if(!history){history={id:'bought-'+p.id,name:p.name,category:'Altro',unit:'pz',qty:0,purchases:[]};s.pantry.push(history);}
+ const at=Number.isFinite(action.at)?action.at:Date.now(),events=history.purchases||[];
+ const last=events.at(-1);
+ if(last&&new Date(last.at).toDateString()===new Date(at).toDateString()&&at>=last.at&&last.qty+p.qty<=LIMITS.quantity)last.qty+=p.qty;
+ else events.push({at,qty:p.qty});
+ history.purchases=events.slice(-12);history.qty=0;
+}}s.shopping=s.shopping.filter(p=>!ids.has(p.id));break;}
 
  case 'saveRecipe':{
   if(Array.isArray(a.recipes)){

@@ -1,9 +1,9 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=82';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=20261104-calorie-settimana';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=84';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=84';
 
-import {createJournal} from './journal.mjs?v=20261104-calorie-settimana';
+import {createJournal} from './journal.mjs?v=84';
 
-import {firebaseConfig} from './firebase-config.mjs?v=20261104-calorie-settimana';
+import {firebaseConfig} from './firebase-config.mjs?v=84';
 
 export function cloudMessage(error){
 
