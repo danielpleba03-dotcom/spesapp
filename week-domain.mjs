@@ -196,7 +196,17 @@ export function recordPreparation(original,recipe,action){const plan=validateWee
 
 export function preparedWeekCalories(plan,recipes,start){date(start);if(monday(start)!==start)fail('Scegli una settimana da lunedì.');const all=Object.values(validateWeeks(plan).weeks).flatMap(w=>w.preparations||[]);const entries=all.filter(e=>{const d=localDate(new Date(e.at));return d>=start&&d<=addDays(start,6);}).sort((a,b)=>b.at-a.at||b.id.localeCompare(a.id)).flatMap(e=>{const r=recipes.find(r=>r.id===e.recipeId),per=e.kcalPerPortion!==undefined?e.kcalPerPortion:r?recipeCalories(r).value:null,excluded=new Set(e.excludedPortions||[]);return Array.from({length:e.people},(_,portionIndex)=>({...e,portionIndex,key:e.id+'-portion-'+portionIndex,sourcePeople:e.people,people:1,date:localDate(new Date(e.at)),kcal:per===null?null:Math.round(per),excluded:!!e.excluded||excluded.has(portionIndex),legacy:e.kcalPerPortion===undefined}));});for(const w of Object.values(validateWeeks(plan).weeks))for(const e of w.calorieEntries||[])if(e.kind==='extra'&&e.date>=start&&e.date<=addDays(start,6))entries.push({...e,at:e.at??new Date(e.date+'T12:00:00').getTime(),key:e.id+'-free',people:1,sourcePeople:1,portionIndex:0,free:true,excluded:!!e.excluded});entries.sort((a,b)=>b.at-a.at||b.id.localeCompare(a.id)||a.portionIndex-b.portionIndex);return {entries,total:entries.reduce((n,e)=>n+(e.excluded?0:e.kcal||0),0),people:entries.filter(e=>!e.excluded).length,missing:entries.filter(e=>!e.excluded&&e.kcal===null).length,excluded:entries.filter(e=>e.excluded).length};}
 
-export function applyWeekAction(original,mainOriginal,action){if(!record(action)||!record(action.payload))fail('Operazione non valida.');id(action.id);const plan=validateWeeks(original),main=validateState(mainOriginal),a=action.payload;if(plan.applied.includes(action.id))return {plan,main};const now=new Date(Number.isFinite(action.at)?action.at:Date.now());let updated=main;const getWeek=()=>{const w=plan.weeks[date(a.start)];if(!w)fail('Settimana non disponibile.');if(a.revision!==w.revision)fail('La settimana è cambiata su un altro dispositivo. Riaprila e riprova.');return w;};switch(action.type){case 'deletePreparation':{
+export function applyWeekAction(original,mainOriginal,action){if(!record(action)||!record(action.payload))fail('Operazione non valida.');id(action.id);const plan=validateWeeks(original),main=validateState(mainOriginal),a=action.payload;if(plan.applied.includes(action.id))return {plan,main};const now=new Date(Number.isFinite(action.at)?action.at:Date.now());let updated=main;const getWeek=()=>{const w=plan.weeks[date(a.start)];if(!w)fail('Settimana non disponibile.');if(a.revision!==w.revision)fail('La settimana è cambiata su un altro dispositivo. Riaprila e riprova.');return w;};switch(action.type){case 'clearHouseholdHistory':{
+ if(action.id!=='cleanup-household-20261113-owner-request')fail('Operazione di pulizia non valida.');
+ const pantry=main.pantry.map(product=>{
+  if(product.category!=='Altro')return product;
+  const copy={...product};
+  delete copy.purchases;
+  return copy;
+ });
+ updated=validateState({...main,pantry,applied:[...new Set([...main.applied,action.id])].slice(-1500)});
+ break;
+}case 'deletePreparation':{
  const entryId=id(a.entryId);
  const week=Object.values(plan.weeks).find(w=>(w.preparations||[]).some(entry=>entry.id===entryId));
  if(!week)break;
