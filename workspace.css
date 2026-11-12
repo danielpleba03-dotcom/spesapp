@@ -287,3 +287,7 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
  .history-entry-tools { grid-template-columns: 44px 44px; }
  .history-entry-tools > span { grid-column: 1 / -1; text-align: right; }
 }
+
+.preparation-delete-choices { display: grid; gap: 12px; margin: 18px 0; }
+.preparation-delete-choices button { text-align: left; white-space: normal; padding: 14px; line-height: 1.4; }
+.preparation-delete-choices small { display: block; font-size: .8rem; font-weight: 400; margin-top: 5px; }

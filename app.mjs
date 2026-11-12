@@ -7,7 +7,7 @@ import {calorieBadge} from './recipe-calories.mjs?v=84';
 
 import {classicRecipes} from './classic-recipes.mjs?v=84';
 
-import {createWeekUI} from './week-ui.mjs?v=86';
+import {createWeekUI} from './week-ui.mjs?v=87';
 
 import {enhanceSuggestions} from './suggestions.mjs?v=84';
 
@@ -19,7 +19,7 @@ enhanceSelects();
 
 import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=84';
 
-import {createStore} from './cloud.mjs?v=86';
+import {createStore} from './cloud.mjs?v=87';
 
 import {reconcile,readPreference,writePreference} from './ui.mjs?v=84';
 
@@ -226,6 +226,12 @@ function renderPreparationHistory(){
  }).join('');
  reconcile(root,!weekUI?.ready?'<p class="empty" role="status">Caricamento…</p>':rows?'<ul class="preparation-history">'+rows+'</ul>':'<p class="empty">Nessuna preparazione con data registrata.</p>');
 }
+function showDeletePreparation(entryId){
+ const entry=weekUI.getHistory().find(entry=>entry.id===entryId);
+ if(!entry)return;
+ const restorable=Boolean(entry.usedTotals||entry.usedIngredients);
+ $('#editor').innerHTML=editorHead('Elimina preparazione')+'<p><strong>'+esc(entry.name)+'</strong> · '+entry.people+' '+(entry.people===1?'porzione':'porzioni')+'</p><div class="preparation-delete-choices"><button type="button" class="primary" data-command="confirm-delete-preparation" data-id="'+esc(entry.id)+'" data-restore="1" '+(restorable?'':'disabled')+'>Annulla preparazione<small>Elimina storico e calorie e restituisce gli ingredienti usati.</small></button><button type="button" data-command="confirm-delete-preparation" data-id="'+esc(entry.id)+'" data-restore="0">Elimina solo registrazione<small>Elimina storico e calorie, mantenendo le scorte attuali.</small></button></div>'+(restorable?'':'<p class="input-error">Le quantità di questa vecchia preparazione non sono registrate.</p>')+'<p id="delete-preparation-error" class="input-error" role="alert"></p><button type="button" data-command="preparation-history">Indietro</button>';
+}
 function showPreparationHistory(){
  $('#editor').innerHTML=editorHead('Ultime ricette preparate')+'<div data-preparation-history></div>';
  openDialog();
@@ -379,7 +385,14 @@ document.addEventListener('click',async event=>{
  case 'recipe-week':recipesView='week';weekUI?.openToday();renderShell();break;
 
  case 'preparation-history':showPreparationHistory();break;
- case 'delete-preparation':button.disabled=true;try{weekUI.deletePreparation(id);}catch(error){button.disabled=false;throw error;}renderPreparationHistory();break;
+ case 'delete-preparation':showDeletePreparation(id);break;
+ case 'confirm-delete-preparation':{
+  const choices=[...document.querySelectorAll('[data-command="confirm-delete-preparation"]')];
+  for(const choice of choices)choice.disabled=true;
+  try{weekUI.deletePreparation(id,button.dataset.restore==='1');showPreparationHistory();}
+  catch(error){for(const choice of choices)choice.disabled=false;$('#delete-preparation-error').textContent=error.message;}
+  break;
+ }
  case 'cook':showPreparation(state.recipes.find(r=>r.id===id),1,[],button.dataset.mealId?{start:button.dataset.mealStart,mealId:button.dataset.mealId}:null);break;
 
  case 'preparation-factor':if(preparation){preparation.people=Number(button.dataset.value);preparation.amounts=[];$('#preparation-people').value=preparation.people;renderPreparationRows();}break;

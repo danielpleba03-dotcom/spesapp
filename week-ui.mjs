@@ -2,9 +2,9 @@ import {cookingPreferences,proposalReason,createRecommendationContext} from './c
 
 import {createUnitLookup} from './domain.mjs?v=84';
 
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=86';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=87';
 
-import {createWeekStore} from './week-store.mjs?v=86';
+import {createWeekStore} from './week-store.mjs?v=87';
 
 import {reconcile} from './ui.mjs?v=84';
 
@@ -100,9 +100,9 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
 
  setInterval(()=>{if(api.visible()&&!document.hidden)render();},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 
- store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;queueMicrotask(requestedCleanup);refreshReadyList();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,getHistory:()=>preparationHistory(archive),deletePreparation:entryId=>{
+ store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;queueMicrotask(requestedCleanup);refreshReadyList();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
  if(api.mainMeta().pending)throw Error('Attendi il salvataggio della preparazione prima di eliminarla.');
- send('deletePreparation',{entryId});
+ send('deletePreparation',{entryId,restoreIngredients});
 },get ready(){return meta.ready;},get pending(){return meta.pending;},getPreferences:()=>cookingPreferences(archive),savePreferences:change=>send('cookingPreferences',{start,change}),refresh:()=>store.refresh(),openToday};
 
 }
