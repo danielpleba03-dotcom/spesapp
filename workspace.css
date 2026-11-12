@@ -278,3 +278,12 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
 .household-suggestions > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .household-suggestions button { white-space: normal; text-align: left; overflow-wrap: anywhere; min-height: 44px; }
 .household-suggestions button span { color: var(--muted); margin-left: 5px; }
+
+.history-entry-tools { display: grid; grid-template-columns: auto 44px 44px; align-items: center; justify-content: end; gap: 6px; }
+.history-entry-tools > span { white-space: nowrap; font-size: .76rem; color: var(--muted); }
+.history-entry-tools .history-delete { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-height: 44px; padding: 10px; }
+.history-delete svg { pointer-events: none; }
+@media(max-width: 650px) {
+ .history-entry-tools { grid-template-columns: 44px 44px; }
+ .history-entry-tools > span { grid-column: 1 / -1; text-align: right; }
+}

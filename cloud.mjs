@@ -1,4 +1,4 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=85';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=86';
 import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=84';
 
 import {createJournal} from './journal.mjs?v=84';
