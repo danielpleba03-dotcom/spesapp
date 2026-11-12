@@ -2,9 +2,9 @@ import {cookingPreferences,proposalReason,createRecommendationContext} from './c
 
 import {createUnitLookup} from './domain.mjs?v=84';
 
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,readyPortions,preparedMealIds} from './week-domain.mjs?v=84';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,readyPortions,preparedMealIds} from './week-domain.mjs?v=85';
 
-import {createWeekStore} from './week-store.mjs?v=84';
+import {createWeekStore} from './week-store.mjs?v=85';
 
 import {reconcile} from './ui.mjs?v=84';
 
@@ -44,7 +44,7 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
  const main=()=>api.main(),close=()=>{preparedCaloriesOpen=false;freeMealOpen=false;$('#editor').close();},requireReady=()=>{if(!meta.ready)throw Error(meta.error||'Attendi il caricamento delle settimane.');},refresh=()=>{if(api.visible())render();};
 
  let cleanupRequested=false;
- function requestedCleanup(){const id='cleanup-all-20261108-owner-confirmed';if(cleanupRequested||!store||!meta.ready||meta.pending||meta.preview||!api.mainMeta().ready||api.mainMeta().pending||!navigator.onLine||Date.now()>new Date('2026-11-12T00:00:00+01:00').getTime()||archive.applied?.includes(id))return;cleanupRequested=true;try{store.dispatch({id,type:'clearTrialData',payload:{},at:Date.now()});}catch(e){cleanupRequested=false;api.notify('Svuotamento non ancora completato: '+e.message,true);}}
+ function requestedCleanup(){const id='cleanup-prepared-20261112-owner-request';if(cleanupRequested||!store||!meta.ready||meta.pending||meta.preview||!api.mainMeta().ready||api.mainMeta().pending||!navigator.onLine||Date.now()>new Date('2026-11-19T00:00:00+01:00').getTime()||archive.applied?.includes(id))return;cleanupRequested=true;try{store.dispatch({id,type:'clearPreparations',payload:{},at:Date.now()});}catch(e){cleanupRequested=false;api.notify('Svuotamento non ancora completato: '+e.message,true);}}
 
  function send(type,payload,message=''){requireReady();store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});if(message)api.notify(message);}
 
