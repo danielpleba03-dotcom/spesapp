@@ -238,7 +238,32 @@ export function validateState(raw){
 
 }
 
-export function assertCapacity(s){if(Object.keys(s.units||{}).length>5000||Object.keys(s.counts||{}).length>LIMITS.recipes)fail('Hai raggiunto il limite dell’archivio. Esporta una copia dei dati.');if(new TextEncoder().encode(JSON.stringify(s)).length>LIMITS.bytes)fail('Archivio quasi pieno. Esporta una copia dei dati prima di aggiungere altri elementi.');}
+// Omit only defaults that validateRecipe reconstructs identically on every read.
+export function stateForStorage(state){
+ return {...state,recipes:state.recipes.map(recipe=>{
+  const stored={...recipe};
+  if(stored.servings===1)delete stored.servings;
+  if(stored.tools?.length===0)delete stored.tools;
+  if(stored.instructions==='')delete stored.instructions;
+  if(stored.source_url==='')delete stored.source_url;
+  const defaultTitle=recipe.source_url?new URL(recipe.source_url).hostname:recipe.instructions?'Ricettario Spesapp':'Link da aggiungere';
+  if(stored.source_title===defaultTitle)delete stored.source_title;
+  return stored;
+ })};
+}
+export function firestoreValueBytes(value){
+ if(value===null||typeof value==='boolean')return 1;
+ if(typeof value==='number')return 8;
+ if(typeof value==='string')return new TextEncoder().encode(value).length+1;
+ if(Array.isArray(value))return value.reduce((sum,item)=>sum+firestoreValueBytes(item),0);
+ return Object.entries(value).reduce((sum,[key,item])=>sum+firestoreValueBytes(key)+firestoreValueBytes(item),32);
+}
+export function assertCapacity(s){
+ if(Object.keys(s.units||{}).length>5000||Object.keys(s.counts||{}).length>LIMITS.recipes)fail('Hai raggiunto il limite di elementi dell’archivio.');
+ const stored=stateForStorage(s);
+ // Reserve space for the document path and stay below Firestore's 1 MiB limit.
+ if(new TextEncoder().encode(JSON.stringify(stored)).length>LIMITS.bytes||firestoreValueBytes(stored)+256>1010000)fail('Spazio dell’archivio insufficiente per questa aggiunta.');
+}
 
 export function validateAction(action){
 
@@ -396,7 +421,7 @@ else{
  rebuildProductUnits(s);
 
  s.applied=[...new Set([...s.applied,action.id])].slice(-1500);
- if(s.applied.length>256&&new TextEncoder().encode(JSON.stringify(s)).length>LIMITS.bytes-12000){
+ if(s.applied.length>256&&new TextEncoder().encode(JSON.stringify(stateForStorage(s))).length>LIMITS.bytes-12000){
   // Firestore keeps a separate receipt for each committed operation.
   s.applied=s.applied.filter((id,index)=>index>=s.applied.length-256||id.startsWith('release-')||id.startsWith('cleanup-'));
  }

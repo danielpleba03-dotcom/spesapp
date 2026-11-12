@@ -1,28 +1,28 @@
-import {catalogo89} from './catalogo-89.mjs?v=89';
-import {catalogo72} from './catalogo-72.mjs?v=84';
-import {catalogo71} from './catalogo-71.mjs?v=84';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=84';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=84';
-import {recipeAdditions} from './recipe-additions.mjs?v=84';
-import {calorieBadge} from './recipe-calories.mjs?v=84';
+import {catalogo89} from './catalogo-89.mjs?v=90';
+import {catalogo72} from './catalogo-72.mjs?v=90';
+import {catalogo71} from './catalogo-71.mjs?v=90';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=90';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=90';
+import {recipeAdditions} from './recipe-additions.mjs?v=90';
+import {calorieBadge} from './recipe-calories.mjs?v=90';
 
-import {classicRecipes} from './classic-recipes.mjs?v=84';
+import {classicRecipes} from './classic-recipes.mjs?v=90';
 
-import {createWeekUI} from './week-ui.mjs?v=89';
+import {createWeekUI} from './week-ui.mjs?v=90';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=84';
+import {enhanceSuggestions} from './suggestions.mjs?v=90';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=84';
+import {enhanceSelects} from './select-menu.mjs?v=90';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=84';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=90';
 
-import {createStore} from './cloud.mjs?v=89';
+import {createStore} from './cloud.mjs?v=90';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=84';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=90';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

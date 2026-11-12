@@ -1,9 +1,9 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=89';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity} from './domain.mjs?v=84';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=90';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=90';
 
-import {createJournal} from './journal.mjs?v=84';
+import {createJournal} from './journal.mjs?v=90';
 
-import {firebaseConfig} from './firebase-config.mjs?v=84';
+import {firebaseConfig} from './firebase-config.mjs?v=90';
 
 export function cloudMessage(error){
 
@@ -98,9 +98,9 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
      assertCapacity(after);
 
-     if(backupRef&&!backup.exists())tx.set(backupRef,before);
+     if(backupRef&&!backup.exists())tx.set(backupRef,stateForStorage(before));
 
-     tx.set(ref,after);if(historyRef)tx.set(historyRef,history);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
+     tx.set(ref,stateForStorage(after));if(historyRef)tx.set(historyRef,history);tx.set(receipt,{createdAt:fire.serverTimestamp(),type:action.type});return {state:after,receipt:false};
 
     });
 
@@ -160,7 +160,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
    }else if(!snapshot.metadata.fromCache){
 
-    void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,emptyState(recipes));}).catch(e=>{if(s===session){s.error=cloudMessage(e);emit();}});
+    void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,stateForStorage(emptyState(recipes)));}).catch(e=>{if(s===session){s.error=cloudMessage(e);emit();}});
 
    }else{emit();}
 

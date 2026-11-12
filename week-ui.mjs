@@ -1,12 +1,12 @@
-import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=84';
+import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=90';
 
-import {createUnitLookup} from './domain.mjs?v=84';
+import {createUnitLookup} from './domain.mjs?v=90';
 
-import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=89';
+import {localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=90';
 
-import {createWeekStore} from './week-store.mjs?v=89';
+import {createWeekStore} from './week-store.mjs?v=90';
 
-import {reconcile} from './ui.mjs?v=84';
+import {reconcile} from './ui.mjs?v=90';
 
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),pretty=d=>new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'numeric',month:'short'}).format(new Date(d+'T12:00:00')),$=s=>document.querySelector(s);
 
