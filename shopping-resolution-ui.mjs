@@ -1,6 +1,7 @@
-import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=97';
-import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=97';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=97';
+import {omissionOption} from './recipe-omissions.mjs?v=98';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=98';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=98';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=98';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);
@@ -49,8 +50,8 @@ export function createShoppingResolutionUI(api){
  }
  function showMeal(index){
   context.selected=index;
-  const item=selected(),canSubstitute=availableSubstitutes().length>0;
-  shell(item.recipe.name,'<p class="summary-note">'+esc(dateLabel(item.date))+' · '+item.slot+' · Ingredienti per 1 porzione</p>'+ingredients(item.recipe)+recipeGuide(item.recipe)+'<div class="resolution-modes">'+(canSubstitute?button('substitute','Sostituisci '+esc(context.name),'class="primary"'):'')+button('recipe-mode','Cambia piatto',canSubstitute?'':'class="primary"')+'</div>'+button('meals','Altri pasti'));
+  const item=selected(),canSubstitute=availableSubstitutes().length>0,omit=omissionOption(item.recipe,context.name,context.unit);
+  shell(item.recipe.name,'<p class="summary-note">'+esc(dateLabel(item.date))+' · '+item.slot+' · Ingredienti per 1 porzione</p>'+ingredients(item.recipe)+recipeGuide(item.recipe)+(omit?'<p class="summary-note">'+esc(omit.reason)+' <a href="'+esc(omit.source)+'" target="_blank" rel="noopener noreferrer">Fonte ↗</a></p>':'')+'<div class="resolution-modes">'+(canSubstitute?button('substitute','Sostituisci '+esc(context.name),'class="primary"'):'')+(omit?button('omit','Falla senza '+esc(context.name)):'')+button('recipe-mode','Cambia piatto',canSubstitute?'':'class="primary"')+'</div>'+button('meals','Altri pasti'));
  }
  function showSubstitution(){
   if(!availableSubstitutes().length){showRecipeChoices();return;}
@@ -96,7 +97,7 @@ export function createShoppingResolutionUI(api){
   context.preview=preview;
   const changes=preview.changes.map(change=>'<li><strong>'+esc(change.name)+'</strong><span>'+(change.after?esc(formatQuantity(change.after,change.unit)):'Togli dalla lista')+'<small>'+(change.before?'Prima '+esc(formatQuantity(change.before,change.unit)):'Da aggiungere')+'</small></span></li>').join('');
   const bought=preview.purchased.map((item,index)=>'<li><div><strong>'+esc(item.name)+'</strong><small>Presi '+esc(formatQuantity(item.qty,item.unit))+'</small></div>'+(item.returnable?'<label class="resolution-return"><input type="checkbox" data-resolution-return="'+index+'"><span>Rimetto '+esc(formatQuantity(item.returnable,item.unit))+' sullo scaffale'+(item.qty>item.returnable?'<small>Tieni '+esc(formatQuantity(item.qty-item.returnable,item.unit))+' per gli altri pasti</small>':'')+'</span></label>':'<span class="resolution-keep">'+(item.needed?'Tieni: serve ancora ai pasti':'Tieni: acquisto già utilizzato in parte')+'</span>')+'</li>').join('');
-  const subtitle=request.mode==='substitute'?esc(context.name)+' → '+esc(request.replacement.ingredient):esc(selected().recipe.name)+' → '+esc(preview.recipe.name);
+  const subtitle=request.mode==='omit'?'Senza '+esc(context.name):request.mode==='substitute'?esc(context.name)+' → '+esc(request.replacement.ingredient):esc(selected().recipe.name)+' → '+esc(preview.recipe.name);
   shell('Riepilogo cambio','<p class="resolution-change-title">'+subtitle+'</p><details class="resolution-recipe-preview" open><summary>Ingredienti aggiornati per 1 porzione</summary>'+ingredients(preview.recipe)+'</details><section><h3>Lista della spesa</h3>'+(changes?'<ul class="resolution-changes">'+changes+'</ul>':'<p>Le quantità in lista coprono già il cambio.</p>')+'</section><section><h3>Già presi in questa spesa</h3>'+(bought?'<ul class="resolution-purchases">'+bought+'</ul><p class="summary-note">Acquisti segnati Comprato oggi nelle ultime 10 ore. Spunta solo ciò che rimetti davvero sullo scaffale.</p>':'<p class="summary-note">Nessun acquisto recente registrato per questi ingredienti. Verifica il carrello per i prodotti presi prima di questo aggiornamento.</p>')+'</section><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+button('confirm','Conferma cambio','class="primary"')+'</div>');
  }
  document.addEventListener('input',event=>{
@@ -123,6 +124,7 @@ export function createShoppingResolutionUI(api){
     case 'meals':showMeals();break;
     case 'meal':showMeal(Number(control.dataset.index));break;
     case 'substitute':showSubstitution();break;
+    case 'omit':showPreview({...baseRequest(),mode:'omit'});break;
     case 'recipe-mode':showRecipeChoices();break;
     case 'more-recipes':context.offset=context.nextOffset||0;renderRecipes();break;
     case 'recipe':showPreview({...baseRequest(),mode:'recipe',recipeId:control.dataset.id});break;

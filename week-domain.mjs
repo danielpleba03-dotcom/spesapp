@@ -1,6 +1,7 @@
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes} from './cooking-domain.mjs?v=97';
-import {recipeCalories} from './recipe-calories.mjs?v=97';
-import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=97';
+import {omissionOption} from './recipe-omissions.mjs?v=98';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes} from './cooking-domain.mjs?v=98';
+import {recipeCalories} from './recipe-calories.mjs?v=98';
+import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=98';
 
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 
@@ -43,7 +44,9 @@ function validateMealSubstitutions(recipe,items){
   const key=item.sourceIngredient+'|'+item.sourceUnit;
   if(!source||seen.has(key))fail('Ingrediente da sostituire non valido.');
   seen.add(key);
-  const target=validateRecipe({...recipe,ingredients:[{ingredient:item.ingredient,qty:item.qty,unit:item.unit}]}).ingredients[0];
+  const target=validateRecipe({...recipe,ingredients:[{ingredient:item.ingredient,qty:item.qty===0?source.qty:item.qty,unit:item.unit}]}).ingredients[0];
+  if(item.qty===0)target.qty=0;
+  if(target.qty===0&&(target.ingredient!==source.ingredient||target.unit!==source.unit||!omissionOption(recipe,source.ingredient,source.unit)))fail('Questo ingrediente non è stato verificato come facoltativo.');
   return {...target,sourceIngredient:source.ingredient,sourceUnit:source.unit};
  });
 }
@@ -54,7 +57,7 @@ export function weekMealRecipe(week,meal){
   const replacement=meal.substitutions.find(item=>item.sourceIngredient===ingredient.ingredient&&item.sourceUnit===ingredient.unit);
   return replacement?{ingredient:replacement.ingredient,qty:replacement.qty,unit:replacement.unit}:ingredient;
  });
- return {...recipe,kcal:undefined,ingredients};
+ return {...recipe,kcal:undefined,ingredients:ingredients.filter(item=>item.qty>0)};
 }
 
 export function validateWeek(raw){if(!record(raw)||!record(raw.recipes)||!Array.isArray(raw.meals)||![0,10,WEEK_DAYS*2].includes(raw.meals.length)||!Number.isInteger(raw.revision)||raw.revision<0||raw.revision>100000)fail('Settimana non valida.');if(raw.history!==undefined&&(!Array.isArray(raw.history)||raw.history.length>500))fail('Cronologia delle proposte non valida.');const w={start:date(raw.start),revision:raw.revision,settings:settings(raw.settings),recipes:{},meals:[],history:[...new Set((raw.history||[]).map(id))]};if(monday(w.start)!==w.start)fail('La settimana deve iniziare di lunedì.');for(const [key,value]of Object.entries(raw.recipes)){id(key);const r=validateRecipe(value,true);if(r.id!==key)fail('Ricetta non valida.');w.recipes[key]=r;}if(Object.keys(w.recipes).length>20)fail('Troppe ricette nella settimana.');for(const m of raw.meals){if(!record(m))fail('Pasto non valido.');const v={id:id(m.id),date:date(m.date),slot:m.slot,recipeId:id(m.recipeId),from:m.from?id(m.from):null};if(v.date<w.start||v.date>addDays(w.start,WEEK_DAYS-1)||!['Pranzo','Cena'].includes(v.slot)||!w.recipes[v.recipeId]||w.meals.some(x=>x.id===v.id||x.date===v.date&&x.slot===v.slot))fail('Controlla i pasti della settimana.');if(m.locked!==undefined&&typeof m.locked!=='boolean')fail('Blocco pasto non valido.');if(m.locked)v.locked=true;if(m.substitutions!==undefined){const substitutions=validateMealSubstitutions(w.recipes[v.recipeId],m.substitutions);if(substitutions.length)v.substitutions=substitutions;}w.meals.push(v);}for(const m of w.meals)if(m.from){const root=w.meals.find(x=>x.id===m.from),external=m.slot==='Pranzo'&&m.date===w.start&&m.from==='week-'+addDays(w.start,-1)+'-cena';if(!external&&(!root||root.from||root.slot!=='Cena'||m.slot!=='Pranzo'||root.recipeId!==m.recipeId||addDays(root.date,1)!==m.date))fail('Collegamento tra cena e pranzo non valido.');}if(raw.boundaryHandled===true)w.boundaryHandled=true;if(raw.cookingPreferences!==undefined)w.cookingPreferences=validateCookingPreferences(raw.cookingPreferences);const entries=raw.calorieEntries??[];if(!Array.isArray(entries)||entries.length>500)fail('Troppi inserimenti calorici nella settimana.');w.calorieEntries=[];for(const e of entries){if(!record(e)||!['recipe','extra'].includes(e.kind)||typeof e.name!=='string'||!e.name.trim()||e.name.length>120||e.kcal!==null&&(!Number.isFinite(e.kcal)||e.kcal<0||e.kcal>100000)||e.kind==='extra'&&!(e.kcal>0))fail('Calorie non valide.');if(e.excluded!==undefined&&typeof e.excluded!=='boolean'||e.at!==undefined&&(!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||e.at>=Date.UTC(2100,0,1)))fail('Pasto libero non valido.');const entry={id:id(e.id),date:date(e.date),kind:e.kind,name:e.name.trim(),kcal:e.kcal,...(e.excluded?{excluded:true}:{}),...(e.at!==undefined?{at:e.at}:{})};if(entry.date<w.start||entry.date>addDays(w.start,6)||w.calorieEntries.some(x=>x.id===entry.id))fail('Data o inserimento calorico non valido.');w.calorieEntries.push(entry);}if(raw.preparations!==undefined){if(!Array.isArray(raw.preparations)||raw.preparations.length>200)fail('Storico delle preparazioni non valido.');w.preparations=[];for(const e of raw.preparations){if(!record(e)||typeof e.name!=='string'||!e.name.trim()||e.name.length>120||/[\x00-\x1f\x7f]/.test(e.name)||!Number.isSafeInteger(e.people)||e.people<1||e.people>1000||!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||e.at>=Date.UTC(2100,0,1)||w.preparations.some(x=>x.id===e.id))fail('Storico delle preparazioni non valido.');if(e.kcalPerPortion!==undefined&&e.kcalPerPortion!==null&&(!Number.isFinite(e.kcalPerPortion)||e.kcalPerPortion<0||e.kcalPerPortion>1000000)||e.excluded!==undefined&&typeof e.excluded!=='boolean')fail('Calorie della preparazione non valide.');if(e.excludedPortions!==undefined&&(!Array.isArray(e.excludedPortions)||e.excludedPortions.length>e.people||e.excludedPortions.some(i=>!Number.isSafeInteger(i)||i<0||i>=e.people)||new Set(e.excludedPortions).size!==e.excludedPortions.length))fail('Porzioni escluse non valide.');let usedIngredients;if(e.usedIngredients!==undefined){if(!Array.isArray(e.usedIngredients)||!e.usedIngredients.length||e.usedIngredients.length>100)fail('Ingredienti della preparazione non validi.');const keys=new Set();usedIngredients=e.usedIngredients.map(i=>{if(!record(i)||typeof i.ingredient!=='string'||!normalize(i.ingredient)||normalize(i.ingredient).length>120||/[\x00-\x1f\x7f]/.test(i.ingredient)||!['g','l','pz'].includes(i.unit)||!Number.isFinite(i.qty)||i.qty<=0||i.qty>1e9||keys.has(normalize(i.ingredient)+'|'+i.unit))fail('Ingredienti della preparazione non validi.');keys.add(normalize(i.ingredient)+'|'+i.unit);return {ingredient:normalize(i.ingredient),unit:i.unit,qty:i.qty};});}let ready;
@@ -308,8 +311,9 @@ function changedShoppingPlan(original,main,request,now){
  if(!meal||meal.locked||mealExpired(meal,now)||preparedMealIds(plan).has(meal.id))fail('Questo pasto è già passato, bloccato o pronto.');
  const current=weekMealRecipe(week,meal),source=current.ingredients.find(item=>item.ingredient===request.ingredient&&item.unit===request.unit);
  if(!source)fail('Questo ingrediente non è più presente nel pasto.');
- if(request.mode==='substitute'){
-  const replacement=request.replacement;
+ if(request.mode==='substitute'||request.mode==='omit'){
+  if(request.mode==='omit'&&!omissionOption(current,source.ingredient,source.unit))fail('Non posso confermare che questo ingrediente si possa omettere.');
+  const replacement=request.mode==='omit'?{...source,qty:0}:request.replacement;
   if(!record(replacement))fail('Scegli il prodotto sostitutivo e la quantità.');
   const previous=meal.substitutions?.find(item=>item.ingredient===source.ingredient&&item.unit===source.unit);
   const origin=previous||{sourceIngredient:source.ingredient,sourceUnit:source.unit};

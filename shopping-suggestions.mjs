@@ -1,4 +1,4 @@
-import {normalize,createUnitLookup,recentShoppingPurchases} from './domain.mjs?v=97';
+import {normalize,createUnitLookup,recentShoppingPurchases} from './domain.mjs?v=98';
 
 // Suggestions remain explicit choices. Different units never imply a conversion.
 const families=[
@@ -13,6 +13,7 @@ const families=[
  [/^(PENNE|FUSILLI|RIGATONI|FARFALLE|PASTA CORTA)$/,['PENNE','FUSILLI','RIGATONI']],
  [/^(SPAGHETTI|LINGUINE|BUCATINI)$/,['SPAGHETTI','LINGUINE','BUCATINI']]
 ];
+const preparationForm=name=>/\b(SECCHI|SECCHE|SECCO|SECCA)\b/.test(name)?'dry':/\b(COTTI|COTTE|COTTO|COTTA|SCATOLA|LESSATI|LESSATE)\b/.test(name)?'cooked':/\b(FRESCHI|FRESCHE|FRESCO|FRESCA)\b/.test(name)?'fresh':'unspecified';
 const key=item=>(item.ingredient??item.name)+'|'+item.unit;
 export function ingredientSuggestions(main,recipe,source){
  if(!source||!recipe.ingredients.some(i=>key(i)===key(source)))return [];
@@ -21,6 +22,7 @@ export function ingredientSuggestions(main,recipe,source){
  const options=new Map(),existing=new Set(recipe.ingredients.map(i=>i.ingredient));
  function add(name,unit,qty,score,reason){
   name=normalize(name);
+  if(!family||!family[0].test(name)||preparationForm(name)!==preparationForm(source.ingredient))return;
   if(existing.has(name)||name.startsWith(normalize(source.ingredient)+' ')||normalize(source.ingredient).startsWith(name+' ')||!Number.isFinite(qty)||qty<=0||main.pantry.concat(main.shopping).some(p=>p.name===name&&p.category==='Altro'))return;
   const registered=unitFor(name);
   if(registered&&registered!==unit)return;
