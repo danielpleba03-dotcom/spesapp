@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=98';
-import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=98';
-import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=98';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=98';
+import {omissionOption} from './recipe-omissions.mjs?v=99';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=99';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=99';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=99';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);
@@ -51,7 +51,7 @@ export function createShoppingResolutionUI(api){
  function showMeal(index){
   context.selected=index;
   const item=selected(),canSubstitute=availableSubstitutes().length>0,omit=omissionOption(item.recipe,context.name,context.unit);
-  shell(item.recipe.name,'<p class="summary-note">'+esc(dateLabel(item.date))+' · '+item.slot+' · Ingredienti per 1 porzione</p>'+ingredients(item.recipe)+recipeGuide(item.recipe)+(omit?'<p class="summary-note">'+esc(omit.reason)+' <a href="'+esc(omit.source)+'" target="_blank" rel="noopener noreferrer">Fonte ↗</a></p>':'')+'<div class="resolution-modes">'+(canSubstitute?button('substitute','Sostituisci '+esc(context.name),'class="primary"'):'')+(omit?button('omit','Falla senza '+esc(context.name)):'')+button('recipe-mode','Cambia piatto',canSubstitute?'':'class="primary"')+'</div>'+button('meals','Altri pasti'));
+  shell(item.recipe.name,'<p class="summary-note">'+esc(dateLabel(item.date))+' · '+item.slot+' · Ingredienti per 1 porzione</p>'+ingredients(item.recipe)+recipeGuide(item.recipe)+(omit?'<p class="summary-note">'+esc(omit.reason)+' <a href="'+esc(omit.source)+'" target="_blank" rel="noopener noreferrer">Fonte ↗</a></p>':'')+'<div class="resolution-modes">'+(canSubstitute?button('substitute','Sostituisci '+esc(context.name),'class="primary"'):'')+(omit?button('omit','Falla senza '+esc(context.name)):'')+button('recipe-mode','Cambia piatto',canSubstitute?'':'class="primary"')+'</div>'+(context.options.length>1?button('meals','Altri pasti'):''));
  }
  function showSubstitution(){
   if(!availableSubstitutes().length){showRecipeChoices();return;}

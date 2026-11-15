@@ -1,30 +1,30 @@
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=98';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=98';
-import {catalogo89} from './catalogo-89.mjs?v=98';
-import {catalogo72} from './catalogo-72.mjs?v=98';
-import {catalogo71} from './catalogo-71.mjs?v=98';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=98';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=98';
-import {recipeAdditions} from './recipe-additions.mjs?v=98';
-import {calorieBadge} from './recipe-calories.mjs?v=98';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=99';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=99';
+import {catalogo89} from './catalogo-89.mjs?v=99';
+import {catalogo72} from './catalogo-72.mjs?v=99';
+import {catalogo71} from './catalogo-71.mjs?v=99';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=99';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=99';
+import {recipeAdditions} from './recipe-additions.mjs?v=99';
+import {calorieBadge} from './recipe-calories.mjs?v=99';
 
-import {classicRecipes} from './classic-recipes.mjs?v=98';
+import {classicRecipes} from './classic-recipes.mjs?v=99';
 
-import {createWeekUI} from './week-ui.mjs?v=98';
+import {createWeekUI} from './week-ui.mjs?v=99';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=98';
+import {enhanceSuggestions} from './suggestions.mjs?v=99';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=98';
+import {enhanceSelects} from './select-menu.mjs?v=99';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=98';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=99';
 
-import {createStore} from './cloud.mjs?v=98';
+import {createStore} from './cloud.mjs?v=99';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=98';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=99';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
