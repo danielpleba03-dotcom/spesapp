@@ -1,6 +1,6 @@
-import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=96';
-import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=96';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=96';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=97';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=97';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=97';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);
@@ -41,12 +41,19 @@ export function createShoppingResolutionUI(api){
   const options=context.options;
   shell('Non trovo '+context.name,options.length?'<p>Scegli il pasto da aggiornare.</p><div class="resolution-meal-options">'+options.map((item,index)=>button('meal','<strong>'+esc(item.recipe.name)+'</strong><small>'+esc(dateLabel(item.date))+' · '+item.slot+(item.linkedMeals?.length?' + pranzo collegato':'')+'</small>','data-index="'+index+'"')).join('')+'</div>':'<p>Nessun pasto futuro da preparare usa questo ingrediente. Puoi aggiornare il prodotto direttamente dalla lista.</p>');
  }
+ function availableSubstitutes(){
+  const recipe=selected().recipe,source=recipe.ingredients.find(item=>item.ingredient===context.name&&item.unit===context.unit);
+  return ingredientSuggestions(api.getMain(),recipe,source).filter(replacement=>{
+   try{shoppingResolutionPreview(api.getPlan(),api.getMain(),{...baseRequest(),mode:'substitute',replacement});return true;}catch{return false;}
+  });
+ }
  function showMeal(index){
   context.selected=index;
-  const item=selected();
-  shell(item.recipe.name,'<p class="summary-note">'+esc(dateLabel(item.date))+' · '+item.slot+' · Ingredienti per 1 porzione</p>'+ingredients(item.recipe)+recipeGuide(item.recipe)+'<div class="resolution-modes">'+button('substitute','Sostituisci '+esc(context.name),'class="primary"')+button('recipe-mode','Cambia piatto')+'</div>'+button('meals','Altri pasti'));
+  const item=selected(),canSubstitute=availableSubstitutes().length>0;
+  shell(item.recipe.name,'<p class="summary-note">'+esc(dateLabel(item.date))+' · '+item.slot+' · Ingredienti per 1 porzione</p>'+ingredients(item.recipe)+recipeGuide(item.recipe)+'<div class="resolution-modes">'+(canSubstitute?button('substitute','Sostituisci '+esc(context.name),'class="primary"'):'')+button('recipe-mode','Cambia piatto',canSubstitute?'':'class="primary"')+'</div>'+button('meals','Altri pasti'));
  }
  function showSubstitution(){
+  if(!availableSubstitutes().length){showRecipeChoices();return;}
   const source=selected().recipe.ingredients.find(item=>item.ingredient===context.name&&item.unit===context.unit);
   shell('Sostituisci '+context.name,'<form id="resolution-substitution" class="resolution-form"><p class="summary-note">Scegli un sostituto suggerito oppure scrivine uno. Verifica la dose prima di confermare.</p><label>Prodotto trovato<input name="replacement" id="resolution-replacement" autocomplete="off" maxlength="120" required></label><div id="resolution-suggestions" class="resolution-suggestions"></div><div class="resolution-form-amount"><label>Quantità per 1 porzione<input name="qty" type="number" min="0.000001" max="1000000000" step="any" inputmode="decimal" value="'+source.qty+'" required></label><label>Unità<select name="unit">'+['g','l','pz'].map(unit=>'<option value="'+unit+'" '+(unit===source.unit?'selected':'')+'>'+(unit==='pz'?'P':unit.toUpperCase())+'</option>').join('')+'</select></label></div><p class="summary-note">Inserisci la quantità del prodotto sostitutivo che userai nella ricetta.</p><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+'<button type="submit" class="primary">Vedi riepilogo</button></div></form>');
   renderSuggestions();
@@ -56,7 +63,7 @@ export function createShoppingResolutionUI(api){
   if(!form||!target)return;
   const query=normalize(form.elements.replacement.value);
   const source=selected().recipe.ingredients.find(item=>item.ingredient===context.name&&item.unit===context.unit);
-  context.substitutes=ingredientSuggestions(api.getMain(),selected().recipe,source);
+  context.substitutes=availableSubstitutes();
   if(!query){
    target.innerHTML=context.substitutes.length?context.substitutes.map((item,index)=>button('suggested-ingredient','<strong>'+esc(item.ingredient)+'</strong><small>'+esc(formatQuantity(item.qty,item.unit))+' · '+esc(item.reason)+'</small>','data-index="'+index+'"')).join(''):'<p class="summary-note">Non ho un sostituto adatto da suggerire per questo ingrediente. Puoi indicarne uno oppure cambiare piatto.</p>';
    return;
