@@ -1,4 +1,4 @@
-import {normalize} from './domain.mjs?v=100';
+import {normalize} from './domain.mjs?v=101';
 
 // Valori medi orientativi per dose: non etichette certificate.
 
@@ -22,6 +22,10 @@ Object.assign(refs,{"FUNGHI PIOPPINI":[0.22,"g"]});
 // Roast beef: capone-food.com/media/8d/c2/1a/1709624568/090110%20-%20Roastbeef%20rev.6%2016.02.2024.pdf.
 // Cannellini: rslvr.coop.it/il-prodotto-coop/gli-spesotti/salse-condimenti-e-conserve/alimentari-confezionati/conserve-di-3.
 Object.assign(refs,{'ROAST BEEF COTTO':[1.32,'g','protein'],'BRESAOLA':[1.51,'g','protein'],'CETRIOLI':[.16,'g','veg'],'RUCOLA':[.30,'g','veg'],'FAGIOLI CANNELLINI COTTI':[.93,'g','protein']});
+
+// Ready-to-eat turkey and mackerel: Coop product labels (arrosto-di; conserve-di-pesce-22).
+// Rye bread: CREA alimentinutrizione.it/tabelle-nutrizionali/000510.
+Object.assign(refs,{'PANE DI SEGALE':[2.28,'g','grain'],'FESA DI TACCHINO AFFETTATA':[.98,'g','protein'],'SGOMBRO AL NATURALE':[1.41,'g','protein']});
 
 export function recipeCalories(recipe){if(Number.isFinite(recipe.kcal)&&recipe.kcal>=0)return {value:Math.round(recipe.kcal),estimated:false,missing:[]};let total=0;const missing=[];for(const i of recipe.ingredients){const ref=refs[normalize(i.ingredient)];if(!ref||ref[1]!==i.unit){missing.push(i.ingredient);continue;}total+=ref[0]*i.qty;}return {value:missing.length?null:Math.round(total),estimated:true,missing};}
 
