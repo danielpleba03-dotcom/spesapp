@@ -1,30 +1,31 @@
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=99';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=99';
-import {catalogo89} from './catalogo-89.mjs?v=99';
-import {catalogo72} from './catalogo-72.mjs?v=99';
-import {catalogo71} from './catalogo-71.mjs?v=99';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=99';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=99';
-import {recipeAdditions} from './recipe-additions.mjs?v=99';
-import {calorieBadge} from './recipe-calories.mjs?v=99';
+import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=100';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=100';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=100';
+import {catalogo89} from './catalogo-89.mjs?v=100';
+import {catalogo72} from './catalogo-72.mjs?v=100';
+import {catalogo71} from './catalogo-71.mjs?v=100';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=100';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=100';
+import {recipeAdditions} from './recipe-additions.mjs?v=100';
+import {calorieBadge} from './recipe-calories.mjs?v=100';
 
-import {classicRecipes} from './classic-recipes.mjs?v=99';
+import {classicRecipes} from './classic-recipes.mjs?v=100';
 
-import {createWeekUI} from './week-ui.mjs?v=99';
+import {createWeekUI} from './week-ui.mjs?v=100';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=99';
+import {enhanceSuggestions} from './suggestions.mjs?v=100';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=99';
+import {enhanceSelects} from './select-menu.mjs?v=100';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=99';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=100';
 
-import {createStore} from './cloud.mjs?v=99';
+import {createStore} from './cloud.mjs?v=100';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=99';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=100';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -437,6 +438,7 @@ matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').o
 
 let releaseRecipesAttempted=false;
 const catalogBatches = [
+ ...Array.from({length:Math.ceil(piattiRapidi100.length/5)},(_,i)=>({id:'release-20261115-rapidi-100-'+i,recipes:piattiRapidi100.slice(i*5,(i+1)*5)})),
  ...Array.from({length:Math.ceil(ricetteFacili94.length/5)},(_,i)=>({id:'release-20261115-facili-94-'+i,recipes:ricetteFacili94.slice(i*5,(i+1)*5)})),
  ...Array.from({length:Math.ceil(ricetteFacili93.length/5)},(_,i)=>({id:'release-20261115-facili-93-'+i,recipes:ricetteFacili93.slice(i*5,(i+1)*5)})),
  ...Array.from({length:Math.ceil(catalogo89.length/8)},(_,i)=>({id:'release-20261113-catalogo-89-'+i,recipes:catalogo89.slice(i*8,(i+1)*8)})),
@@ -484,7 +486,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 

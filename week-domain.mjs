@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=99';
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes} from './cooking-domain.mjs?v=99';
-import {recipeCalories} from './recipe-calories.mjs?v=99';
-import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=99';
+import {omissionOption} from './recipe-omissions.mjs?v=100';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=100';
+import {recipeCalories} from './recipe-calories.mjs?v=100';
+import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=100';
 
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 
@@ -95,6 +95,12 @@ function remember(history,recipeId){return [...history.filter(x=>x!==recipeId),r
 
 function randomFraction(seed,recipeId){let h=2166136261;for(const c of seed+'|'+recipeId){h=Math.imul(h^c.charCodeAt(0),16777619);}h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846ca68b);h^=h>>>16;return ((h>>>0)+1)/4294967297;}
 
+const shoppingIngredients=recipe=>new Set(recipe.ingredients.filter(i=>i.qty>0&&ingredientKey(i.ingredient)).map(i=>normalize(i.ingredient)));
+export function isQuickMeal(recipe){
+ const effort=recipeEffort(recipe);
+ return recipe.ingredients.length<=7&&(effort.minutes!==null&&effort.minutes<=20||shoppingIngredients(recipe).size<=3&&/PRONTO|BRESAOLA|ROAST BEEF|INSALAT|CAPRESE|AL NATURALE|SENZA COTTURA/.test(recipe.name));
+}
+
 function choose(main,choices,p,history,used,otherRecipe,seed,cooking=null,avoidRecipe=null){
 
  let options=choices;
@@ -117,8 +123,20 @@ function choose(main,choices,p,history,used,otherRecipe,seed,cooking=null,avoidR
 
  else {const ordered=[...options].sort((a,b)=>history.indexOf(a.id)-history.indexOf(b.id));options=ordered.slice(0,Math.max(1,Math.ceil(ordered.length/4)));}
 
+ // Reuse exact shopping products, without conflating raw/cooked forms or reserving stock.
+ const weeklyIngredients=new Set(usedRecipes.flatMap(r=>[...shoppingIngredients(r)]));
+ const inPantry=new Set(main.pantry.filter(p=>p.category==='Alimentari'&&p.qty>0).map(p=>p.name));
+ const novelty=recipe=>[...shoppingIngredients(recipe)].filter(name=>!weeklyIngredients.has(name)).length;
+ const withinBudget=options.filter(r=>weeklyIngredients.size+novelty(r)<=26);
+ if(weeklyIngredients.size&&withinBudget.length)options=withinBudget;
+ const quick=options.filter(isQuickMeal),alreadyQuick=usedRecipes.filter(isQuickMeal).length;
+ if(quick.length&&alreadyQuick*2<usedRecipes.length+1)options=quick;
+ const practicalWeight=recipe=>{
+  const items=[...shoppingIngredients(recipe)],shared=items.filter(name=>weeklyIngredients.has(name)||inPantry.has(name)).length;
+  return (1+Math.min(shared,4)*.35)/(1+novelty(recipe)*(weeklyIngredients.size>=12?.5:.15));
+ };
  const groups=groupSimilarRecipes(options),sizes=new Map(groups.flatMap(g=>g.map(r=>[r.id,g.length])));
- return options.map(r=>({r,score:-Math.log(randomFraction(seed,r.id))/((1/sizes.get(r.id))*(1+(p.pantryPriority?abundance(main,r):0))*(p.minutes&&estimatedMinutes(r)>p.minutes?.25:1)*(cooking?preferenceWeight(r,cooking)*proposalDiversity(r,cooking,used,otherRecipe):1))})).sort((a,b)=>a.score-b.score||a.r.id.localeCompare(b.r.id))[0].r;
+ return options.map(r=>({r,score:-Math.log(randomFraction(seed,r.id))/((1/sizes.get(r.id))*practicalWeight(r)*(1+(p.pantryPriority?abundance(main,r):0))*(p.minutes&&estimatedMinutes(r)>p.minutes?.25:1)*(cooking?preferenceWeight(r,cooking)*proposalDiversity(r,cooking,used,otherRecipe):1))})).sort((a,b)=>a.score-b.score||a.r.id.localeCompare(b.r.id))[0].r;
 
 }
 

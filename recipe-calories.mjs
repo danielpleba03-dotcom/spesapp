@@ -1,4 +1,4 @@
-import {normalize} from './domain.mjs?v=99';
+import {normalize} from './domain.mjs?v=100';
 
 // Valori medi orientativi per dose: non etichette certificate.
 
@@ -16,6 +16,13 @@ Object.assign(refs,{"PASTA FRESCA ALL'UOVO":[2.7,"g"],"PECORINO ROMANO":[3.87,"g
 
 Object.assign(refs,{"LATTE DI MANDORLA": [240, "l"], "VANIGLIA": [2.88, "g"], "SCIROPPO D'ACERO": [3430, "l"], "SCIROPPO DI AGAVE": [4200, "l"], "COCCO DISIDRATATO": [6.6, "g"], "SEMI DI CHIA": [4.86, "g"], "FARRO SOFFIATO": [3.7, "g"], "FRUTTA DISIDRATATA MISTA": [3.1, "g"], "MUESLI AL CIOCCOLATO": [4, "g"], "LAMPONI": [0.52, "g"], "BRIOCHE": [4.06, "g"], "GELATINA IN FOGLI": [3.4, "g"], "FECOLA DI PATATE": [3.5, "g"], "SCORZA DI ARANCIA": [0.97, "g"]});
 Object.assign(refs,{"FUNGHI PIOPPINI":[0.22,"g"]});
+// Approximate per-gram references; product labels can differ.
+// CREA: alimentinutrizione.it/tabelle-nutrizionali/005220 and /005460.
+// Bresaola: bresaolavaltellina.it/press-room/bresaola-della-valtellina-profilo-nutrizionale/.
+// Roast beef: capone-food.com/media/8d/c2/1a/1709624568/090110%20-%20Roastbeef%20rev.6%2016.02.2024.pdf.
+// Cannellini: rslvr.coop.it/il-prodotto-coop/gli-spesotti/salse-condimenti-e-conserve/alimentari-confezionati/conserve-di-3.
+Object.assign(refs,{'ROAST BEEF COTTO':[1.32,'g','protein'],'BRESAOLA':[1.51,'g','protein'],'CETRIOLI':[.16,'g','veg'],'RUCOLA':[.30,'g','veg'],'FAGIOLI CANNELLINI COTTI':[.93,'g','protein']});
+
 export function recipeCalories(recipe){if(Number.isFinite(recipe.kcal)&&recipe.kcal>=0)return {value:Math.round(recipe.kcal),estimated:false,missing:[]};let total=0;const missing=[];for(const i of recipe.ingredients){const ref=refs[normalize(i.ingredient)];if(!ref||ref[1]!==i.unit){missing.push(i.ingredient);continue;}total+=ref[0]*i.qty;}return {value:missing.length?null:Math.round(total),estimated:true,missing};}
 
 export function calorieBadge(recipe){const n=recipeCalories(recipe),title=n.value===null?'Calorie non disponibili: manca un valore compatibile per '+n.missing.join(', '):n.estimated?'Stima per una persona dai pesi indicati; valori medi, marca e cottura possono variare. Per ingredienti in pezzi si considera una pezzatura media.':'Kcal per porzione inserite nella ricetta';const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));return `<span class="recipe-kcal" title="${esc(title)}" aria-label="${esc(title)}">${n.value===null?'kcal n.d.':(n.estimated?'≈ ':'')+n.value+' kcal'}</span>`;}
