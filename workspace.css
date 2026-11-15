@@ -396,3 +396,9 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
 
 /* Keep long catalogs scrollable while skipping offscreen closed-card rendering. */
 .catalog-layout > details.recipe:not([open]) { content-visibility: auto; contain-intrinsic-size: auto 110px; }
+
+.resolution-result-section { margin: 14px 0; padding: 12px; border: 1px solid var(--border, #425064); border-radius: 12px; }
+.resolution-result-section.removed { border-color: #af7463; }
+.resolution-result-section.added { border-color: #668d71; }
+.resolution-result-section h3 { margin: 0 0 8px; }
+[data-resolution-state="saving"] { min-height: 100px; display: grid; align-items: center; }

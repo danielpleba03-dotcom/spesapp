@@ -1,13 +1,13 @@
-import {createShoppingResolutionUI} from './shopping-resolution-ui.mjs?v=101';
-import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=101';
+import {createShoppingResolutionUI} from './shopping-resolution-ui.mjs?v=102';
+import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=102';
 
-import {createUnitLookup} from './domain.mjs?v=101';
+import {createUnitLookup} from './domain.mjs?v=102';
 
-import {weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=101';
+import {weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=102';
 
-import {createWeekStore} from './week-store.mjs?v=101';
+import {createWeekStore} from './week-store.mjs?v=102';
 
-import {reconcile} from './ui.mjs?v=101';
+import {reconcile} from './ui.mjs?v=102';
 
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),pretty=d=>new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'numeric',month:'short'}).format(new Date(d+'T12:00:00')),$=s=>document.querySelector(s);
 
@@ -47,13 +47,14 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
  let cleanupRequested=false;
  function requestedCleanup(){const id='cleanup-household-20261113-owner-request';if(cleanupRequested||!store||!meta.ready||meta.pending||meta.preview||!api.mainMeta().ready||api.mainMeta().pending||!navigator.onLine||Date.now()>new Date('2026-11-20T00:00:00+01:00').getTime()||archive.applied?.includes(id))return;cleanupRequested=true;try{store.dispatch({id,type:'clearHouseholdHistory',payload:{},at:Date.now()});}catch(e){cleanupRequested=false;api.notify('Svuotamento non ancora completato: '+e.message,true);}}
 
- function send(type,payload,message=''){requireReady();store.dispatch({id:crypto.randomUUID(),type,payload,at:Date.now()});if(message)api.notify(message);}
+ function send(type,payload,message=''){requireReady();const id=crypto.randomUUID();store.dispatch({id,type,payload,at:Date.now()});if(message)api.notify(message);return id;}
 
  function dialog(title,html){$('#editor').innerHTML=`<div class="dialog-head"><h2>${esc(title)}</h2><button type="button" data-week="close" aria-label="Chiudi">×</button></div>${html}<p id="week-error" class="input-error" role="alert"></p>`;if(!$('#editor').open)$('#editor').showModal();}
 
  const shoppingResolver=createShoppingResolutionUI({
   getPlan:()=>archive,getMain:main,getStart:()=>start,
   ready:()=>meta.ready&&!meta.pending&&api.mainMeta().ready&&!api.mainMeta().pending,
+  getStatus:()=>({pending:meta.pending||api.mainMeta().pending,error:meta.error||api.mainMeta().error}),
   dispatch:payload=>send('resolveShopping',payload),
   notify:api.notify,dialog,close
  });
@@ -131,7 +132,7 @@ if(!w&&api.mainMeta().ready&&!meta.pending&&!api.mainMeta().pending&&!autoReques
 
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 
- store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;queueMicrotask(requestedCleanup);refreshRecipeLock();refreshReadyList();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,openMissing:shoppingResolver.open,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
+ store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;queueMicrotask(requestedCleanup);refreshRecipeLock();refreshReadyList();shoppingResolver.refresh();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,openMissing:shoppingResolver.open,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
  if(api.mainMeta().pending)throw Error('Attendi il salvataggio della preparazione prima di eliminarla.');
  send('deletePreparation',{entryId,restoreIngredients});
 },get ready(){return meta.ready;},get pending(){return meta.pending;},getPreferences:()=>cookingPreferences(archive),savePreferences:change=>send('cookingPreferences',{start,change}),refresh:()=>store.refresh(),openToday};

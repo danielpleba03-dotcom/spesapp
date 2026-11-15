@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=101';
-import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=101';
-import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=101';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=101';
+import {omissionOption} from './recipe-omissions.mjs?v=102';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=102';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=102';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=102';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);
@@ -90,15 +90,39 @@ export function createShoppingResolutionUI(api){
   target.innerHTML=page.length?page.map(({recipe,bought,shared})=>button('recipe','<strong>'+esc(recipe.name)+'</strong><small>'+esc(recipe.ingredients.map(i=>i.ingredient).join(' · '))+'</small><small>'+(bought?'Riutilizza '+bought+' ingredienti già presi':shared?'Mantiene '+shared+' ingredienti della ricetta':'Un piatto diverso')+'</small>','data-id="'+esc(recipe.id)+'"')).join('')+(context.candidates.length>3?button('more-recipes','Altre 3 proposte'):''):'<p class="empty">Non ci sono altri piatti compatibili dello stesso tipo senza questo ingrediente.</p>';
  }
 
+ function changesReport(preview){
+  const section=(title,items,kind)=>items.length?'<section class="resolution-result-section '+kind+'"><h3>'+title+'</h3><ul class="resolution-changes">'+items.map(item=>'<li><strong>'+esc(item.name)+'</strong><span>'+esc(formatQuantity(Math.abs(item.after-item.before),item.unit))+'<small>'+(item.after?'In lista: '+esc(formatQuantity(item.after,item.unit)):'Non serve più comprarlo')+'</small></span></li>').join('')+'</ul></section>':'';
+  return section('Tolti dalla lista',preview.changes.filter(i=>i.before>0&&i.after===0),'removed')+section('Quantità da comprare ridotte',preview.changes.filter(i=>i.after>0&&i.after<i.before),'reduced')+section('Da aggiungere o aumentare',preview.changes.filter(i=>i.after>i.before),'added');
+ }
+ function showSaved(){
+  const preview=context.preview,returns=context.confirmedReturns||[];
+  const returned=returns.length?'<section class="resolution-result-section removed"><h3>Da rimettere sullo scaffale</h3><ul class="resolution-changes">'+returns.map(item=>'<li><strong>'+esc(item.name)+'</strong><span>'+esc(formatQuantity(item.qty,item.unit))+'</span></li>').join('')+'</ul><p class="summary-note">Hai confermato di rimetterli: queste quantità sono state tolte anche dalla dispensa.</p></section>':'';
+  const kept=preview.purchased.filter(item=>item.qty>(returns.find(r=>r.name===item.name&&r.unit===item.unit)?.qty||0));
+  const keep=kept.length?'<section class="resolution-result-section"><h3>Da tenere nel carrello</h3><ul class="resolution-changes">'+kept.map(item=>{const qty=item.qty-(returns.find(r=>r.name===item.name&&r.unit===item.unit)?.qty||0);return '<li><strong>'+esc(item.name)+'</strong><span>'+esc(formatQuantity(qty,item.unit))+'<small>'+(item.needed?'Serve ancora ai pasti':'Tenuto come scorta in dispensa')+'</small></span></li>';}).join('')+'</ul></section>':'';
+  shell('Lista aggiornata','<div data-resolution-state="saved"><p class="summary-note">Pasto e lista sono stati aggiornati. Ecco tutte le variazioni, compresi gli ingredienti che non servono più agli altri pasti.</p>'+changesReport(preview)+returned+keep+(!preview.changes.length&&!returns.length?'<p>Nessuna quantità da comprare è cambiata.</p>':'')+'<div class="editor-footer">'+button('done','Ho visto, torna alla lista','class="primary"')+'</div></div>');
+ }
+ function refresh(){
+  if(!context?.waiting)return;
+  const status=api.getStatus(),id=context.waiting;
+  if(api.getMain().applied?.includes(id)&&api.getPlan().applied?.includes(id)&&!status.pending){
+   context.waiting=null;
+   if($('#editor[open] [data-resolution-state="saving"]'))showSaved();
+  }else if(!status.pending&&!api.getPlan().applied?.includes(id)){
+   context.waiting=null;
+   if($('#editor[open] [data-resolution-state="saving"]'))shell('Cambio non applicato','<p>La lista non è stata aggiornata con questo cambio. Riapri «Non trovo» e riprova.</p>'+button('done','Chiudi'));
+  }else if(status.error){
+   const target=$('#resolution-error');if(target)target.textContent=status.error;
+  }
+ }
  function showPreview(request){
   ready();
   const preview=shoppingResolutionPreview(api.getPlan(),api.getMain(),request);
   context.request={...request,expectedMain:preview.expectedMain};
   context.preview=preview;
-  const changes=preview.changes.map(change=>'<li><strong>'+esc(change.name)+'</strong><span>'+(change.after?esc(formatQuantity(change.after,change.unit)):'Togli dalla lista')+'<small>'+(change.before?'Prima '+esc(formatQuantity(change.before,change.unit)):'Da aggiungere')+'</small></span></li>').join('');
-  const bought=preview.purchased.map((item,index)=>'<li><div><strong>'+esc(item.name)+'</strong><small>Presi '+esc(formatQuantity(item.qty,item.unit))+'</small></div>'+(item.returnable?'<label class="resolution-return"><input type="checkbox" data-resolution-return="'+index+'"><span>Rimetto '+esc(formatQuantity(item.returnable,item.unit))+' sullo scaffale'+(item.qty>item.returnable?'<small>Tieni '+esc(formatQuantity(item.qty-item.returnable,item.unit))+' per gli altri pasti</small>':'')+'</span></label>':'<span class="resolution-keep">'+(item.needed?'Tieni: serve ancora ai pasti':'Tieni: acquisto già utilizzato in parte')+'</span>')+'</li>').join('');
+  const changes=changesReport(preview);
+  const bought=preview.purchased.map((item,index)=>'<li><div><strong>'+esc(item.name)+'</strong><small>Presi '+esc(formatQuantity(item.qty,item.unit))+'</small></div>'+(item.returnable?'<label class="resolution-return"><input type="checkbox" data-resolution-return="'+index+'"><span>Da togliere dal carrello: '+esc(formatQuantity(item.returnable,item.unit))+' sullo scaffale'+(item.qty>item.returnable?'<small>Tieni '+esc(formatQuantity(item.qty-item.returnable,item.unit))+' per gli altri pasti</small>':'')+'</span></label>':'<span class="resolution-keep">'+(item.needed?'Tieni: serve ancora ai pasti':'Tieni: acquisto già utilizzato in parte')+'</span>')+'</li>').join('');
   const subtitle=request.mode==='omit'?'Senza '+esc(context.name):request.mode==='substitute'?esc(context.name)+' → '+esc(request.replacement.ingredient):esc(selected().recipe.name)+' → '+esc(preview.recipe.name);
-  shell('Riepilogo cambio','<p class="resolution-change-title">'+subtitle+'</p><details class="resolution-recipe-preview" open><summary>Ingredienti aggiornati per 1 porzione</summary>'+ingredients(preview.recipe)+'</details><section><h3>Lista della spesa</h3>'+(changes?'<ul class="resolution-changes">'+changes+'</ul>':'<p>Le quantità in lista coprono già il cambio.</p>')+'</section><section><h3>Già presi in questa spesa</h3>'+(bought?'<ul class="resolution-purchases">'+bought+'</ul><p class="summary-note">Acquisti segnati Comprato oggi nelle ultime 10 ore. Spunta solo ciò che rimetti davvero sullo scaffale.</p>':'<p class="summary-note">Nessun acquisto recente registrato per questi ingredienti. Verifica il carrello per i prodotti presi prima di questo aggiornamento.</p>')+'</section><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+button('confirm','Conferma cambio','class="primary"')+'</div>');
+  shell('Riepilogo cambio','<p class="resolution-change-title">'+subtitle+'</p><details class="resolution-recipe-preview" open><summary>Ingredienti aggiornati per 1 porzione</summary>'+ingredients(preview.recipe)+'</details><section><h3>Come cambia la lista</h3>'+(changes||'<p>Le quantità in lista coprono già il cambio.</p>')+'</section><section><h3>Prodotti già presi: cosa togliere dal carrello</h3>'+(bought?'<ul class="resolution-purchases">'+bought+'</ul><p class="summary-note">Acquisti segnati Comprato oggi nelle ultime 10 ore. Spunta solo ciò che rimetti davvero sullo scaffale.</p>':'<p class="summary-note">Nessun acquisto recente registrato per questi ingredienti. Verifica il carrello per i prodotti presi prima di questo aggiornamento.</p>')+'</section><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+button('confirm','Conferma cambio','class="primary"')+'</div>');
  }
  document.addEventListener('input',event=>{
   if(event.target.id==='resolution-replacement')renderSuggestions();
@@ -145,6 +169,7 @@ export function createShoppingResolutionUI(api){
      form.elements.qty.focus();
      break;
     }
+    case 'done':api.close();context=null;break;
     case 'confirm':{
      ready();
      const returnItems=[...document.querySelectorAll('[data-resolution-return]:checked')].map(input=>{
@@ -152,12 +177,12 @@ export function createShoppingResolutionUI(api){
       return {name:item.name,unit:item.unit,qty:item.returnable};
      });
      control.disabled=true;
-     try{api.dispatch({...context.request,returnItems});api.close();api.notify('Pasto e lista della spesa aggiornati.');}
+     try{context.confirmedReturns=returnItems;const id=api.dispatch({...context.request,returnItems});context.waiting=id;shell('Aggiornamento della lista','<div data-resolution-state="saving"><p role="status">Sto aggiornando il piatto e la lista della spesa…</p></div>');refresh();}
      catch(error){control.disabled=false;throw error;}
      break;
     }
    }
   }catch(error){showError(error);}
  });
- return {open};
+ return {open,refresh};
 }
