@@ -53,6 +53,11 @@ export const low=p=>Number(p.qty)>0&&Number(p.qty)<=(p.unit==='g'?200:2);
 
 export const stockView=p=>Number(p.qty)<=0?'Esauriti':low(p)?'Da rifornire':'Disponibili';
 
+function validatePlanStarts(raw){
+ if(!Array.isArray(raw)||raw.length>52||raw.some(day=>typeof day!=='string'||!/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(day)||!Number.isFinite(new Date(day+'T12:00:00Z').getTime())))fail('Settimane della spesa non valide.');
+ return [...new Set(raw)].sort();
+}
+
 export function validProduct(p,positive=false){
 
  if(!record(p))fail('Prodotto non valido.');name(p.name);
@@ -206,7 +211,15 @@ export function validateImport(raw){
 
  const s=emptyState();
 
- for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');
+ for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');if(kind==='shopping'&&item.planStarts)p.planStarts=validatePlanStarts(item.planStarts);
+if(kind==='pantry'&&p.category==='Alimentari'&&item.recentBuys!==undefined){
+ if(!Array.isArray(item.recentBuys)||item.recentBuys.length>12)fail('Acquisti recenti non validi.');
+ p.recentBuys=item.recentBuys.map(event=>{
+  if(!record(event)||!Number.isFinite(event.at)||event.at<Date.UTC(2000,0,1)||event.at>=Date.UTC(2100,0,1)||!Number.isFinite(event.qty)||event.qty<=0||event.qty>LIMITS.quantity||!Number.isFinite(event.remaining)||event.remaining<0||event.remaining>event.qty||p.unit==='pz'&&(!Number.isInteger(event.qty)||!Number.isInteger(event.remaining)))fail('Acquisto recente non valido.');
+  return {id:identifier(event.id),at:event.at,qty:event.qty,remaining:event.remaining};
+ });
+ consumeRecentBuys(p);
+}
 if(kind==='pantry'&&p.category==='Altro'&&item.purchases!==undefined){
  if(!Array.isArray(item.purchases)||item.purchases.length>12)fail('Storico acquisti non valido.');
  p.purchases=item.purchases.map(event=>{
@@ -302,7 +315,7 @@ function selectedIds(a){if(!Array.isArray(a.ids)||!a.ids.length||a.ids.length>LI
 
 // One atomic shopping update: recalculate against the latest stock and cart.
 
-export function addShoppingRequirements(state,requirements,actionId,expectedRecipes=[]){
+export function addShoppingRequirements(state,requirements,actionId,expectedRecipes=[],weekStart=null){
 
  if(!Array.isArray(requirements)||requirements.length>LIMITS.rows||!Array.isArray(expectedRecipes)||expectedRecipes.length>20)fail('Ingredienti della spesa non validi.');
 
@@ -313,6 +326,11 @@ export function addShoppingRequirements(state,requirements,actionId,expectedReci
  for(const raw of requirements){const i={name:name(raw.name),category:'Alimentari',qty:number(raw.qty),unit:raw.unit};validProduct(i,true);if(raw.category!=='Alimentari')fail('Gli ingredienti devono essere alimentari.');const units=refs.get(i.name);if(units&&(units.size!==1||!units.has(i.unit)))fail(i.name+': correggi l’unità nella ricetta.');if([...state.pantry,...state.shopping].some(p=>p.name===i.name&&p.category==='Altro'))fail(i.name+' appartiene ad Altro: correggi la categoria.');if(needs.has(i.name)&&needs.get(i.name).unit!==i.unit)fail('Usa una sola unità per '+i.name);needs.set(i.name,{...i,qty:round((needs.get(i.name)?.qty||0)+i.qty)});}
 
  let n=0;for(const i of needs.values()){validProduct(i,true);const available=state.pantry.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),listed=state.shopping.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),missing=Math.max(0,round(i.qty-available)),target=shoppingTarget(missing,i.unit);if(target<=listed)continue;const existing=state.shopping.find(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari');if(existing){existing.qty=target;state.shopping=state.shopping.filter(product=>product.id===existing.id||product.name!==i.name||product.unit!==i.unit||product.category!=='Alimentari');}else state.shopping.push({...i,id:identifier(String(actionId).slice(0,115)+'-shop-'+n),qty:round(target-listed)});n++;}
+ if(weekStart!==null){
+  validatePlanStarts([weekStart]);
+  for(const product of state.shopping)if(product.category==='Alimentari'&&needs.has(product.name))product.planStarts=[...new Set([...(product.planStarts||[]),weekStart])].slice(-52);
+ }
+
 
 }
 
@@ -353,6 +371,24 @@ export function householdSuggestions(state,now=Date.now()){
  return result.sort((a,b)=>a.due-b.due||a.name.localeCompare(b.name,'it')).slice(0,5);
 }
 
+export function consumeRecentBuys(product){
+ if(!product.recentBuys)return;
+ let excess=Math.max(0,round(product.recentBuys.reduce((sum,event)=>sum+event.remaining,0)-product.qty));
+ for(const event of product.recentBuys){
+  const consumed=Math.min(excess,event.remaining);
+  event.remaining=round(event.remaining-consumed);
+  excess=round(excess-consumed);
+ }
+}
+export function recentShoppingPurchases(state,now=Date.now()){
+ return state.pantry.filter(product=>product.category==='Alimentari').flatMap(product=>{
+  const events=(product.recentBuys||[]).filter(event=>now>=event.at&&now-event.at<=10*3600000&&new Date(now).toDateString()===new Date(event.at).toDateString());
+  const qty=round(events.reduce((sum,event)=>sum+event.remaining,0));
+  const untouched=events.filter(event=>event.remaining===event.qty);
+  return qty>0?[{name:product.name,unit:product.unit,qty,events:events.map(event=>event.id),untouchedQty:round(untouched.reduce((sum,event)=>sum+event.qty,0)),returnEvents:untouched.map(event=>event.id)}]:[];
+ });
+}
+
 export function applyAction(original,action){
 
  validateAction(action);if(original.applied?.includes(action.id))return structuredClone(original);
@@ -365,7 +401,7 @@ export function applyAction(original,action){
 
  switch(action.type){
 
- case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.requirements!==undefined){addShoppingRequirements(s,a.requirements,action.id,a.expectedRecipes||[]);break;}if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){validProduct({...existing,qty:item.target},true);existing.qty=item.target;s.shopping=s.shopping.filter(product=>product.id===existing.id||product.name!==item.name||product.unit!==item.unit||product.category!=='Alimentari');}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
+ case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.requirements!==undefined){addShoppingRequirements(s,a.requirements,action.id,a.expectedRecipes||[],a.weekStart??null);break;}if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){validProduct({...existing,qty:item.target},true);existing.qty=item.target;s.shopping=s.shopping.filter(product=>product.id===existing.id||product.name!==item.name||product.unit!==item.unit||product.category!=='Alimentari');}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
 
  case 'quantity':{if(a.undo!==undefined){const patch=a.undo;if(!Array.isArray(patch)||!patch.length||patch.length>2)fail('Ripristino non valido.');const seen=new Set();for(const item of patch){if(!record(item)||!['pantry','shopping'].includes(item.kind))fail('Ripristino non valido.');identifier(item.id);const key=item.kind+':'+item.id;if(seen.has(key))fail('Ripristino duplicato.');seen.add(key);for(const value of [item.before,item.after])if(value!==null){validProduct(value,item.kind==='shopping');if(value.id!==item.id||name(value.name)!==value.name)fail('Ripristino non valido.');}if(item.before===null&&item.after===null)fail('Ripristino vuoto.');}
 
@@ -375,16 +411,24 @@ export function applyAction(original,action){
 
  for(const item of patch)if(item.before){lockUnit(s,item.before.name,item.before.unit);if(item.before.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===item.before.name)))fail('Questo prodotto è ora usato in una ricetta.');}
 
- validateState(s);break;}if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;break;}
+ validateState(s);break;}if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;if(a.kind==='pantry')consumeRecentBuys(p);break;}
 
- case 'exhaust':{if(a.ids!==undefined){const ids=selectedIds(a);for(const p of s.pantry)if(ids.has(p.id))p.qty=0;break;}const p=find('pantry',a.id);if(p)p.qty=0;break;}
+ case 'exhaust':{if(a.ids!==undefined){const ids=selectedIds(a);for(const p of s.pantry)if(ids.has(p.id)){p.qty=0;consumeRecentBuys(p);}break;}const p=find('pantry',a.id);if(p){p.qty=0;consumeRecentBuys(p);}break;}
 
  case 'deletePantry':{if(a.ids!==undefined){const ids=selectedIds(a);s.pantry=s.pantry.filter(p=>!ids.has(p.id)||p.qty>0);break;}const p=find('pantry',a.id);if(p&&p.qty<=0)s.pantry=s.pantry.filter(x=>x.id!==p.id);break;}
 
  case 'removeShopping':{const ids=a.ids!==undefined?selectedIds(a):new Set([String(a.id)]);s.shopping=s.shopping.filter(p=>!ids.has(p.id));break;}
 
  case 'buy':{const ids=a.ids!==undefined?selectedIds(a):new Set([String(a.id)]);for(const p of s.shopping.filter(p=>ids.has(p.id))){validProduct(p,true);
-if(p.category==='Alimentari')upsert({...p,pantryId:'bought-'+p.id});
+if(p.category==='Alimentari'){
+ upsert({...p,pantryId:'bought-'+p.id});
+ const product=s.pantry.find(item=>item.name===p.name),at=Number.isFinite(action.at)&&action.at>=Date.UTC(2000,0,1)&&action.at<Date.UTC(2100,0,1)?action.at:Date.now();
+ const events=(product.recentBuys||[]).filter(event=>at-event.at<=10*3600000&&event.at<=at);
+ const event=events.find(event=>event.id===action.id);
+ if(event){event.qty=round(event.qty+p.qty);event.remaining=round(event.remaining+p.qty);}
+ else events.push({id:action.id,at,qty:p.qty,remaining:p.qty});
+ product.recentBuys=events.slice(-12);
+}
 else{
  let history=s.pantry.find(item=>item.name===p.name&&item.category==='Altro');
  if(!history){history={id:'bought-'+p.id,name:p.name,category:'Altro',unit:'pz',qty:0,purchases:[]};s.pantry.push(history);}
@@ -417,7 +461,7 @@ else{
 
  case 'deleteRecipe':if(a.expected!==undefined&&JSON.stringify(s.recipes.find(r=>r.id===String(a.id)))!==JSON.stringify(a.expected))fail('La ricetta è cambiata. Riapri prima di eliminarla.');s.recipes=s.recipes.filter(r=>r.id!==String(a.id));delete s.counts[String(a.id)];break;
 
- case 'cook':{const r=s.recipes.find(r=>r.id===String(a.id));if(!r)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(r)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata su un altro dispositivo. Riapri la preparazione prima di confermare.');const status=preparationStatus(s,r,a.people??1,a.ingredients??null);if(!status.possible)fail('Le quantità disponibili non bastano: '+status.missing.map(i=>i.ingredient).join(', ')+'.');for(const i of status.ingredients){if(i.qty===0)continue;const p=s.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);p.qty=round(Math.max(0,p.qty-i.qty));}if((own(s.counts,r.id)||0)>=LIMITS.quantity)fail('Conteggio delle preparazioni troppo elevato.');s.counts[r.id]=(own(s.counts,r.id)||0)+1;break;}
+ case 'cook':{const r=s.recipes.find(r=>r.id===String(a.id));if(!r)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(r)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata su un altro dispositivo. Riapri la preparazione prima di confermare.');const status=preparationStatus(s,r,a.people??1,a.ingredients??null);if(!status.possible)fail('Le quantità disponibili non bastano: '+status.missing.map(i=>i.ingredient).join(', ')+'.');for(const i of status.ingredients){if(i.qty===0)continue;const p=s.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);p.qty=round(Math.max(0,p.qty-i.qty));consumeRecentBuys(p);}if((own(s.counts,r.id)||0)>=LIMITS.quantity)fail('Conteggio delle preparazioni troppo elevato.');s.counts[r.id]=(own(s.counts,r.id)||0)+1;break;}
 
  case 'import':{const imported=validateImport(a.state);const applied=s.applied;Object.assign(s,imported);s.applied=applied;break;}
 

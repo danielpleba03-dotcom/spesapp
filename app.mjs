@@ -1,30 +1,30 @@
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=94';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=94';
-import {catalogo89} from './catalogo-89.mjs?v=94';
-import {catalogo72} from './catalogo-72.mjs?v=94';
-import {catalogo71} from './catalogo-71.mjs?v=94';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=94';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=94';
-import {recipeAdditions} from './recipe-additions.mjs?v=94';
-import {calorieBadge} from './recipe-calories.mjs?v=94';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=95';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=95';
+import {catalogo89} from './catalogo-89.mjs?v=95';
+import {catalogo72} from './catalogo-72.mjs?v=95';
+import {catalogo71} from './catalogo-71.mjs?v=95';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=95';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=95';
+import {recipeAdditions} from './recipe-additions.mjs?v=95';
+import {calorieBadge} from './recipe-calories.mjs?v=95';
 
-import {classicRecipes} from './classic-recipes.mjs?v=94';
+import {classicRecipes} from './classic-recipes.mjs?v=95';
 
-import {createWeekUI} from './week-ui.mjs?v=94';
+import {createWeekUI} from './week-ui.mjs?v=95';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=94';
+import {enhanceSuggestions} from './suggestions.mjs?v=95';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=94';
+import {enhanceSelects} from './select-menu.mjs?v=95';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=94';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=95';
 
-import {createStore} from './cloud.mjs?v=94';
+import {createStore} from './cloud.mjs?v=95';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=94';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=95';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -53,7 +53,7 @@ const editingBaselines=new Map();
 const getCookingPreferences=()=>weekUI?.getPreferences()||defaultCookingPreferences();
 let weekUI=null,recipesView='week';const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
 
-let searchRenderTimer;
+let searchRenderTimer,recipeSheetContext=null;
 let store,state,meta={},page=mobile()?'shopping':'recipes',search='',pantryFilter='Disponibili',recipeFilter='Fattibili adesso',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
 
 let bulkOperation=null;const leaving=new Map();let mealFilter='Tutti i pasti', dishFilter='Tutti i tipi';
@@ -175,7 +175,7 @@ function renderList(){
 
  const ids=new Set(items.map(p=>p.id));order=order.filter(id=>ids.has(id));for(const p of [...items].sort((a,b)=>a.qty-b.qty||a.name.localeCompare(b.name,'it')))if(!order.includes(p.id))order.push(p.id);
 
- reconcile($('#list'),(page==='shopping'&&!query?householdSuggestionsHTML():'')+(['Alimentari','Altro'].map(category=>{const products=items.filter(p=>p.category===category).sort((a,b)=>page==='shopping'||category==='Alimentari'?a.name.localeCompare(b.name,'it'):order.indexOf(a.id)-order.indexOf(b.id));if(!products.length)return '';return `<h2 class="group-title ${page==='shopping'&&products.every(p=>leaving.has(p.id))?'leaving-group':''}" data-key="group-${category}">${category}<span class="section-count">${products.length}</span></h2>`+products.map(p=>`<article data-key="${page}-${esc(p.id)}" class="product ${page==='shopping'?'shopping-product':'pantry-product'} ${page==='shopping'&&leaving.has(p.id)?'is-leaving':''}" ${page==='shopping'&&leaving.has(p.id)?`style="--row-height:${leaving.get(p.id).height}px"`:''}><div class="product-name">${esc(p.name)} <span class="unit">· ${p.unit==='l'&&p.qty>0&&p.qty<1?formatQuantity(p.qty,p.unit):unitLabel(p.unit)}</span>${page==='pantry'&&low(p)?'<span class="stock-label">Scorta bassa</span>':page==='pantry'&&p.qty<=0?'<span class="stock-label">Esaurito</span>':''}</div>${page==='pantry'&&mobile()?quantityControl(p,'pantry',true):page==='pantry'?`${quantityControl(p,'pantry')}<button class="pantry-actions ${p.qty<=0&&pantryFilter==='Esauriti'?'danger':''}" data-command="${p.qty<=0&&pantryFilter==='Esauriti'?'delete-pantry':'exhaust'}" data-id="${esc(p.id)}">${p.qty<=0&&pantryFilter==='Esauriti'?'Elimina':'Esaurito'}</button>`:`<div class="shopping-controls">${quantityControl(p,'shopping')}<button class="primary buy" data-command="buy" data-id="${esc(p.id)}" aria-label="Segna comprato ${esc(p.name)}">✓ Comprato</button><button class="remove" data-command="remove-shopping" data-id="${esc(p.id)}" aria-label="Rimuovi ${esc(p.name)} dalla lista">×</button></div>`}</article>`).join('');}).join('')||'<p class="empty">'+(query?'Nessun prodotto corrisponde alla ricerca.':page==='shopping'?'La lista è vuota.':'Nessun prodotto in questa sezione.')+'</p>'));
+ reconcile($('#list'),(page==='shopping'&&!query?householdSuggestionsHTML():'')+(['Alimentari','Altro'].map(category=>{const products=items.filter(p=>p.category===category).sort((a,b)=>page==='shopping'||category==='Alimentari'?a.name.localeCompare(b.name,'it'):order.indexOf(a.id)-order.indexOf(b.id));if(!products.length)return '';return `<h2 class="group-title ${page==='shopping'&&products.every(p=>leaving.has(p.id))?'leaving-group':''}" data-key="group-${category}">${category}<span class="section-count">${products.length}</span></h2>`+products.map(p=>`<article data-key="${page}-${esc(p.id)}" class="product ${page==='shopping'?'shopping-product':'pantry-product'} ${page==='shopping'&&leaving.has(p.id)?'is-leaving':''}" ${page==='shopping'&&leaving.has(p.id)?`style="--row-height:${leaving.get(p.id).height}px"`:''}><div class="product-name"><span class="product-label">${esc(p.name)} <span class="unit">· ${p.unit==='l'&&p.qty>0&&p.qty<1?formatQuantity(p.qty,p.unit):unitLabel(p.unit)}</span>${page==='pantry'&&low(p)?'<span class="stock-label">Scorta bassa</span>':page==='pantry'&&p.qty<=0?'<span class="stock-label">Esaurito</span>':''}</span>${page==='shopping'&&p.category==='Alimentari'?'<button type="button" class="shopping-unavailable" data-command="shopping-unavailable" data-id="'+esc(p.id)+'" aria-label="Non trovo '+esc(p.name)+'">Non trovo</button>':''}</div>${page==='pantry'&&mobile()?quantityControl(p,'pantry',true):page==='pantry'?`${quantityControl(p,'pantry')}<button class="pantry-actions ${p.qty<=0&&pantryFilter==='Esauriti'?'danger':''}" data-command="${p.qty<=0&&pantryFilter==='Esauriti'?'delete-pantry':'exhaust'}" data-id="${esc(p.id)}">${p.qty<=0&&pantryFilter==='Esauriti'?'Elimina':'Esaurito'}</button>`:`<div class="shopping-controls">${quantityControl(p,'shopping')}<button class="primary buy" data-command="buy" data-id="${esc(p.id)}" aria-label="Segna comprato ${esc(p.name)}">✓ Comprato</button><button class="remove" data-command="remove-shopping" data-id="${esc(p.id)}" aria-label="Rimuovi ${esc(p.name)} dalla lista">×</button></div>`}</article>`).join('');}).join('')||'<p class="empty">'+(query?'Nessun prodotto corrisponde alla ricerca.':page==='shopping'?'La lista è vuota.':'Nessun prodotto in questa sezione.')+'</p>'));
 
  for(const row of document.querySelectorAll('.is-leaving'))for(const control of row.querySelectorAll('button,input'))control.disabled=true;
 
@@ -220,7 +220,7 @@ function recipeInstructions(recipe){
  return recipe.instructions ? `<div class="recipe-instructions"><strong>Preparazione</strong><p>${esc(recipe.instructions)}</p></div>` : '';
 }
 
-function showRecipeSheet(id,mealContext=null){weekUI?.observeRecipes([id],'open','week');const r=state.recipes.find(r=>r.id===id);if(!r){notify('Questa ricetta non è più nel ricettario.',true);return;}$('#editor').innerHTML=`<article class="recipe-sheet"><header class="recipe-sheet-head"><h2>${esc(r.name)}</h2><div class="recipe-sheet-tools">${favoriteButton(r,true)}<button type="button" data-command="close-dialog" aria-label="Chiudi">×</button></div><div class="recipe-sheet-meta">${calorieBadge(r)}${effortBadge(r,getCookingPreferences())}<span class="recipe-sheet-dose">Per 1 porzione</span></div></header><div class="recipe-sheet-body"><ul class="ingredients compact-ingredients sheet-ingredients">${r.ingredients.map(i=>`<li><strong>${esc(i.ingredient)}</strong><span>${formatQuantity(i.qty,i.unit)}</span></li>`).join('')}</ul>${recipeInstructions(r)}${(r.id.startsWith('classic-20261102-')||r.id.startsWith('classic-20261103-sweet-')||r.id.startsWith('classic-20261108-'))?'<small class="sheet-dose-note">Pesi dei singoli ortaggi e condimenti indicativi: verifica le dosi nella fonte.</small>':''}</div><footer class="recipe-sheet-actions">${r.source_url?`<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">Apri la ricetta ↗</a>`:'<span></span>'}<button type="button" class="primary" data-command="cook" data-id="${esc(r.id)}" ${mealContext?'data-meal-start="'+esc(mealContext.start)+'" data-meal-id="'+esc(mealContext.mealId)+'"':''}>Preparata</button></footer></article>`;openDialog();}
+function showRecipeSheet(id,mealContext=null){recipeSheetContext=mealContext;weekUI?.observeRecipes([id],'open','week');const r=mealContext?.recipe||state.recipes.find(r=>r.id===id);if(!r){notify('Questa ricetta non è più nel ricettario.',true);return;}$('#editor').innerHTML=`<article class="recipe-sheet"><header class="recipe-sheet-head"><h2>${esc(r.name)}</h2><div class="recipe-sheet-tools">${favoriteButton(r,true)}${mealContext?'<button type="button" class="recipe-sheet-lock" data-week="lock" data-id="'+esc(mealContext.mealId)+'" data-start="'+esc(mealContext.start)+'" aria-pressed="'+Boolean(mealContext.locked)+'" aria-label="'+(mealContext.locked?'Sblocca pasto':'Blocca pasto')+'" title="'+(mealContext.locked?'Sblocca pasto':'Blocca pasto')+'">'+(mealContext.locked?'🔒':'🔓')+'</button>':''}<button type="button" data-command="close-dialog" aria-label="Chiudi">×</button></div><div class="recipe-sheet-meta">${calorieBadge(r)}${effortBadge(r,getCookingPreferences())}<span class="recipe-sheet-dose">Per 1 porzione</span></div></header><div class="recipe-sheet-body">${mealContext?.substitutions?.length?'<p class="recipe-unit-warning">'+mealContext.substitutions.map(item=>esc(item.sourceIngredient)+' → '+esc(item.ingredient)).join(' · ')+'</p>':''}<ul class="ingredients compact-ingredients sheet-ingredients">${r.ingredients.map(i=>`<li><strong>${esc(i.ingredient)}</strong><span>${formatQuantity(i.qty,i.unit)}</span></li>`).join('')}</ul>${recipeInstructions(r)}${(r.id.startsWith('classic-20261102-')||r.id.startsWith('classic-20261103-sweet-')||r.id.startsWith('classic-20261108-'))?'<small class="sheet-dose-note">Pesi dei singoli ortaggi e condimenti indicativi: verifica le dosi nella fonte.</small>':''}</div><footer class="recipe-sheet-actions">${r.source_url?`<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">Apri la ricetta ↗</a>`:'<span></span>'}<button type="button" class="primary" data-command="cook" data-id="${esc(r.id)}" ${mealContext?'data-meal-start="'+esc(mealContext.start)+'" data-meal-id="'+esc(mealContext.mealId)+'"':''}>Preparata</button></footer></article>`;openDialog();}
 
 function renderPreparationHistory(){
  const root=$('[data-preparation-history]');
@@ -248,7 +248,7 @@ function showPreparation(recipe,people=1,substitutions=[],mealContext=null){if(!
 
 function preparationAmounts(){return preparation?.base.map((i,n)=>{const used=preparation.selected[n]||i;return {...used,sourceIngredient:i.ingredient,sourceUnit:i.unit,qty:document.querySelector(`[name="used-${n}"]`)?.valueAsNumber};});}
 
-function renderPreparationRows(){if(!preparation||!$('#preparation-rows'))return;$('#preparation-rows').innerHTML=preparation.base.map((original,n)=>{const i=preparation.selected[n]||original,choices=preparationAlternatives(state,original.ingredient);return `<div class="preparation-row"><label for="used-${n}">${esc(original.ingredient)}<small class="prep-available" data-prep-available="${n}"></small></label><input id="used-${n}" name="used-${n}" data-prep-used type="number" min="0" max="1000000000" step="${i.unit==='pz'?1:'any'}" value="${preparation.amounts[n]??round(i.qty*preparation.people)}" aria-label="Quantità usata ${esc(i.ingredient)} in ${i.unit}" required><span>${unitLabel(i.unit)}</span><label class="prep-substitution">Sostituisci ingrediente<select data-prep-substitute="${n}" aria-label="Sostituisci ${esc(original.ingredient)}"><option value="">${esc(original.ingredient)} · originale</option>${choices.map(p=>`<option value="${esc(p.id)}" ${i.ingredient===p.name&&i.unit===p.unit?'selected':''}>${p.suggested?'↔ ':''}${esc(p.name)} · ${formatQuantity(p.qty,p.unit)}</option>`).join('')}</select></label></div>`;}).join('');updatePreparationAvailability();}
+function renderPreparationRows(){if(!preparation||!$('#preparation-rows'))return;$('#preparation-rows').innerHTML=preparation.base.map((original,n)=>{const i=preparation.selected[n]||original,choices=preparationAlternatives(state,original.ingredient);return `<div class="preparation-row"><label for="used-${n}">${esc(i.ingredient)}${i.ingredient!==original.ingredient?'<small>Al posto di '+esc(original.ingredient)+'</small>':''}<small class="prep-available" data-prep-available="${n}"></small></label><input id="used-${n}" name="used-${n}" data-prep-used type="number" min="0" max="1000000000" step="${i.unit==='pz'?1:'any'}" value="${preparation.amounts[n]??round(i.qty*preparation.people)}" aria-label="Quantità usata ${esc(i.ingredient)} in ${i.unit}" required><span>${unitLabel(i.unit)}</span><label class="prep-substitution">Sostituisci ingrediente<select data-prep-substitute="${n}" aria-label="Sostituisci ${esc(original.ingredient)}"><option value="">${esc(original.ingredient)} · originale</option>${choices.map(p=>`<option value="${esc(p.id)}" ${i.ingredient===p.name&&i.unit===p.unit?'selected':''}>${p.suggested?'↔ ':''}${esc(p.name)} · ${formatQuantity(p.qty,p.unit)}</option>`).join('')}</select></label></div>`;}).join('');updatePreparationAvailability();}
 
 function updatePreparationAvailability(){
  const form=$('#preparation-form');
@@ -361,6 +361,7 @@ document.addEventListener('click',async event=>{
 
  const {command,id}=button.dataset;try{switch(command){
 
+ case 'shopping-unavailable':{const product=state.shopping.find(item=>item.id===id);if(product)weekUI?.openMissing(product.name,product.unit);break;}
  case 'household-add':{const item=householdSuggestions(state).find(item=>item.name===button.dataset.name);if(item)action('addShopping',{name:item.name,category:'Altro',qty:item.qty,unit:'pz'});break;}
  case 'toggle-add':if(page==='pantry'){pantryAddOpen=!pantryAddOpen;writePreference('spesapp-pantry-add-open',pantryAddOpen?'1':'0');}else{addOpen=!addOpen;writePreference('spesapp-add-open',addOpen?'1':'0');}const form=$('#add-form');if(form){form.hidden=!isAddOpen();form.style.display=isAddOpen()?'':'none';}button.setAttribute('aria-expanded',String(isAddOpen()));button.textContent=(isAddOpen()?'−':'＋')+' Prodotto';break;
 
@@ -399,7 +400,7 @@ document.addEventListener('click',async event=>{
   catch(error){for(const choice of choices)choice.disabled=false;$('#delete-preparation-error').textContent=error.message;}
   break;
  }
- case 'cook':showPreparation(state.recipes.find(r=>r.id===id),1,[],button.dataset.mealId?{start:button.dataset.mealStart,mealId:button.dataset.mealId}:null);break;
+ case 'cook':{const context=button.dataset.mealId?recipeSheetContext:null;showPreparation(state.recipes.find(r=>r.id===id),1,context?.substitutions||[],context?{start:context.start,mealId:context.mealId}:null);break;}
 
  case 'preparation-factor':if(preparation){preparation.people=Number(button.dataset.value);preparation.amounts=[];$('#preparation-people').value=preparation.people;renderPreparationRows();}break;
 
