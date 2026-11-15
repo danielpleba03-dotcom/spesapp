@@ -291,3 +291,23 @@ body[data-page] dialog::backdrop { background: #070b12b8; backdrop-filter: blur(
 .preparation-delete-choices { display: grid; gap: 12px; margin: 18px 0; }
 .preparation-delete-choices button { text-align: left; white-space: normal; padding: 14px; line-height: 1.4; }
 .preparation-delete-choices small { display: block; font-size: .8rem; font-weight: 400; margin-top: 5px; }
+
+body[data-page] .recipe-week-meal.meal-past.meal-prepared {
+ border-color: #55c68b;
+ box-shadow: inset 0 0 0 1px #55c68b44;
+ opacity: 1;
+}
+.recipe-week-meal > small.completed-badge { color: #9be4b9; font-weight: 650; }
+@media(min-width: 1101px) {
+ .recipe-week-grid { grid-template-columns: repeat(7, minmax(0,1fr)); gap: 8px; }
+ .recipe-week-meal { padding: 10px; }
+ .week-meal-actions { grid-template-columns: minmax(0,1fr) 36px; gap: 4px; }
+ .week-meal-actions button { padding: 6px 4px; font-size: .7rem; }
+}
+@media(min-width: 651px) and (max-width: 1100px) {
+ .recipe-week-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media(max-width: 650px) {
+ .recipe-week-days { grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; }
+ .recipe-week-days button { padding: 8px 1px; font-size: .7rem; }
+}
