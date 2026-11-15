@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=102';
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=102';
-import {recipeCalories} from './recipe-calories.mjs?v=102';
-import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=102';
+import {omissionOption} from './recipe-omissions.mjs?v=103';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=103';
+import {recipeCalories} from './recipe-calories.mjs?v=103';
+import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=103';
 
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 
@@ -340,7 +340,7 @@ function changedShoppingPlan(original,main,request,now){
   const target=meal.substitutions.at(-1),unit=productUnit(main,target.ingredient);
   if(unit&&unit!==target.unit)fail(target.ingredient+' deve usare '+unit.toUpperCase()+'.');
   if([...main.pantry,...main.shopping].some(item=>item.name===target.ingredient&&item.category==='Altro'))fail('Scegli un prodotto alimentare.');
-  if(target.ingredient===source.ingredient&&target.unit===source.unit&&target.qty===source.qty)fail('Scegli un ingrediente diverso.');
+  if(request.mode==='substitute'&&target.ingredient===source.ingredient)fail('Scegli un prodotto diverso da quello che non trovi.');
   for(const linked of week.meals.filter(item=>item.from===meal.id)){
    if(linked.locked||mealExpired(linked,now))linked.from=null;
    else linked.substitutions=structuredClone(meal.substitutions);
@@ -400,6 +400,13 @@ export function shoppingResolutionPreview(original,main,request,now=new Date()){
   const extra=Math.max(0,round(listed-oldTarget)),desired=Math.max(extra,newTarget);
   if(desired!==listed)changes.push({name:item.name,unit:item.unit,before:listed,after:desired});
  }
+ // An explicitly unavailable product must disappear even if its quantity was rounded, increased or used by another meal.
+ const unavailableQty=itemQuantity(main.shopping,request.ingredient,request.unit);
+ const unavailableChange=changes.find(item=>item.name===request.ingredient&&item.unit===request.unit);
+ if(unavailableChange){
+  if(unavailableQty>0)unavailableChange.after=0;
+  else changes.splice(changes.indexOf(unavailableChange),1);
+ }else if(unavailableQty>0)changes.push({name:request.ingredient,unit:request.unit,before:unavailableQty,after:0});
  const affected=original.weeks[request.start].meals.find(meal=>meal.id===request.mealId);
  const oldRecipe=weekMealRecipe(original.weeks[request.start],affected),newMeal=plan.weeks[request.start].meals.find(meal=>meal.id===request.mealId),recipe=weekMealRecipe(plan.weeks[request.start],newMeal);
  const involved=new Set([...oldRecipe.ingredients,...recipe.ingredients].map(item=>shoppingKey(item))),future=allFutureRequirements(plan,now);

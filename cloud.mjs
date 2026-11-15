@@ -1,9 +1,9 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=102';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=102';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=103';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=103';
 
-import {createJournal} from './journal.mjs?v=102';
+import {createJournal} from './journal.mjs?v=103';
 
-import {firebaseConfig} from './firebase-config.mjs?v=102';
+import {firebaseConfig} from './firebase-config.mjs?v=103';
 
 export function cloudMessage(error){
 
@@ -58,21 +58,41 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
  const report=e=>onError(Error(cloudMessage(e)));
 
- function visible(s){const actions=[...(s.confirmed?.values()||[]),...(s.journal?.list()||[])],signature=actions.map(a=>a.id).join('|');if(s.viewCache?.remote===s.remote&&s.viewCache.signature===signature)return s.viewCache.value;const previous=s.viewCache,append=previous?.remote===s.remote&&actions.length>=previous.ids.length&&previous.ids.every((id,i)=>actions[i].id===id);let result=append?previous.value:structuredClone(s.remote);for(const a of (append?actions.slice(previous.ids.length):actions)){if(result.applied?.includes(a.id))continue;try{result=applyAction(result,a);}catch{}}s.viewCache={remote:s.remote,signature,ids:actions.map(a=>a.id),value:result};return result;}
-
- function emit(){const s=session;if(!s){onChange(emptyState(),{ready:false,online:navigator.onLine,pending:0,authenticated:false});return;}try{onChange(visible(s),{ready:s.ready,online:navigator.onLine,pending:s.journal?.list().length||0,authenticated:true,user:s.user,error:s.error,fromCache:s.fromCache});}catch(e){s.ready=false;s.error=cloudMessage(e);onChange(s.remote,{ready:false,online:navigator.onLine,authenticated:true,pending:0,error:s.error});}}
+ function activeProjection(s){
+  for(const id of s.projections.keys())if(s.remote.applied?.includes(id))s.projections.delete(id);
+  return [...s.projections].at(-1);
+ }
+ function visible(s){
+  const projection=activeProjection(s),projectionId=projection?.[0]||'',actions=[...(s.confirmed?.values()||[]),...(s.journal?.list()||[])],signature=projectionId+'|'+actions.map(a=>a.id).join('|');
+  if(s.viewCache?.remote===s.remote&&s.viewCache.signature===signature)return s.viewCache.value;
+  const previous=s.viewCache,append=previous?.remote===s.remote&&previous.projectionId===projectionId&&actions.length>=previous.ids.length&&previous.ids.every((id,i)=>actions[i].id===id);
+  let result=append?previous.value:structuredClone(projection?.[1]||s.remote);
+  for(const a of append?actions.slice(previous.ids.length):actions){if(result.applied?.includes(a.id))continue;try{result=applyAction(result,a);}catch{}}
+  s.viewCache={remote:s.remote,projectionId,signature,ids:actions.map(a=>a.id),value:result};return result;
+ }
+ function emit(){const s=session;if(!s){onChange(emptyState(),{ready:false,online:navigator.onLine,pending:0,authenticated:false});return;}try{const value=visible(s);onChange(value,{ready:s.ready,online:navigator.onLine,pending:(s.journal?.list().length||0)+s.projections.size,authenticated:true,user:s.user,error:s.error,fromCache:s.fromCache});}catch(e){s.ready=false;s.error=cloudMessage(e);onChange(s.remote,{ready:false,online:navigator.onLine,authenticated:true,pending:0,error:s.error});}}
+ function pendingExternal(s){
+  if(activeProjection(s))return true;
+  // After reload, wait for the durable weekly operation before sending dependent purchases.
+  const prefix='spesapp-recipe-weeks-op-'+encodeURIComponent(s.user.uid)+':';
+  for(let i=0;i<localStorage.length;i++){
+   const key=localStorage.key(i);if(!key?.startsWith(prefix))continue;
+   try{const action=JSON.parse(localStorage.getItem(key));if(action.type==='resolveShopping'&&!s.remote.applied?.includes(action.id))return true;}catch{}
+  }
+  return false;
+ }
 
  function retry(s,delay=10000){clearTimeout(s.retry);if(s===session)s.retry=setTimeout(()=>void flush(s),delay);}
 
  async function flush(s=session){
 
-  if(!s||s!==session||s.flushing||!s.ready||!navigator.onLine)return;
+  if(!s||s!==session||s.flushing||!s.ready||!navigator.onLine||pendingExternal(s))return;
 
   s.flushing=true;
 
   try{while(s===session&&navigator.onLine){
 
-   const action=s.journal.list()[0];if(!action)break;const snapshotVersion=s.snapshotVersion;
+   if(pendingExternal(s))break;const action=s.journal.list()[0];if(!action)break;const snapshotVersion=s.snapshotVersion;
 
    const ref=fire.doc(db,'users',s.user.uid,'data','main'),receipt=fire.doc(db,'users',s.user.uid,'receipts',action.id);
 
@@ -130,8 +150,12 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
   async getPreparationHistory(){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');const snap=await fire.getDoc(fire.doc(db,'users',s.user.uid,'recipeWeeks','main'));if(s!==session)throw Error('La sessione è cambiata. Riapri lo storico.');let plan=snap.exists()?validateWeeks(snap.data()):emptyWeeks();for(const a of [...s.confirmed.values(),...s.journal.list()])if(a.type==='cook'){const r=a.payload.expectedRecipe||s.remote.recipes.find(r=>r.id===a.payload.id);if(r)plan=recordPreparation(plan,r,a);}return preparationHistory(plan);},
   async logout(){if(session?.journal?.list().length)throw Error('Attendi il salvataggio delle modifiche prima di uscire.');await authSDK.signOut(auth);},
 
+  setExternalProjection(id,state){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei dati.');s.projections.set(id,structuredClone(state));emit();},
+  commitExternalProjection(id,state){const s=session;if(!s||!state||!s.projections.has(id))return;if(!s.remote.applied?.includes(id))s.remote=validateState(state);s.projections.delete(id);emit();void flush(s);},
+  clearExternalProjection(id){const s=session;if(!s)return;s.projections.delete(id);emit();void flush(s);},
   dispatch(action){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');applyAction(visible(s),action);s.journal.put(action);emit();void flush(s);},
 
+  get externalBaseState(){return session?structuredClone(session.remote):emptyState();},
   get state(){return session?structuredClone(visible(session)):emptyState();},get user(){return session?.user;},preview:false
 
  };
@@ -142,7 +166,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   if(!next){session=null;emit();return;}
 
-  const s={epoch,user:next,remote:emptyState(recipes),ready:false,journal:null,error:'',fromCache:true,snapshotVersion:0,confirmed:new Map(),flushing:false,retry:null};session=s;
+  const s={epoch,user:next,remote:emptyState(recipes),ready:false,journal:null,error:'',fromCache:true,snapshotVersion:0,confirmed:new Map(),projections:new Map(),flushing:false,retry:null};session=s;
 
   try{s.journal=createJournal(localStorage,next.uid);}catch(e){s.error=e.message;emit();return;}
 

@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=102';
-import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=102';
-import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=102';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=102';
+import {omissionOption} from './recipe-omissions.mjs?v=103';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=103';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=103';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=103';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);
@@ -109,7 +109,7 @@ export function createShoppingResolutionUI(api){
    if($('#editor[open] [data-resolution-state="saving"]'))showSaved();
   }else if(!status.pending&&!api.getPlan().applied?.includes(id)){
    context.waiting=null;
-   if($('#editor[open] [data-resolution-state="saving"]'))shell('Cambio non applicato','<p>La lista non è stata aggiornata con questo cambio. Riapri «Non trovo» e riprova.</p>'+button('done','Chiudi'));
+   if($('#editor[open] [data-resolution-state]'))shell('Cambio non applicato','<p>La lista non è stata aggiornata con questo cambio. Riapri «Non trovo» e riprova.</p>'+button('done','Chiudi'));
   }else if(status.error){
    const target=$('#resolution-error');if(target)target.textContent=status.error;
   }
@@ -177,7 +177,7 @@ export function createShoppingResolutionUI(api){
       return {name:item.name,unit:item.unit,qty:item.returnable};
      });
      control.disabled=true;
-     try{context.confirmedReturns=returnItems;const id=api.dispatch({...context.request,returnItems});context.waiting=id;shell('Aggiornamento della lista','<div data-resolution-state="saving"><p role="status">Sto aggiornando il piatto e la lista della spesa…</p></div>');refresh();}
+     try{context.confirmedReturns=returnItems;const id=api.dispatch({...context.request,returnItems});context.waiting=id;showSaved();refresh();}
      catch(error){control.disabled=false;throw error;}
      break;
     }
