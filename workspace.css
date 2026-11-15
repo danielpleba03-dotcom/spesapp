@@ -328,3 +328,23 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
  .recipe-week-meal .week-meal-header { grid-template-columns: minmax(0,1fr) 44px 24px; gap: 8px; }
  .week-meal-header .meal-lock { width: 44px; min-width: 44px; height: 44px; min-height: 44px; }
 }
+
+.recipe-week-meal .week-meal-actions { grid-template-columns: minmax(0,1fr); }
+@media(max-width:650px) {
+ .recipe-week-days {
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  grid-auto-flow: column;
+  flex-wrap: nowrap;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+ }
+ .recipe-week-days > button { min-width: 0; width: 100%; min-height: 44px; padding: 8px 0; font-size: .85rem; }
+ .recipe-week-day { scroll-margin-top: calc(125px + var(--app-safe-top,env(safe-area-inset-top,0px))); }
+ .recipe-week-meal { border-radius: 14px; padding: 13px; }
+ .recipe-week-meal .week-recipe-link { min-height: 48px; }
+ .recipe-week-meal .proposal-reason { margin: 0; line-height: 1.35; }
+ .recipe-week-meal .week-meal-actions button { min-height: 44px; }
+ .product, .recipe-week-meal, .recipe { -webkit-tap-highlight-color: transparent; }
+}

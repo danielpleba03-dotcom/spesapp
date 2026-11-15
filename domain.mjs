@@ -144,6 +144,13 @@ export function preparationStatus(state,recipe,people=1,actual=null){
 }
 
 
+export function shoppingTarget(qty,unit){
+ if(qty<=0)return 0;
+ const increment=unit==='g'?50:1;
+ const rounded=round(Math.ceil(Math.round(qty*1e6)/Math.round(increment*1e6))*increment);
+ return Math.max(unit==='g'?100:1,rounded);
+}
+
 export function recipeShoppingPlan(state,recipe,unitLookup=null){
 
  const status=recipeStatus(state,recipe,unitLookup);if(status.unitConflicts.length)fail('Correggi le unità della ricetta prima di aggiungere gli ingredienti alla spesa.');
@@ -154,7 +161,7 @@ export function recipeShoppingPlan(state,recipe,unitLookup=null){
 
   const missing=Math.max(0,round(i.qty-stocked));if(!missing)return [];
 
-  const increment=step(i.unit),target=Math.max(i.unit==='g'?100:1,round(Math.ceil(Math.round(missing*1e6)/Math.round(increment*1e6))*increment));
+  const target=shoppingTarget(missing,i.unit);
 
   const planned=state.shopping.filter(p=>p.name===i.ingredient&&p.unit===i.unit&&p.category==='Alimentari').reduce((sum,p)=>round(sum+p.qty),0);
 
@@ -305,7 +312,7 @@ export function addShoppingRequirements(state,requirements,actionId,expectedReci
 
  for(const raw of requirements){const i={name:name(raw.name),category:'Alimentari',qty:number(raw.qty),unit:raw.unit};validProduct(i,true);if(raw.category!=='Alimentari')fail('Gli ingredienti devono essere alimentari.');const units=refs.get(i.name);if(units&&(units.size!==1||!units.has(i.unit)))fail(i.name+': correggi l’unità nella ricetta.');if([...state.pantry,...state.shopping].some(p=>p.name===i.name&&p.category==='Altro'))fail(i.name+' appartiene ad Altro: correggi la categoria.');if(needs.has(i.name)&&needs.get(i.name).unit!==i.unit)fail('Usa una sola unità per '+i.name);needs.set(i.name,{...i,qty:round((needs.get(i.name)?.qty||0)+i.qty)});}
 
- let n=0;for(const i of needs.values()){validProduct(i,true);const available=state.pantry.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),listed=state.shopping.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),missing=Math.max(0,round(i.qty-available)),target=missing?(i.unit==='g'?Math.max(100,Math.ceil(round(missing/50))*50):Math.max(1,Math.ceil(missing))):0;if(target<=listed)continue;const existing=state.shopping.find(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari');if(existing)existing.qty=round(existing.qty+target-listed);else state.shopping.push({...i,id:identifier(String(actionId).slice(0,115)+'-shop-'+n),qty:round(target-listed)});n++;}
+ let n=0;for(const i of needs.values()){validProduct(i,true);const available=state.pantry.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),listed=state.shopping.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),missing=Math.max(0,round(i.qty-available)),target=shoppingTarget(missing,i.unit);if(target<=listed)continue;const existing=state.shopping.find(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari');if(existing){existing.qty=target;state.shopping=state.shopping.filter(product=>product.id===existing.id||product.name!==i.name||product.unit!==i.unit||product.category!=='Alimentari');}else state.shopping.push({...i,id:identifier(String(actionId).slice(0,115)+'-shop-'+n),qty:round(target-listed)});n++;}
 
 }
 
@@ -358,7 +365,7 @@ export function applyAction(original,action){
 
  switch(action.type){
 
- case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.requirements!==undefined){addShoppingRequirements(s,a.requirements,action.id,a.expectedRecipes||[]);break;}if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){const qty=round(existing.qty+item.qty);validProduct({...existing,qty},true);existing.qty=qty;}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
+ case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.requirements!==undefined){addShoppingRequirements(s,a.requirements,action.id,a.expectedRecipes||[]);break;}if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){validProduct({...existing,qty:item.target},true);existing.qty=item.target;s.shopping=s.shopping.filter(product=>product.id===existing.id||product.name!==item.name||product.unit!==item.unit||product.category!=='Alimentari');}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
 
  case 'quantity':{if(a.undo!==undefined){const patch=a.undo;if(!Array.isArray(patch)||!patch.length||patch.length>2)fail('Ripristino non valido.');const seen=new Set();for(const item of patch){if(!record(item)||!['pantry','shopping'].includes(item.kind))fail('Ripristino non valido.');identifier(item.id);const key=item.kind+':'+item.id;if(seen.has(key))fail('Ripristino duplicato.');seen.add(key);for(const value of [item.before,item.after])if(value!==null){validProduct(value,item.kind==='shopping');if(value.id!==item.id||name(value.name)!==value.name)fail('Ripristino non valido.');}if(item.before===null&&item.after===null)fail('Ripristino vuoto.');}
 

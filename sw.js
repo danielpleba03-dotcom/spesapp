@@ -1,8 +1,8 @@
-const VERSION='spesapp-2026-11-12-collegamenti-v93';
+const VERSION='spesapp-2026-11-15-mobile-v94';
 
-const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=${['bootstrap','app','cloud','week-ui','week-domain','week-store','ricette-facili-93'].includes(n)?'93':'90'}`);
+const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=94`);
 
-const LOCAL=['./','./index.html','./workspace.css?v=89','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const LOCAL=['./','./index.html','./workspace.css?v=94','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
 

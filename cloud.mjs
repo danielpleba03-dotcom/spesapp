@@ -1,9 +1,9 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=93';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=90';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=94';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=94';
 
-import {createJournal} from './journal.mjs?v=90';
+import {createJournal} from './journal.mjs?v=94';
 
-import {firebaseConfig} from './firebase-config.mjs?v=90';
+import {firebaseConfig} from './firebase-config.mjs?v=94';
 
 export function cloudMessage(error){
 
