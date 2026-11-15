@@ -1,3 +1,4 @@
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=93';
 import {catalogo89} from './catalogo-89.mjs?v=90';
 import {catalogo72} from './catalogo-72.mjs?v=90';
 import {catalogo71} from './catalogo-71.mjs?v=90';
@@ -8,7 +9,7 @@ import {calorieBadge} from './recipe-calories.mjs?v=90';
 
 import {classicRecipes} from './classic-recipes.mjs?v=90';
 
-import {createWeekUI} from './week-ui.mjs?v=92';
+import {createWeekUI} from './week-ui.mjs?v=93';
 
 import {enhanceSuggestions} from './suggestions.mjs?v=90';
 
@@ -20,7 +21,7 @@ enhanceSelects();
 
 import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=90';
 
-import {createStore} from './cloud.mjs?v=92';
+import {createStore} from './cloud.mjs?v=93';
 
 import {reconcile,readPreference,writePreference} from './ui.mjs?v=90';
 
@@ -431,6 +432,7 @@ matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').o
 
 let releaseRecipesAttempted=false;
 const catalogBatches = [
+ ...Array.from({length:Math.ceil(ricetteFacili93.length/5)},(_,i)=>({id:'release-20261115-facili-93-'+i,recipes:ricetteFacili93.slice(i*5,(i+1)*5)})),
  ...Array.from({length:Math.ceil(catalogo89.length/8)},(_,i)=>({id:'release-20261113-catalogo-89-'+i,recipes:catalogo89.slice(i*8,(i+1)*8)})),
  ...Array.from({length:Math.ceil(catalogo71.length/40)}, (_,i)=>({
   id:'release-20261108-catalogo-71-'+i, recipes:catalogo71.slice(i*40,(i+1)*40)
@@ -473,7 +475,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 

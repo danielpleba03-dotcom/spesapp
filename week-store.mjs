@@ -1,4 +1,4 @@
-import {emptyWeeks,validateWeeks,applyWeekAction,recordPreparation} from './week-domain.mjs?v=92';
+import {emptyWeeks,validateWeeks,applyWeekAction,recordPreparation} from './week-domain.mjs?v=93';
 
 import {validateState,DomainError,stateForStorage} from './domain.mjs?v=90';
 

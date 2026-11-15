@@ -2,9 +2,9 @@ import {cookingPreferences,proposalReason,createRecommendationContext} from './c
 
 import {createUnitLookup} from './domain.mjs?v=90';
 
-import {WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=92';
+import {WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds} from './week-domain.mjs?v=93';
 
-import {createWeekStore} from './week-store.mjs?v=92';
+import {createWeekStore} from './week-store.mjs?v=93';
 
 import {reconcile} from './ui.mjs?v=90';
 
@@ -76,6 +76,11 @@ export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false
  const autoRequested=new Set();
 
  function render(){refreshReadyList();const readyMeals=preparedMealIds(archive),completedMeals=preparedMealIds(archive,true),now=new Date();const calorieButton=$('[data-week="prepared-calories"]');if(calorieButton)calorieButton.disabled=!meta.ready;const root=$('#list');if(!root)return;if(!meta.ready){reconcile(root,`<p class="empty">${esc(meta.error||'Caricamento delle settimane…')}</p>`);return;}const savedWeek=archive.weeks[start],w=savedWeek?.meals.length?savedWeek:null;
+ const boundaryKey='boundary-'+start+'-'+(w?.revision??0);
+ if(w&&!w.boundaryHandled&&archive.weeks[addDays(start,-7)]&&api.mainMeta().ready&&!meta.pending&&!api.mainMeta().pending&&!autoRequested.has(boundaryKey)){
+  autoRequested.add(boundaryKey);
+  queueMicrotask(()=>{try{send('syncWeekBoundaries',{});}catch(error){api.notify(error.message,true);}});
+ }
  const extensionKey='extend-'+start+'-'+(w?.revision??0);
  if(w?.meals.length===10&&api.mainMeta().ready&&!meta.pending&&!api.mainMeta().pending&&!autoRequested.has(extensionKey)){
   autoRequested.add(extensionKey);
