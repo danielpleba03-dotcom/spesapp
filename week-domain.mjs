@@ -1,6 +1,6 @@
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes} from './cooking-domain.mjs?v=95';
-import {recipeCalories} from './recipe-calories.mjs?v=95';
-import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=95';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes} from './cooking-domain.mjs?v=96';
+import {recipeCalories} from './recipe-calories.mjs?v=96';
+import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=96';
 
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 
@@ -382,8 +382,10 @@ export function shoppingResolutionPreview(original,main,request,now=new Date()){
  const oldRecipe=weekMealRecipe(original.weeks[request.start],affected),newMeal=plan.weeks[request.start].meals.find(meal=>meal.id===request.mealId),recipe=weekMealRecipe(plan.weeks[request.start],newMeal);
  const involved=new Set([...oldRecipe.ingredients,...recipe.ingredients].map(item=>shoppingKey(item))),future=allFutureRequirements(plan,now);
  const purchased=recentShoppingPurchases(main,now.getTime()).filter(item=>involved.has(shoppingKey(item))).map(item=>{
-  const stocked=itemQuantity(main.pantry,item.name,item.unit),home=Math.max(0,round(stocked-item.qty)),needed=future.get(shoppingKey(item))||0;
-  return {...item,needed,returnable:needed<=home?item.untouchedQty:0};
+  const stocked=itemQuantity(main.pantry,item.name,item.unit),needed=future.get(shoppingKey(item))||0;
+  const released=Math.max(0,round((before.get(shoppingKey(item))?.qty||0)-(after.get(shoppingKey(item))?.qty||0)));
+  const removable=Math.min(item.untouchedQty,released,Math.max(0,round(stocked-needed)));
+  return {...item,needed,returnable:item.unit==='pz'?Math.floor(removable):round(removable)};
  });
  return {plan,recipe,changes,purchased,expectedMain:main.applied?.at(-1)||''};
 }
@@ -402,9 +404,10 @@ function applyShoppingResolution(plan,main,action,now){
   let remaining=item.qty;
   for(const event of product.recentBuys||[]){
    if(!allowed.returnEvents.includes(event.id))continue;
-   const amount=Math.min(remaining,event.remaining);event.remaining=round(event.remaining-amount);remaining=round(remaining-amount);
+   const amount=Math.min(remaining,event.remaining);event.remaining=round(event.remaining-amount);event.qty=round(event.qty-amount);remaining=round(remaining-amount);
   }
   if(remaining>0)fail('La quantità già presa è cambiata.');
+  product.recentBuys=product.recentBuys.filter(event=>event.qty>0);
   product.qty=round(product.qty-item.qty);
  }
  let index=0;

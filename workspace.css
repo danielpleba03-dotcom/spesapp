@@ -389,3 +389,7 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
 .resolution-guide { margin-bottom: 12px; }
 .resolution-guide > summary { cursor: pointer; padding: 8px 0; }
 .resolution-guide p { white-space: pre-line; line-height: 1.6; font-size: .85rem; }
+
+.resolution-suggestions button { display: grid; gap: 5px; flex: 1 1 180px; text-align: left; min-height: 54px; }
+.resolution-suggestions small { display: block; line-height: 1.4; color: var(--muted); }
+.resolution-return small { display: block; margin-top: 4px; }

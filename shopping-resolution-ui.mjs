@@ -1,5 +1,6 @@
-import {shoppingAffectedMeals,shoppingResolutionPreview,weekMealRecipe} from './week-domain.mjs?v=95';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=95';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=96';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=96';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=96';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);
@@ -47,39 +48,47 @@ export function createShoppingResolutionUI(api){
  }
  function showSubstitution(){
   const source=selected().recipe.ingredients.find(item=>item.ingredient===context.name&&item.unit===context.unit);
-  shell('Sostituisci '+context.name,'<form id="resolution-substitution" class="resolution-form"><label>Prodotto trovato<input name="replacement" id="resolution-replacement" autocomplete="off" maxlength="120" required></label><div id="resolution-suggestions" class="resolution-suggestions"></div><div class="resolution-form-amount"><label>Quantità per 1 porzione<input name="qty" type="number" min="0.000001" max="1000000000" step="any" inputmode="decimal" value="'+source.qty+'" required></label><label>Unità<select name="unit">'+['g','l','pz'].map(unit=>'<option value="'+unit+'" '+(unit===source.unit?'selected':'')+'>'+(unit==='pz'?'P':unit.toUpperCase())+'</option>').join('')+'</select></label></div><p class="summary-note">Inserisci la quantità del prodotto sostitutivo che userai nella ricetta.</p><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+'<button type="submit" class="primary">Vedi riepilogo</button></div></form>');
+  shell('Sostituisci '+context.name,'<form id="resolution-substitution" class="resolution-form"><p class="summary-note">Scegli un sostituto suggerito oppure scrivine uno. Verifica la dose prima di confermare.</p><label>Prodotto trovato<input name="replacement" id="resolution-replacement" autocomplete="off" maxlength="120" required></label><div id="resolution-suggestions" class="resolution-suggestions"></div><div class="resolution-form-amount"><label>Quantità per 1 porzione<input name="qty" type="number" min="0.000001" max="1000000000" step="any" inputmode="decimal" value="'+source.qty+'" required></label><label>Unità<select name="unit">'+['g','l','pz'].map(unit=>'<option value="'+unit+'" '+(unit===source.unit?'selected':'')+'>'+(unit==='pz'?'P':unit.toUpperCase())+'</option>').join('')+'</select></label></div><p class="summary-note">Inserisci la quantità del prodotto sostitutivo che userai nella ricetta.</p><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+'<button type="submit" class="primary">Vedi riepilogo</button></div></form>');
   renderSuggestions();
  }
  function renderSuggestions(){
   const form=$('#resolution-substitution'),target=$('#resolution-suggestions');
   if(!form||!target)return;
   const query=normalize(form.elements.replacement.value);
+  const source=selected().recipe.ingredients.find(item=>item.ingredient===context.name&&item.unit===context.unit);
+  context.substitutes=ingredientSuggestions(api.getMain(),selected().recipe,source);
+  if(!query){
+   target.innerHTML=context.substitutes.length?context.substitutes.map((item,index)=>button('suggested-ingredient','<strong>'+esc(item.ingredient)+'</strong><small>'+esc(formatQuantity(item.qty,item.unit))+' · '+esc(item.reason)+'</small>','data-index="'+index+'"')).join(''):'<p class="summary-note">Non ho un sostituto adatto da suggerire per questo ingrediente. Puoi indicarne uno oppure cambiare piatto.</p>';
+   return;
+  }
   const names=new Set(api.getMain().recipes.flatMap(recipe=>recipe.ingredients.map(item=>item.ingredient)).concat(api.getMain().pantry.filter(item=>item.category==='Alimentari').map(item=>item.name)));
-  const matches=[...names].filter(name=>name!==context.name&&query&&name.includes(query)).sort((a,b)=>a.localeCompare(b,'it')).slice(0,6);
-  target.innerHTML=matches.map(name=>button('ingredient-option',esc(name),'data-name="'+esc(name)+'"')).join('');
+  target.innerHTML=[...names].filter(name=>name!==context.name&&name.includes(query)).sort((a,b)=>a.localeCompare(b,'it')).slice(0,6).map(name=>button('ingredient-option',esc(name),'data-name="'+esc(name)+'"')).join('');
  }
  function showRecipeChoices(){
   context.query='';context.offset=0;
-  shell('Cambia piatto','<label class="sr-only" for="resolution-recipe-search">Cerca un altro piatto</label><input type="search" id="resolution-recipe-search" placeholder="CERCA UN ALTRO PIATTO" maxlength="120"><div id="resolution-recipe-results" class="resolution-recipe-results"></div>'+button('meal','Indietro','data-index="'+context.selected+'"'));
+  context.candidates=dishSuggestions(api.getMain(),selected().recipe,context.name);
+  shell('Cambia piatto','<p class="summary-note">Tre alternative dello stesso tipo, dando priorità agli ingredienti già presi e a quelli della ricetta attuale.</p><div id="resolution-recipe-results" class="resolution-recipe-results"></div>'+button('meal','Indietro','data-index="'+context.selected+'"'));
   renderRecipes();
  }
  function renderRecipes(){
   const target=$('#resolution-recipe-results');
   if(!target)return;
-  const original=selected().recipe,query=normalize(context.query),purchased=new Set(recentShoppingPurchases(api.getMain()).map(item=>item.name));
-  const score=recipe=>recipe.ingredients.filter(item=>purchased.has(item.ingredient)).length;
-  const recipes=api.getMain().recipes.filter(recipe=>recipe.meal===original.meal&&recipe.id!==original.id&&!recipe.ingredients.some(item=>item.ingredient===context.name)&&(!query||recipe.name.includes(query)||recipe.ingredients.some(item=>item.ingredient.includes(query)))).sort((a,b)=>score(b)-score(a)||a.name.localeCompare(b.name,'it'));
-  context.candidates=recipes;
-  const page=recipes.slice(context.offset,context.offset+12);
-  target.innerHTML=page.length?page.map(recipe=>button('recipe','<strong>'+esc(recipe.name)+'</strong>'+(score(recipe)?'<small>Usa '+score(recipe)+' ingredienti già presi</small>':''),'data-id="'+esc(recipe.id)+'"')).join('')+(recipes.length>12?button('more-recipes','Altre ricette'):''):'<p class="empty">Nessun altro piatto corrisponde alla ricerca.</p>';
+  const page=[];let cursor=context.offset;
+  while(cursor<context.candidates.length&&page.length<3){
+   const item=context.candidates[cursor++];
+   try{shoppingResolutionPreview(api.getPlan(),api.getMain(),{...baseRequest(),mode:'recipe',recipeId:item.recipe.id});page.push(item);}catch{}
+  }
+  context.nextOffset=cursor>=context.candidates.length?0:cursor;
+  target.innerHTML=page.length?page.map(({recipe,bought,shared})=>button('recipe','<strong>'+esc(recipe.name)+'</strong><small>'+esc(recipe.ingredients.map(i=>i.ingredient).join(' · '))+'</small><small>'+(bought?'Riutilizza '+bought+' ingredienti già presi':shared?'Mantiene '+shared+' ingredienti della ricetta':'Un piatto diverso')+'</small>','data-id="'+esc(recipe.id)+'"')).join('')+(context.candidates.length>3?button('more-recipes','Altre 3 proposte'):''):'<p class="empty">Non ci sono altri piatti compatibili dello stesso tipo senza questo ingrediente.</p>';
  }
+
  function showPreview(request){
   ready();
   const preview=shoppingResolutionPreview(api.getPlan(),api.getMain(),request);
   context.request={...request,expectedMain:preview.expectedMain};
   context.preview=preview;
   const changes=preview.changes.map(change=>'<li><strong>'+esc(change.name)+'</strong><span>'+(change.after?esc(formatQuantity(change.after,change.unit)):'Togli dalla lista')+'<small>'+(change.before?'Prima '+esc(formatQuantity(change.before,change.unit)):'Da aggiungere')+'</small></span></li>').join('');
-  const bought=preview.purchased.map((item,index)=>'<li><div><strong>'+esc(item.name)+'</strong><small>Presi '+esc(formatQuantity(item.qty,item.unit))+'</small></div>'+(item.returnable?'<label class="resolution-return"><input type="checkbox" data-resolution-return="'+index+'"><span>Rimetto '+esc(formatQuantity(item.returnable,item.unit))+' sullo scaffale</span></label>':'<span class="resolution-keep">'+(item.needed?'Tieni: serve ancora ai pasti':'Tieni: acquisto già utilizzato in parte')+'</span>')+'</li>').join('');
+  const bought=preview.purchased.map((item,index)=>'<li><div><strong>'+esc(item.name)+'</strong><small>Presi '+esc(formatQuantity(item.qty,item.unit))+'</small></div>'+(item.returnable?'<label class="resolution-return"><input type="checkbox" data-resolution-return="'+index+'"><span>Rimetto '+esc(formatQuantity(item.returnable,item.unit))+' sullo scaffale'+(item.qty>item.returnable?'<small>Tieni '+esc(formatQuantity(item.qty-item.returnable,item.unit))+' per gli altri pasti</small>':'')+'</span></label>':'<span class="resolution-keep">'+(item.needed?'Tieni: serve ancora ai pasti':'Tieni: acquisto già utilizzato in parte')+'</span>')+'</li>').join('');
   const subtitle=request.mode==='substitute'?esc(context.name)+' → '+esc(request.replacement.ingredient):esc(selected().recipe.name)+' → '+esc(preview.recipe.name);
   shell('Riepilogo cambio','<p class="resolution-change-title">'+subtitle+'</p><details class="resolution-recipe-preview" open><summary>Ingredienti aggiornati per 1 porzione</summary>'+ingredients(preview.recipe)+'</details><section><h3>Lista della spesa</h3>'+(changes?'<ul class="resolution-changes">'+changes+'</ul>':'<p>Le quantità in lista coprono già il cambio.</p>')+'</section><section><h3>Già presi in questa spesa</h3>'+(bought?'<ul class="resolution-purchases">'+bought+'</ul><p class="summary-note">Acquisti segnati Comprato oggi nelle ultime 10 ore. Spunta solo ciò che rimetti davvero sullo scaffale.</p>':'<p class="summary-note">Nessun acquisto recente registrato per questi ingredienti. Verifica il carrello per i prodotti presi prima di questo aggiornamento.</p>')+'</section><div class="editor-footer">'+button('meal','Indietro','data-index="'+context.selected+'"')+button('confirm','Conferma cambio','class="primary"')+'</div>');
  }
@@ -108,8 +117,16 @@ export function createShoppingResolutionUI(api){
     case 'meal':showMeal(Number(control.dataset.index));break;
     case 'substitute':showSubstitution();break;
     case 'recipe-mode':showRecipeChoices();break;
-    case 'more-recipes':context.offset=context.offset+12>=context.candidates.length?0:context.offset+12;renderRecipes();break;
+    case 'more-recipes':context.offset=context.nextOffset||0;renderRecipes();break;
     case 'recipe':showPreview({...baseRequest(),mode:'recipe',recipeId:control.dataset.id});break;
+    case 'suggested-ingredient':{
+     const item=context.substitutes[Number(control.dataset.index)],form=$('#resolution-substitution');
+     if(!item||!form)break;
+     form.elements.replacement.value=item.ingredient;form.elements.qty.value=item.qty;form.elements.unit.value=item.unit;
+     form.elements.unit.dispatchEvent(new Event('change',{bubbles:true}));
+     $('#resolution-suggestions').innerHTML='<p class="summary-note">'+esc(item.reason)+'. Controlla la quantità e apri il riepilogo.</p>';
+     break;
+    }
     case 'ingredient-option':{
      const form=$('#resolution-substitution');
      form.elements.replacement.value=control.dataset.name;

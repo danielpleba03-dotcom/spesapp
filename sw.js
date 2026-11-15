@@ -1,8 +1,8 @@
-const VERSION='spesapp-2026-11-15-supermercato-v95';
+const VERSION='spesapp-2026-11-15-supermercato-v96';
 
-const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','shopping-resolution-ui','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=95`);
+const MODULES=['cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','shopping-resolution-ui','shopping-suggestions','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=96`);
 
-const LOCAL=['./','./index.html','./workspace.css?v=95','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const LOCAL=['./','./index.html','./workspace.css?v=96','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
 
