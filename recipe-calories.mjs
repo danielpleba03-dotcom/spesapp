@@ -1,4 +1,4 @@
-import {normalize} from './domain.mjs?v=104';
+import {normalize} from './domain.mjs?v=105';
 
 // Valori medi orientativi per dose: non etichette certificate.
 

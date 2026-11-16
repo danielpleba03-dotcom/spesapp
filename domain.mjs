@@ -1,11 +1,11 @@
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=104';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=105';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';
 
 export const categories=['Alimentari','Altro'];
 
-export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:2000,ingredients:100,instructions:20000,bytes:780000};
+export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:2500,ingredients:100,instructions:20000,bytes:780000};
 
 export class DomainError extends Error {constructor(message){super(message);this.name='DomainError';this.code='validation';}}
 

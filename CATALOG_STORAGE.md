@@ -18,7 +18,7 @@ Storage compaction does not change pantry, shopping, preparation history, or the
 weekly plan. Unknown references fail closed instead of dropping user data.
 
 The database still receives at most 1,200 recipe rows and 1,200 count keys, below
-its existing rules; up to 2,000 complete recipes can be reconstructed in memory.
+its existing rules; up to 2,500 complete recipes can be reconstructed in memory.
 The byte limit remains checked against the actual stored representation, including
 Firestore's document size estimate. No Firebase rules were relaxed.
 
@@ -26,3 +26,6 @@ Release 100 and earlier cannot decode catalog blocks. Refresh all open app clien
 after deploying release 101. Old clients cannot validate the new document and
 therefore cannot overwrite it; their pending journal entries can be retried by
 the updated client. Offline support must precache every catalog dependency.
+
+Release 105 adds 301 recipes stored in full. Automatic imports stop at 2,000
+recipes; the additional in-memory capacity remains available for user recipes.
