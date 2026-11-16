@@ -1,11 +1,12 @@
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=105';
+import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=106';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=106';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';
 
 export const categories=['Alimentari','Altro'];
 
-export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:2500,ingredients:100,instructions:20000,bytes:780000};
+export const LIMITS={name:120,quantity:1e9,rows:2000,recipes:3000,ingredients:100,instructions:20000,bytes:780000};
 
 export class DomainError extends Error {constructor(message){super(message);this.name='DomainError';this.code='validation';}}
 
@@ -263,18 +264,18 @@ export function validateState(raw){
 // Expand immutable catalog references, preserving order and per-user favorite flags.
 const catalogCanonical=new Map();
 function catalogRecipe(id){
- if(!catalog101.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
- if(!catalogCanonical.has(id))catalogCanonical.set(id,validateRecipe(catalog101.get(id),true));
+ if(!catalog101.has(id)&&!catalog106.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
+ if(!catalogCanonical.has(id))catalogCanonical.set(id,validateRecipe(catalog101.get(id)||catalog106.get(id),true));
  return catalogCanonical.get(id);
 }
 function expandCatalogRows(rows){
  const expanded=[];
  for(const row of rows){
   if(record(row)&&Object.hasOwn(row,'catalog')){
-   if(row.catalog!==CATALOG_VERSION||Object.keys(row).some(key=>!['catalog','ids','favorites'].includes(key))||!Array.isArray(row.ids)||!row.ids.length||row.ids.length>LIMITS.recipes||row.favorites!==undefined&&!record(row.favorites))fail('Riferimento al ricettario non valido. Ricarica l’app.');
+   if(![CATALOG_VERSION,CATALOG_106].includes(row.catalog)||Object.keys(row).some(key=>!['catalog','ids','favorites'].includes(key))||!Array.isArray(row.ids)||!row.ids.length||row.ids.length>LIMITS.recipes||row.favorites!==undefined&&!record(row.favorites))fail('Riferimento al ricettario non valido. Ricarica l’app.');
    const flags=row.favorites||{},ids=new Set(row.ids);
    if(Object.entries(flags).some(([id,value])=>!ids.has(id)||typeof value!=='boolean'))fail('Preferiti del ricettario non validi.');
-   for(const id of row.ids){identifier(id);const recipe={...catalogRecipe(id)};delete recipe.favorite;if(Object.hasOwn(flags,id))recipe.favorite=flags[id];expanded.push(recipe);}
+   for(const id of row.ids){identifier(id);if(!(row.catalog===CATALOG_VERSION?catalog101:catalog106).has(id))fail('Riferimento al ricettario non valido.');const recipe={...catalogRecipe(id)};delete recipe.favorite;if(Object.hasOwn(flags,id))recipe.favorite=flags[id];expanded.push(recipe);}
   }else expanded.push(row);
   if(expanded.length>LIMITS.recipes)fail('Troppe ricette nell’archivio.');
  }
@@ -294,9 +295,10 @@ function compactCustomRecipe(recipe){
 export function stateForStorage(state){
  const recipes=[];let block=null;
  for(const recipe of state.recipes){
-  const normalized=validateRecipe(recipe,true),base=catalog101.has(recipe.id)?catalogRecipe(recipe.id):null;
+  const normalized=validateRecipe(recipe,true),base=catalog101.has(recipe.id)||catalog106.has(recipe.id)?catalogRecipe(recipe.id):null;
   if(base&&recipeSignature(normalized)===recipeSignature(base)){
-   if(!block){block={catalog:CATALOG_VERSION,ids:[],favorites:{}};recipes.push(block);}
+   const version=catalog101.has(recipe.id)?CATALOG_VERSION:CATALOG_106;
+   if(!block||block.catalog!==version){block={catalog:version,ids:[],favorites:{}};recipes.push(block);}
    block.ids.push(recipe.id);if(Object.hasOwn(recipe,'favorite'))block.favorites[recipe.id]=recipe.favorite;
   }else{block=null;recipes.push(compactCustomRecipe(recipe));}
  }

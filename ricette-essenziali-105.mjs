@@ -1,5 +1,5 @@
 // Release 105: immutable component tables and stable IDs. Single-portion recipes.
-import {catalog101} from './recipe-catalog-101.mjs?v=105';
+import {catalog101} from './recipe-catalog-101.mjs?v=106';
 const grains=[
  ['PASTA','PASTA',80,'Lessa la pasta seguendo i tempi sulla confezione e scolala, tenendo poca acqua di cottura.',4],
  ['RISO','RISO',70,'Lessa il riso seguendo i tempi sulla confezione e scolalo.',4],
