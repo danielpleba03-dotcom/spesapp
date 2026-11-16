@@ -416,3 +416,6 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
  .week-toolbar .week-actions { gap:6px; }
  .week-toolbar .week-actions button { padding-left:8px; padding-right:8px; font-size:.72rem; }
 }
+
+/* Fast purchase feedback: do not wait for remote acknowledgement to clear a row. */
+.shopping-product.is-leaving{animation-duration:80ms}

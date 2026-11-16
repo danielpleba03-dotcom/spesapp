@@ -1,4 +1,4 @@
-import {normalize,createUnitLookup,recentShoppingPurchases} from './domain.mjs?v=107';
+import {normalize,createUnitLookup,recentShoppingPurchases} from './domain.mjs?v=108';
 
 // Suggestions remain explicit choices. Different units never imply a conversion.
 const families=[

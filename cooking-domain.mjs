@@ -1,8 +1,8 @@
-import {simpleMinutes106} from './ricette-semplici-106.mjs?v=107';
-import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=107';
-import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=107';
-import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=107';
-import {normalize,DomainError} from './domain.mjs?v=107';
+import {simpleMinutes106} from './ricette-semplici-106.mjs?v=108';
+import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=108';
+import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=108';
+import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=108';
+import {normalize,DomainError} from './domain.mjs?v=108';
 const fail=m=>{throw new DomainError(m);},record=x=>x&&typeof x==='object'&&!Array.isArray(x),id=x=>typeof x==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)&&!['__proto__','constructor','prototype'].includes(x);
 export const cookingTools=[['fornelli','Fornelli e padelle'],['forno','Forno'],['microonde','Microonde'],['aria',"Friggitrice ad aria"]];
 export const difficulties=['Facile','Media','Impegnativa'];

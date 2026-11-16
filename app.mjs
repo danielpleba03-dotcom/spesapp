@@ -1,34 +1,34 @@
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=107';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=107';
-import {piattiSemplici101} from './piatti-semplici-101.mjs?v=107';
-import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=107';
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=107';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=107';
-import {catalogo89} from './catalogo-89.mjs?v=107';
-import {catalogo72} from './catalogo-72.mjs?v=107';
-import {catalogo71} from './catalogo-71.mjs?v=107';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=107';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=107';
-import {recipeAdditions} from './recipe-additions.mjs?v=107';
-import {calorieBadge} from './recipe-calories.mjs?v=107';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=108';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=108';
+import {piattiSemplici101} from './piatti-semplici-101.mjs?v=108';
+import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=108';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=108';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=108';
+import {catalogo89} from './catalogo-89.mjs?v=108';
+import {catalogo72} from './catalogo-72.mjs?v=108';
+import {catalogo71} from './catalogo-71.mjs?v=108';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=108';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=108';
+import {recipeAdditions} from './recipe-additions.mjs?v=108';
+import {calorieBadge} from './recipe-calories.mjs?v=108';
 
-import {classicRecipes} from './classic-recipes.mjs?v=107';
+import {classicRecipes} from './classic-recipes.mjs?v=108';
 
-import {createWeekUI} from './week-ui.mjs?v=107';
+import {createWeekUI} from './week-ui.mjs?v=108';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=107';
+import {enhanceSuggestions} from './suggestions.mjs?v=108';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=107';
+import {enhanceSelects} from './select-menu.mjs?v=108';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=107';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=108';
 
-import {createStore} from './cloud.mjs?v=107';
+import {createStore} from './cloud.mjs?v=108';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=107';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=108';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -373,7 +373,7 @@ document.addEventListener('click',async event=>{
 
  case 'increase':case 'decrease':{const kind=button.dataset.kind,p=state[kind].find(p=>p.id===id);if(!p)break;if(kind==='pantry')markGrace(id);action('quantity',{kind,id,delta:step(p.unit)*(command==='increase'?1:-1)});break;}
 
- case 'buy':{if(leaving.has(id))break;const product=state.shopping.find(p=>p.id===id),row=button.closest('.product');if(!product||!row)break;leaving.set(id,{product:structuredClone(product),height:row.getBoundingClientRect().height});button.disabled=true;if(!action('buy',{id})){leaving.delete(id);renderList();break;}setTimeout(()=>{leaving.delete(id);renderList();},260);break;}
+ case 'buy':{if(leaving.has(id))break;const product=state.shopping.find(p=>p.id===id),row=button.closest('.product');if(!product||!row)break;leaving.set(id,{product:structuredClone(product),height:row.getBoundingClientRect().height});button.disabled=true;if(!action('buy',{id})){leaving.delete(id);renderList();break;}setTimeout(()=>{leaving.delete(id);renderList();},100);break;}
 
  case 'remove-shopping':button.disabled=true;if(!action('removeShopping',{id}))button.disabled=false;break;
 

@@ -1,5 +1,5 @@
-import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=107';
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=107';
+import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=108';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=108';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';
@@ -262,10 +262,10 @@ export function validateState(raw){
 }
 
 // Expand immutable catalog references, preserving order and per-user favorite flags.
-const catalogCanonical=new Map();
+const catalogCanonical=new Map(),catalogSignatures=new Map();
 function catalogRecipe(id){
  if(!catalog101.has(id)&&!catalog106.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
- if(!catalogCanonical.has(id))catalogCanonical.set(id,validateRecipe(catalog101.get(id)||catalog106.get(id),true));
+ if(!catalogCanonical.has(id)){const recipe=validateRecipe(catalog101.get(id)||catalog106.get(id),true);catalogCanonical.set(id,recipe);catalogSignatures.set(id,recipeSignature(recipe));}
  return catalogCanonical.get(id);
 }
 function expandCatalogRows(rows){
@@ -295,8 +295,12 @@ function compactCustomRecipe(recipe){
 export function stateForStorage(state){
  const recipes=[];let block=null;
  for(const recipe of state.recipes){
-  const normalized=validateRecipe(recipe,true),base=catalog101.has(recipe.id)||catalog106.has(recipe.id)?catalogRecipe(recipe.id):null;
-  if(base&&recipeSignature(normalized)===recipeSignature(base)){
+  const base=record(recipe)&&(catalog101.has(recipe.id)||catalog106.has(recipe.id))?catalogRecipe(recipe.id):null;
+  // An exact match with an already validated immutable recipe needs no repeated parsing.
+  // Edited recipes and invalid favorite flags still follow full validation.
+  const exact=base&&(recipe.favorite===undefined||typeof recipe.favorite==='boolean')&&recipeSignature(recipe)===catalogSignatures.get(recipe.id);
+  const normalized=exact?recipe:validateRecipe(recipe,true);
+  if(base&&(exact||recipeSignature(normalized)===catalogSignatures.get(recipe.id))){
    const version=catalog101.has(recipe.id)?CATALOG_VERSION:CATALOG_106;
    if(!block||block.catalog!==version){block={catalog:version,ids:[],favorites:{}};recipes.push(block);}
    block.ids.push(recipe.id);if(Object.hasOwn(recipe,'favorite'))block.favorites[recipe.id]=recipe.favorite;
