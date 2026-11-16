@@ -1,5 +1,5 @@
-import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=106';
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=106';
+import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=107';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=107';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';

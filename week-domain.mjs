@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=106';
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=106';
-import {recipeCalories} from './recipe-calories.mjs?v=106';
-import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=106';
+import {omissionOption} from './recipe-omissions.mjs?v=107';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=107';
+import {recipeCalories} from './recipe-calories.mjs?v=107';
+import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=107';
 
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 
@@ -455,7 +455,10 @@ export function shoppingResolutionPreview(original,main,request,now=new Date()){
   const stocked=itemQuantity(main.pantry,item.name,item.unit),needed=future.get(shoppingKey(item))||0;
   const released=Math.max(0,round((before.get(shoppingKey(item))?.qty||0)-(after.get(shoppingKey(item))?.qty||0)));
   const removable=Math.min(item.untouchedQty,released,Math.max(0,round(stocked-needed)));
-  return {...item,needed,returnable:item.unit==='pz'?Math.floor(removable):round(removable)};
+  // Round what stays in the cart, not what is returned: never suggest keeping 98 g
+  // or returning 2 g from a 100 g purchase. Preserve manually entered pack sizes.
+  const keep=Math.min(item.qty,shoppingTarget(Math.max(0,round(item.qty-removable)),item.unit));
+  return {...item,needed,returnable:round(item.qty-keep)};
  });
  return {plan,recipe,changes,purchased,expectedMain:main.applied?.at(-1)||''};
 }

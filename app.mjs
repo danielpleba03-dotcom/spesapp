@@ -1,34 +1,34 @@
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=106';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=106';
-import {piattiSemplici101} from './piatti-semplici-101.mjs?v=106';
-import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=106';
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=106';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=106';
-import {catalogo89} from './catalogo-89.mjs?v=106';
-import {catalogo72} from './catalogo-72.mjs?v=106';
-import {catalogo71} from './catalogo-71.mjs?v=106';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=106';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=106';
-import {recipeAdditions} from './recipe-additions.mjs?v=106';
-import {calorieBadge} from './recipe-calories.mjs?v=106';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=107';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=107';
+import {piattiSemplici101} from './piatti-semplici-101.mjs?v=107';
+import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=107';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=107';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=107';
+import {catalogo89} from './catalogo-89.mjs?v=107';
+import {catalogo72} from './catalogo-72.mjs?v=107';
+import {catalogo71} from './catalogo-71.mjs?v=107';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=107';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=107';
+import {recipeAdditions} from './recipe-additions.mjs?v=107';
+import {calorieBadge} from './recipe-calories.mjs?v=107';
 
-import {classicRecipes} from './classic-recipes.mjs?v=106';
+import {classicRecipes} from './classic-recipes.mjs?v=107';
 
-import {createWeekUI} from './week-ui.mjs?v=106';
+import {createWeekUI} from './week-ui.mjs?v=107';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=106';
+import {enhanceSuggestions} from './suggestions.mjs?v=107';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=106';
+import {enhanceSelects} from './select-menu.mjs?v=107';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=106';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=107';
 
-import {createStore} from './cloud.mjs?v=106';
+import {createStore} from './cloud.mjs?v=107';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=106';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=107';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
