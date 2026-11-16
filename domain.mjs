@@ -1,4 +1,4 @@
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=103';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=104';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';

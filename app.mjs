@@ -1,32 +1,32 @@
-import {piattiSemplici101} from './piatti-semplici-101.mjs?v=103';
-import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=103';
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=103';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=103';
-import {catalogo89} from './catalogo-89.mjs?v=103';
-import {catalogo72} from './catalogo-72.mjs?v=103';
-import {catalogo71} from './catalogo-71.mjs?v=103';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=103';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=103';
-import {recipeAdditions} from './recipe-additions.mjs?v=103';
-import {calorieBadge} from './recipe-calories.mjs?v=103';
+import {piattiSemplici101} from './piatti-semplici-101.mjs?v=104';
+import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=104';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=104';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=104';
+import {catalogo89} from './catalogo-89.mjs?v=104';
+import {catalogo72} from './catalogo-72.mjs?v=104';
+import {catalogo71} from './catalogo-71.mjs?v=104';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=104';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=104';
+import {recipeAdditions} from './recipe-additions.mjs?v=104';
+import {calorieBadge} from './recipe-calories.mjs?v=104';
 
-import {classicRecipes} from './classic-recipes.mjs?v=103';
+import {classicRecipes} from './classic-recipes.mjs?v=104';
 
-import {createWeekUI} from './week-ui.mjs?v=103';
+import {createWeekUI} from './week-ui.mjs?v=104';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=103';
+import {enhanceSuggestions} from './suggestions.mjs?v=104';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=103';
+import {enhanceSelects} from './select-menu.mjs?v=104';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=103';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=104';
 
-import {createStore} from './cloud.mjs?v=103';
+import {createStore} from './cloud.mjs?v=104';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=103';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=104';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -488,7 +488,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100,...piattiSemplici101],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100,...piattiSemplici101],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 

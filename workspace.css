@@ -402,3 +402,17 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
 .resolution-result-section.added { border-color: #668d71; }
 .resolution-result-section h3 { margin: 0 0 8px; }
 [data-resolution-state="saving"] { min-height: 100px; display: grid; align-items: center; }
+
+@media(min-width:651px) {
+ .week-toolbar { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin:12px 0 18px; }
+ .week-toolbar .week-date-row { flex:0 0 auto; width:auto; margin:0; }
+ .week-toolbar .week-actions { flex-direction:row; flex-wrap:nowrap; margin:0; align-items:center; }
+ .week-toolbar .week-actions button { min-height:44px; height:44px; padding:8px 12px; white-space:nowrap; }
+}
+@media(min-width:651px) and (max-width:800px) {
+ .week-toolbar { gap:8px; }
+ .week-toolbar .week-date-row { grid-template-columns:36px minmax(0,140px) 36px; gap:6px; }
+ .week-toolbar .week-date-row > button { width:36px; }
+ .week-toolbar .week-actions { gap:6px; }
+ .week-toolbar .week-actions button { padding-left:8px; padding-right:8px; font-size:.72rem; }
+}
