@@ -1,37 +1,38 @@
-import {ricette110} from './ricette-110.mjs?v=110';
-import {recipeCookingMethods,toolNames} from './cooking-methods.mjs?v=110';
-import {ricette109} from './ricette-109.mjs?v=110';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=110';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=110';
-import {piattiSemplici101} from './piatti-semplici-101.mjs?v=110';
-import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=110';
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=110';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=110';
-import {catalogo89} from './catalogo-89.mjs?v=110';
-import {catalogo72} from './catalogo-72.mjs?v=110';
-import {catalogo71} from './catalogo-71.mjs?v=110';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=110';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=110';
-import {recipeAdditions} from './recipe-additions.mjs?v=110';
-import {calorieBadge} from './recipe-calories.mjs?v=110';
+import {ricette111,riserva111} from './ricette-111.mjs?v=111';
+import {ricette110} from './ricette-110.mjs?v=111';
+import {recipeCookingMethods,toolNames} from './cooking-methods.mjs?v=111';
+import {ricette109} from './ricette-109.mjs?v=111';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=111';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=111';
+import {piattiSemplici101} from './piatti-semplici-101.mjs?v=111';
+import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=111';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=111';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=111';
+import {catalogo89} from './catalogo-89.mjs?v=111';
+import {catalogo72} from './catalogo-72.mjs?v=111';
+import {catalogo71} from './catalogo-71.mjs?v=111';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=111';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=111';
+import {recipeAdditions} from './recipe-additions.mjs?v=111';
+import {calorieBadge} from './recipe-calories.mjs?v=111';
 
-import {classicRecipes} from './classic-recipes.mjs?v=110';
+import {classicRecipes} from './classic-recipes.mjs?v=111';
 
-import {createWeekUI} from './week-ui.mjs?v=110';
+import {createWeekUI} from './week-ui.mjs?v=111';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=110';
+import {enhanceSuggestions} from './suggestions.mjs?v=111';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=110';
+import {enhanceSelects} from './select-menu.mjs?v=111';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=110';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=111';
 
-import {createStore} from './cloud.mjs?v=110';
+import {createStore} from './cloud.mjs?v=111';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=110';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=111';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -447,8 +448,9 @@ document.addEventListener('click',async event=>{
 matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').open)return;if(meta.ready&&(meta.preview||meta.authenticated))renderShell();else onStoreChange(state||{pantry:[],shopping:[],recipes:[]},meta);});
 
 let releaseRecipesAttempted=false;
-const CATALOG_TARGET=3000+ricette110.length;
+const CATALOG_TARGET=5000;
 const catalogBatches = [
+ ...Array.from({length:Math.ceil(ricette111.length/40)},(_,i)=>({id:'release-20261117-quotidiane-111-'+i,recipes:ricette111.slice(i*40,(i+1)*40)})),
  ...Array.from({length:Math.ceil(ricette110.length/30)},(_,i)=>({id:'release-20261117-italia-110-'+i,recipes:ricette110.slice(i*30,(i+1)*30)})),
  ...Array.from({length:Math.ceil(ricette109.length/40)},(_,i)=>({id:'release-20261117-classici-109-'+i,recipes:ricette109.slice(i*40,(i+1)*40)})),
  ...Array.from({length:Math.ceil(ricetteSemplici106.length/40)},(_,i)=>({id:'release-20261116-semplici-106-'+i,recipes:ricetteSemplici106.slice(i*40,(i+1)*40)})),
@@ -465,6 +467,7 @@ const catalogBatches = [
   id:'release-20261110-catalogo-72-'+i, recipes:catalogo72.slice(i*12,(i+1)*12)
  })),
  ...Array.from({length:Math.ceil(riservaEssenziali105.length/40)},(_,i)=>({id:'release-20261116-riserva-105-'+i,recipes:riservaEssenziali105.slice(i*40,(i+1)*40)})),
+ ...Array.from({length:Math.ceil(riserva111.length/40)},(_,i)=>({id:'release-20261117-riserva-111-'+i,recipes:riserva111.slice(i*40,(i+1)*40)})),
 ];
 
 function importExpandedCatalog(){
@@ -516,7 +519,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100,...piattiSemplici101,...ricetteEssenziali105,...ricetteSemplici106,...ricette109,...ricette110].map(repairCatalogUnits),onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100,...piattiSemplici101,...ricetteEssenziali105,...ricetteSemplici106,...ricette109,...ricette110,...ricette111].map(repairCatalogUnits),onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 

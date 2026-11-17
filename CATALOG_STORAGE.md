@@ -18,7 +18,7 @@ Storage compaction does not change pantry, shopping, preparation history, or the
 weekly plan. Unknown references fail closed instead of dropping user data.
 
 The database still receives at most 1,200 recipe rows and 1,200 count keys, below
-its existing rules; up to 3,500 complete recipes can be reconstructed in memory.
+its existing rules; up to 5,500 complete recipes can be reconstructed in memory.
 The byte limit remains checked against the actual stored representation, including
 Firestore's document size estimate. No Firebase rules were relaxed.
 
@@ -35,3 +35,5 @@ Release 106 adds 500 simple recipes (2,500 standard total). Immutable catalog-10
 Release 109 adds 500 recipes, including single-portion classics with verified sources. Catalog-109 references coexist with 101 and 106. Automatic imports stop at 3,000, with capacity for personal recipes up to 3,500 under existing byte and custom-row limits. Prior catalog data remains immutable.
 
 Release 110 adds 42 Italian classics and 83 simple dishes, reusing equivalent existing dishes for cooking alternatives instead of duplicating cards. Catalog-110 references and all prior resolvers remain available. The automatic target is 3,000 plus the immutable release-110 additions. Cooking methods are a derived presentation layer, used only for unchanged catalog recipes; personal edits retain their own instructions. Six unchanged legacy honey recipes are safely converted to the existing litre convention with an expected-version check, preserving stock, shopping, favorites and history.
+
+Release 111 adds 1,875 simple everyday recipes, taking the standard catalog to 5,000. Ingredient-set deduplication ignores portion differences, and oven/air-fryer/pan alternatives remain methods within one card. An immutable catalog-111 resolver packs the new recipes into references; 200 additional candidates fill gaps left by deleted entries without restoring deletions. Existing byte limits, recipe-row limits, private data and all old catalog resolvers are retained.

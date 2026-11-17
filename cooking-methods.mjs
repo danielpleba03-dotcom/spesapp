@@ -1,12 +1,13 @@
+import {ricette111,riserva111,methods111} from './ricette-111.mjs?v=111';
 // Cooking methods are attached to a recipe, never duplicated as separate recipes.
-import {catalog101} from './recipe-catalog-101.mjs?v=110';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=110';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=110';
-import {ricette109} from './ricette-109.mjs?v=110';
-import {ricette110,methods110} from './ricette-110.mjs?v=110';
+import {catalog101} from './recipe-catalog-101.mjs?v=111';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=111';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=111';
+import {ricette109} from './ricette-109.mjs?v=111';
+import {ricette110,methods110} from './ricette-110.mjs?v=111';
 const norm=x=>String(x||'').normalize('NFC').trim().toLocaleUpperCase('it-IT').replace(/\s+/g,' ');
 const signature=r=>JSON.stringify([norm(r.name),String(r.instructions||'').trim(),(r.tools||[]).map(norm),r.ingredients.map(i=>[norm(i.ingredient),i.qty,i.unit]).sort((a,b)=>a[0].localeCompare(b[0]))]);
-const originals=new Map([...catalog101.values(),...ricetteEssenziali105,...riservaEssenziali105,...ricetteSemplici106,...ricette109,...ricette110].map(r=>[r.id,{r,key:signature(r)}]));
+const originals=new Map([...catalog101.values(),...ricetteEssenziali105,...riservaEssenziali105,...ricetteSemplici106,...ricette109,...ricette110,...ricette111,...riserva111].map(r=>[r.id,{r,key:signature(r)}]));
 const labels={pentola:'Pentola',padella:'Padella',forno:'Forno',aria:'Friggitrice ad aria',frullatore:'Frullatore',freddo:'Senza cottura',microonde:'Microonde'};
 export const toolNames={fornelli:'Pentola / padella',forno:'Forno',aria:'Friggitrice ad aria',frullatore:'Frullatore',microonde:'Microonde'};
 export const availableCookingTools=['fornelli','forno','aria','frullatore'];
@@ -27,7 +28,7 @@ export function recipeCookingMethods(recipe){
  if(checked.has(recipe))return checked.get(recipe);
  let methods=[baseMethod(recipe)];
  const original=originals.get(recipe.id),unchanged=original&&signature(recipe)===original.key;
- if(unchanged&&methods110[recipe.id])methods=methods110[recipe.id];
+ if(unchanged&&(methods111[recipe.id]||methods110[recipe.id]))methods=methods111[recipe.id]||methods110[recipe.id];
  // Alternatives only for an unchanged, fully known four-ingredient cereal plate.
  else if(unchanged&&recipe.ingredients.length===4){
   const g=recipe.ingredients.find(i=>grains[i.ingredient]&&i.unit==='g'),v=recipe.ingredients.find(i=>veggies[i.ingredient]&&i.unit==='g'&&i.qty<=250),p=recipe.ingredients.find(i=>ready[i.ingredient]&&i.unit==='g'),oil=recipe.ingredients.find(i=>i.ingredient==='OLIO EXTRAVERGINE DI OLIVA'&&i.unit==='l');

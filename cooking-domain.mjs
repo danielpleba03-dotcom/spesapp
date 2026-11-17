@@ -1,11 +1,12 @@
-import {recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=110';
-import {effort110} from './ricette-110.mjs?v=110';
-import {effort109} from './ricette-109.mjs?v=110';
-import {simpleMinutes106} from './ricette-semplici-106.mjs?v=110';
-import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=110';
-import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=110';
-import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=110';
-import {normalize,DomainError} from './domain.mjs?v=110';
+import {effort111} from './ricette-111.mjs?v=111';
+import {recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=111';
+import {effort110} from './ricette-110.mjs?v=111';
+import {effort109} from './ricette-109.mjs?v=111';
+import {simpleMinutes106} from './ricette-semplici-106.mjs?v=111';
+import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=111';
+import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=111';
+import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=111';
+import {normalize,DomainError} from './domain.mjs?v=111';
 const fail=m=>{throw new DomainError(m);},record=x=>x&&typeof x==='object'&&!Array.isArray(x),id=x=>typeof x==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)&&!['__proto__','constructor','prototype'].includes(x);
 export const cookingTools=[['fornelli','Fornelli e padelle'],['forno','Forno'],['microonde','Microonde'],['aria',"Friggitrice ad aria"],['frullatore','Frullatore']];
 export const difficulties=['Facile','Media','Impegnativa'];
@@ -15,7 +16,7 @@ export function validateCookingPreferences(raw){if(!record(raw)||!Number.isFinit
 export function cookingPreferences(archive){const saved=Object.values(archive.weeks||{}).map(w=>w.cookingPreferences).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt);const p=saved.length?validateCookingPreferences(saved[0]):defaultCookingPreferences();return {...p,tools:[...availableCookingTools],likedIngredients:[],dislikedIngredients:[]};}
 export function updateCookingPreferences(original,change,now){const p=validateCookingPreferences(original);if(!record(change))fail('Modifica delle preferenze non valida.');if(change.kind==='general'){p.tools=change.tools;p.likedIngredients=ingredientList(change.likedIngredients);p.dislikedIngredients=ingredientList(change.dislikedIngredients);}else if(change.kind==='vote'){if(!id(change.recipeId))fail('Ricetta non valida.');if(change.vote===null)delete p.votes[change.recipeId];else p.votes[change.recipeId]=change.vote;}else if(change.kind==='signals'){if(!Array.isArray(change.events)||!change.events.length||change.events.length>10)fail('Interazioni delle ricette non valide.');const cutoff=now-180*86400000;p.interactions=p.interactions.filter(e=>e.at>=cutoff);for(const event of change.events){const e={...event,at:now};if(!p.interactions.some(x=>x.id===e.id||x.recipeId===e.recipeId&&x.kind===e.kind&&x.context===e.context&&new Date(x.at).toDateString()===new Date(now).toDateString()))p.interactions.push(e);}p.interactions=p.interactions.slice(-400);}else if(change.kind==='effort'){if(!id(change.recipeId)||!record(change.info))fail('Ricetta non valida.');const info={...p.recipeInfo[change.recipeId]};for(const field of ['minutes','difficulty'])if(change.info[field]===null)delete info[field];else if(change.info[field]!==undefined)info[field]=change.info[field];if(Object.keys(info).length)p.recipeInfo[change.recipeId]=info;else delete p.recipeInfo[change.recipeId];}else fail('Modifica delle preferenze non riconosciuta.');p.updatedAt=Math.max(now,p.updatedAt+1);return validateCookingPreferences(p);}
 export function recipeEffort(recipe,p=defaultCookingPreferences()){const name=normalize(recipe.name),info=p.recipeInfo[recipe.id]||{};let minutes=quickMealMinutes100[recipe.id.replace('rapidi-100-','')]??null,difficulty=minutes?'Facile':null,tools=[];if(/FRIGGITRICE|AIR FRYER/.test(name))tools=['aria'];else if(/FORNO|LASAGN|ARROST|TORTA|CROSTATA|BISCOTT/.test(name))tools=['forno'];else if(/MICROONDE/.test(name))tools=['microonde'];else if(!/INSALAT|CAPRESE|MACEDONIA|YOGURT|FRULLAT|SMOOTHIE/.test(name))tools=['fornelli'];if(/INSALAT|CAPRESE|MACEDONIA|YOGURT|FRULLAT|SMOOTHIE/.test(name)){minutes=10;difficulty='Facile';}else if(/RISOTTO|LASAGN|INVOLTIN|POLPETT|CROSTATA/.test(name)){minutes=35;difficulty='Media';}else if(/RISO |PASTA|SPAGHETT|PENNE|FUSILLI|FRITTATA|OMELETTE|PETT[OI] DI POLLO|PANCAKE|UOVA|VELLUTATA/.test(name)){minutes=20;difficulty='Facile';}const explicitMinutes=simpleMinutes106[recipe.id]??essentialMinutes105[recipe.id]??simpleMealMinutes101[recipe.id]??quickMealMinutes100[recipe.id.replace('rapidi-100-','')];if(explicitMinutes){minutes=explicitMinutes;difficulty='Facile';}if(effort109[recipe.id]){minutes=effort109[recipe.id].minutes;difficulty=effort109[recipe.id].difficulty;}
-if(effort110[recipe.id]){minutes=effort110[recipe.id].minutes;difficulty=effort110[recipe.id].difficulty;}tools=recipeCookingMethods(recipe)[0]?.tools||tools;
+if(effort110[recipe.id]){minutes=effort110[recipe.id].minutes;difficulty=effort110[recipe.id].difficulty;}if(effort111[recipe.id]){minutes=effort111[recipe.id].minutes;difficulty=effort111[recipe.id].difficulty;}tools=recipeCookingMethods(recipe)[0]?.tools||tools;
 return {minutes:info.minutes??minutes,difficulty:info.difficulty??difficulty,estimatedMinutes:info.minutes===undefined,estimatedDifficulty:info.difficulty===undefined,tools};}
 const matches=(r,ingredient)=>r.ingredients.some(i=>normalize(i.ingredient).includes(ingredient));
 export function preferenceWeight(recipe,p=defaultCookingPreferences()){return recommendationScore(recipe,p).weight;}
