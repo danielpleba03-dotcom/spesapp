@@ -1,6 +1,7 @@
-import {catalog109,CATALOG_109} from './ricette-109.mjs?v=109';
-import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=109';
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=109';
+import {catalog110,CATALOG_110} from './ricette-110.mjs?v=110';
+import {catalog109,CATALOG_109} from './ricette-109.mjs?v=110';
+import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=110';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=110';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';
@@ -265,18 +266,18 @@ export function validateState(raw){
 // Expand immutable catalog references, preserving order and per-user favorite flags.
 const catalogCanonical=new Map(),catalogSignatures=new Map();
 function catalogRecipe(id){
- if(!catalog101.has(id)&&!catalog106.has(id)&&!catalog109.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
- if(!catalogCanonical.has(id)){const recipe=validateRecipe(catalog101.get(id)||catalog106.get(id)||catalog109.get(id),true);catalogCanonical.set(id,recipe);catalogSignatures.set(id,recipeSignature(recipe));}
+ if(!catalog101.has(id)&&!catalog106.has(id)&&!catalog109.has(id)&&!catalog110.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
+ if(!catalogCanonical.has(id)){const recipe=validateRecipe(catalog101.get(id)||catalog106.get(id)||catalog109.get(id)||catalog110.get(id),true);catalogCanonical.set(id,recipe);catalogSignatures.set(id,recipeSignature(recipe));}
  return catalogCanonical.get(id);
 }
 function expandCatalogRows(rows){
  const expanded=[];
  for(const row of rows){
   if(record(row)&&Object.hasOwn(row,'catalog')){
-   if(![CATALOG_VERSION,CATALOG_106,CATALOG_109].includes(row.catalog)||Object.keys(row).some(key=>!['catalog','ids','favorites'].includes(key))||!Array.isArray(row.ids)||!row.ids.length||row.ids.length>LIMITS.recipes||row.favorites!==undefined&&!record(row.favorites))fail('Riferimento al ricettario non valido. Ricarica l’app.');
+   if(![CATALOG_VERSION,CATALOG_106,CATALOG_109,CATALOG_110].includes(row.catalog)||Object.keys(row).some(key=>!['catalog','ids','favorites'].includes(key))||!Array.isArray(row.ids)||!row.ids.length||row.ids.length>LIMITS.recipes||row.favorites!==undefined&&!record(row.favorites))fail('Riferimento al ricettario non valido. Ricarica l’app.');
    const flags=row.favorites||{},ids=new Set(row.ids);
    if(Object.entries(flags).some(([id,value])=>!ids.has(id)||typeof value!=='boolean'))fail('Preferiti del ricettario non validi.');
-   for(const id of row.ids){identifier(id);if(!(row.catalog===CATALOG_VERSION?catalog101:row.catalog===CATALOG_106?catalog106:catalog109).has(id))fail('Riferimento al ricettario non valido.');const recipe={...catalogRecipe(id)};delete recipe.favorite;if(Object.hasOwn(flags,id))recipe.favorite=flags[id];expanded.push(recipe);}
+   for(const id of row.ids){identifier(id);if(!(row.catalog===CATALOG_VERSION?catalog101:row.catalog===CATALOG_106?catalog106:row.catalog===CATALOG_109?catalog109:catalog110).has(id))fail('Riferimento al ricettario non valido.');const recipe={...catalogRecipe(id)};delete recipe.favorite;if(Object.hasOwn(flags,id))recipe.favorite=flags[id];expanded.push(recipe);}
   }else expanded.push(row);
   if(expanded.length>LIMITS.recipes)fail('Troppe ricette nell’archivio.');
  }
@@ -296,13 +297,13 @@ function compactCustomRecipe(recipe){
 export function stateForStorage(state){
  const recipes=[];let block=null;
  for(const recipe of state.recipes){
-  const base=record(recipe)&&(catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id))?catalogRecipe(recipe.id):null;
+  const base=record(recipe)&&(catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id))?catalogRecipe(recipe.id):null;
   // An exact match with an already validated immutable recipe needs no repeated parsing.
   // Edited recipes and invalid favorite flags still follow full validation.
   const exact=base&&(recipe.favorite===undefined||typeof recipe.favorite==='boolean')&&recipeSignature(recipe)===catalogSignatures.get(recipe.id);
   const normalized=exact?recipe:validateRecipe(recipe,true);
   if(base&&(exact||recipeSignature(normalized)===catalogSignatures.get(recipe.id))){
-   const version=catalog101.has(recipe.id)?CATALOG_VERSION:catalog106.has(recipe.id)?CATALOG_106:CATALOG_109;
+   const version=catalog101.has(recipe.id)?CATALOG_VERSION:catalog106.has(recipe.id)?CATALOG_106:catalog109.has(recipe.id)?CATALOG_109:CATALOG_110;
    if(!block||block.catalog!==version){block={catalog:version,ids:[],favorites:{}};recipes.push(block);}
    block.ids.push(recipe.id);if(Object.hasOwn(recipe,'favorite'))block.favorites[recipe.id]=recipe.favorite;
   }else{block=null;recipes.push(compactCustomRecipe(recipe));}
@@ -479,7 +480,16 @@ else{
 }}s.shopping=s.shopping.filter(p=>!ids.has(p.id));break;}
 
  case 'saveRecipe':{
-  if(Array.isArray(a.recipes)){
+  if(a.repairCatalogUnits110===true){
+   if(action.id!=='release-20261117-honey-units-110')fail('Correzione del ricettario non valida.');
+   if([...s.pantry,...s.shopping].some(p=>p.name==='MIELE'&&p.unit!=='l'))fail('Mantieni l’unità del miele già presente nelle scorte.');
+   // Repair the six unchanged legacy entries together, so unit locking never sees a half-migration.
+   s.recipes=s.recipes.map(recipe=>{
+    const base=catalog101.get(recipe.id);
+    if(!base||!base.id.startsWith('catalogo-89-')||!base.ingredients.some(i=>i.ingredient==='MIELE'&&i.unit==='g')||recipeSignature(recipe)!==recipeSignature(catalogRecipe(recipe.id)))return recipe;
+    return {...recipe,ingredients:recipe.ingredients.map(i=>i.ingredient==='MIELE'&&i.unit==='g'?{...i,unit:'l',qty:round(i.qty/1420)}:i)};
+   });
+  }else if(Array.isArray(a.recipes)){
    if(a.recipes.length>40)fail('Troppe ricette in un aggiornamento.');
    for(const raw of a.recipes){
     const recipe=validateRecipe(raw);

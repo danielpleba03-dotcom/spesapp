@@ -419,3 +419,22 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
 
 /* Fast purchase feedback: do not wait for remote acknowledgement to clear a row. */
 .shopping-product.is-leaving{animation-duration:80ms}
+
+/* Desktop cookbook: one full-width, aligned row per recipe. */
+@media(min-width:651px){
+ .catalog-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .catalog-layout>.recipe{margin:0;min-width:0}
+ .catalog-layout>.recipe>summary{grid-template-columns:12px minmax(0,1fr) auto 96px 140px;min-height:56px;gap:12px;padding:12px 16px}
+ .catalog-layout>.recipe>summary:before{grid-column:1;grid-row:1}
+ .catalog-layout>.recipe>summary .recipe-name{grid-column:2;grid-row:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+ .catalog-layout>.recipe>summary .recipe-effort{grid-column:3;grid-row:1;white-space:nowrap;flex-basis:auto;margin:0}
+ .catalog-layout>.recipe>summary .recipe-kcal{grid-column:4;grid-row:1;justify-self:end}
+ .catalog-layout>.recipe>summary .recipe-capacity{grid-column:5;grid-row:1;justify-self:end}
+}
+.recipe-method-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.recipe-method-tabs button{min-height:40px;padding:7px 10px;font-size:.8rem}
+.recipe-method-tabs button[aria-pressed=true]{border-color:var(--accent-line);background:var(--accent-deep);color:var(--accent)}
+.recipe-method-tools{display:block;color:var(--muted);font-size:.73rem;margin:4px 0 8px}
+@media(max-width:650px){.recipe-method-tabs button{min-height:44px;flex:1 1 130px}}
+
+@media(min-width:651px){.catalog-layout>details.recipe:not([open]){contain-intrinsic-size:auto 58px}}

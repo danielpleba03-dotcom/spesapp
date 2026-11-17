@@ -1,4 +1,4 @@
-import {normalize} from './domain.mjs?v=109';
+import {normalize} from './domain.mjs?v=110';
 
 // Valori medi orientativi per dose: non etichette certificate.
 
@@ -30,6 +30,9 @@ Object.assign(refs,{'PANE DI SEGALE':[2.28,'g','grain'],'FESA DI TACCHINO AFFETT
 // Release 109: CREA 183010 (tuorli), 182010 (albumi); Divella savoiardi label.
 // Unsweetened prepared coffee is an indicative near-zero value, not coffee powder.
 Object.assign(refs,{TUORLI:[3.25,'g','protein'],ALBUMI:[.43,'g','protein'],SAVOIARDI:[3.78,'g','sweet'],'CAFFÈ PREPARATO':[20,'l','other']});
+
+// Shell-free whole egg: weighted from the existing per-piece reference (50 g edible).
+Object.assign(refs,{'UOVA SGUSCIATE':[1.5,'g','protein'],RUM:[2300,'l','other'],STRUTTO:[9,'g','fat'],'LIEVITO DI BIRRA SECCO':[3.25,'g','other']});
 
 export function recipeCalories(recipe){if(Number.isFinite(recipe.kcal)&&recipe.kcal>=0)return {value:Math.round(recipe.kcal),estimated:false,missing:[]};let total=0;const missing=[];for(const i of recipe.ingredients){const ref=refs[normalize(i.ingredient)];if(!ref||ref[1]!==i.unit){missing.push(i.ingredient);continue;}total+=ref[0]*i.qty;}return {value:missing.length?null:Math.round(total),estimated:true,missing};}
 
