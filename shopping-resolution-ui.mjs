@@ -1,7 +1,7 @@
-import {omissionOption} from './recipe-omissions.mjs?v=108';
-import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=108';
-import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=108';
-import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=108';
+import {omissionOption} from './recipe-omissions.mjs?v=109';
+import {ingredientSuggestions,dishSuggestions} from './shopping-suggestions.mjs?v=109';
+import {shoppingAffectedMeals,shoppingResolutionPreview} from './week-domain.mjs?v=109';
+import {formatQuantity,normalize,productUnit,recentShoppingPurchases} from './domain.mjs?v=109';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const $=selector=>document.querySelector(selector);

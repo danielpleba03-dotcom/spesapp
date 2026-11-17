@@ -18,7 +18,7 @@ Storage compaction does not change pantry, shopping, preparation history, or the
 weekly plan. Unknown references fail closed instead of dropping user data.
 
 The database still receives at most 1,200 recipe rows and 1,200 count keys, below
-its existing rules; up to 3,000 complete recipes can be reconstructed in memory.
+its existing rules; up to 3,500 complete recipes can be reconstructed in memory.
 The byte limit remains checked against the actual stored representation, including
 Firestore's document size estimate. No Firebase rules were relaxed.
 
@@ -31,3 +31,5 @@ Release 105 adds 301 recipes stored in full. Automatic imports stop at 2,000
 recipes; the additional in-memory capacity remains available for user recipes.
 
 Release 106 adds 500 simple recipes (2,500 standard total). Immutable catalog-106 references keep these recipes compact; catalog-101 references and release-105 full recipes remain readable. User edits are stored in full and favorites remain per user. The automatic importer stops at 2,500; personal recipes have headroom up to 3,000, subject to the existing byte and custom-row limits.
+
+Release 109 adds 500 recipes, including single-portion classics with verified sources. Catalog-109 references coexist with 101 and 106. Automatic imports stop at 3,000, with capacity for personal recipes up to 3,500 under existing byte and custom-row limits. Prior catalog data remains immutable.

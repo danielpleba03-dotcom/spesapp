@@ -1,4 +1,4 @@
-import {normalize} from './domain.mjs?v=108';
+import {normalize} from './domain.mjs?v=109';
 
 // Valori medi orientativi per dose: non etichette certificate.
 
@@ -26,6 +26,10 @@ Object.assign(refs,{'ROAST BEEF COTTO':[1.32,'g','protein'],'BRESAOLA':[1.51,'g'
 // Ready-to-eat turkey and mackerel: Coop product labels (arrosto-di; conserve-di-pesce-22).
 // Rye bread: CREA alimentinutrizione.it/tabelle-nutrizionali/000510.
 Object.assign(refs,{'PANE DI SEGALE':[2.28,'g','grain'],'FESA DI TACCHINO AFFETTATA':[.98,'g','protein'],'SGOMBRO AL NATURALE':[1.41,'g','protein']});
+
+// Release 109: CREA 183010 (tuorli), 182010 (albumi); Divella savoiardi label.
+// Unsweetened prepared coffee is an indicative near-zero value, not coffee powder.
+Object.assign(refs,{TUORLI:[3.25,'g','protein'],ALBUMI:[.43,'g','protein'],SAVOIARDI:[3.78,'g','sweet'],'CAFFÈ PREPARATO':[20,'l','other']});
 
 export function recipeCalories(recipe){if(Number.isFinite(recipe.kcal)&&recipe.kcal>=0)return {value:Math.round(recipe.kcal),estimated:false,missing:[]};let total=0;const missing=[];for(const i of recipe.ingredients){const ref=refs[normalize(i.ingredient)];if(!ref||ref[1]!==i.unit){missing.push(i.ingredient);continue;}total+=ref[0]*i.qty;}return {value:missing.length?null:Math.round(total),estimated:true,missing};}
 

@@ -1,34 +1,35 @@
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=108';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=108';
-import {piattiSemplici101} from './piatti-semplici-101.mjs?v=108';
-import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=108';
-import {ricetteFacili94} from './ricette-facili-94.mjs?v=108';
-import {ricetteFacili93} from './ricette-facili-93.mjs?v=108';
-import {catalogo89} from './catalogo-89.mjs?v=108';
-import {catalogo72} from './catalogo-72.mjs?v=108';
-import {catalogo71} from './catalogo-71.mjs?v=108';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=108';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=108';
-import {recipeAdditions} from './recipe-additions.mjs?v=108';
-import {calorieBadge} from './recipe-calories.mjs?v=108';
+import {ricette109} from './ricette-109.mjs?v=109';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=109';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=109';
+import {piattiSemplici101} from './piatti-semplici-101.mjs?v=109';
+import {piattiRapidi100} from './piatti-rapidi-100.mjs?v=109';
+import {ricetteFacili94} from './ricette-facili-94.mjs?v=109';
+import {ricetteFacili93} from './ricette-facili-93.mjs?v=109';
+import {catalogo89} from './catalogo-89.mjs?v=109';
+import {catalogo72} from './catalogo-72.mjs?v=109';
+import {catalogo71} from './catalogo-71.mjs?v=109';
+import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=109';
+import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=109';
+import {recipeAdditions} from './recipe-additions.mjs?v=109';
+import {calorieBadge} from './recipe-calories.mjs?v=109';
 
-import {classicRecipes} from './classic-recipes.mjs?v=108';
+import {classicRecipes} from './classic-recipes.mjs?v=109';
 
-import {createWeekUI} from './week-ui.mjs?v=108';
+import {createWeekUI} from './week-ui.mjs?v=109';
 
-import {enhanceSuggestions} from './suggestions.mjs?v=108';
+import {enhanceSuggestions} from './suggestions.mjs?v=109';
 
 enhanceSuggestions();
 
-import {enhanceSelects} from './select-menu.mjs?v=108';
+import {enhanceSelects} from './select-menu.mjs?v=109';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=108';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,dishTypes,recipeDishTypes,formatQuantity} from './domain.mjs?v=109';
 
-import {createStore} from './cloud.mjs?v=108';
+import {createStore} from './cloud.mjs?v=109';
 
-import {reconcile,readPreference,writePreference} from './ui.mjs?v=108';
+import {reconcile,readPreference,writePreference} from './ui.mjs?v=109';
 
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -58,7 +59,7 @@ const getCookingPreferences=()=>weekUI?.getPreferences()||defaultCookingPreferen
 let weekUI=null,recipesView='week';const catalogMaintenance=new URLSearchParams(location.search).get('aggiornaRicette')==='1';
 
 let searchRenderTimer,recipeSheetContext=null;
-let store,state,meta={},page=mobile()?'shopping':'recipes',search='',pantryFilter='Disponibili',recipeFilter='Fattibili adesso',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
+let store,state,meta={},page=mobile()?'shopping':'recipes',search='',pantryFilter='Disponibili',recipeFilter='Tutte',addOpen=readPreference('spesapp-add-open')==='1',pantryAddOpen=readPreference('spesapp-pantry-add-open')==='1',openRecipes=new Set(),grace=new Map(),order=[],draftIngredients=[],editingRecipe=null,preparation=null,noticeTimer;
 
 let bulkOperation=null;const leaving=new Map();let mealFilter='Tutti i pasti', dishFilter='Tutti i tipi';
 
@@ -137,7 +138,7 @@ function renderShell(){
 
  document.body.dataset.page=page;
 
- $('#app').innerHTML=`<header class="topbar"><span class="brand"><span class="brand-symbol" aria-hidden="true">S</span>Spesapp</span><nav class="nav" aria-label="Sezioni">${workspaceNav()}</nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:'<span class="mobile-add mobile-add-placeholder" aria-hidden="true">＋ Prodotto</span>'}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${workspaceHeading()}${page==='recipes'?`<div class="recipe-view-tabs"><button data-command="recipe-catalog" aria-pressed="${recipesView==='catalog'}">Ricettario</button><button data-command="recipe-week" aria-pressed="${recipesView==='week'}">Settimana</button><button class="recipe-history-tool" data-command="preparation-history" aria-label="Ultime ricette preparate" title="Ultime ricette preparate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6m3-3v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="recipe-history-tool ready-tool" data-week="ready-list" aria-label="Porzioni già pronte" title="Porzioni già pronte"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 18h18M5 18v-2a7 7 0 0 1 14 0v2M12 9V6m-1 0h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="ready-count" aria-hidden="true"></span></button><button class="recipe-history-tool" data-week="prepared-calories" aria-label="Calorie delle ricette preparate" title="Calorie preparate nella settimana"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M13 3c1 5 5 6 5 11a6 6 0 0 1-12 0c0-3 2-5 4-7 0 3 1 4 2 4 2-2 1-5 1-8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button></div>${catalogMaintenance?'<button data-command="catalog-review">Aggiorna ricettario</button>':''}${recipesView==='week'?'':`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o più ingredienti separati da virgole" placeholder="CERCA RICETTA O INGREDIENTI: POLLO, PATATE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="recipe-filterbar"><div class="filters">${filterButtons(['Fattibili adesso','Non fattibili','Preferite'],recipeFilter,'recipe')}</div><label class="meal-filter"><span class="sr-only">Filtra per pasto</span><select id="meal-filter" aria-label="Filtra per pasto">${['Tutti i pasti',...mealTypes,...(state.recipes.some(r=>mealForRecipe(r)==='Da classificare')?['Da classificare']:[])].map(m=>`<option ${mealFilter===m?'selected':''}>${m}</option>`).join('')}</select></label><label class="meal-filter"><span class="sr-only">Filtra per tipo di piatto</span><select id="dish-filter" aria-label="Filtra per tipo di piatto">${['Tutti i tipi',...dishTypes].map(type=>`<option ${dishFilter===type?'selected':''}>${type}</option>`).join('')}</select></label></div>`}`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div><div class="stock-toolbar"><div class="filters pantry-filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>${bulkButton()}</div>`:`${addForm()}<div class="shopping-list-tools"><button class="bulk-trash" data-command="buy-all" aria-label="Comprato tutto" title="Comprato tutto" ${state.shopping.length?'':'disabled'}><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m4 12 4 4L20 4M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>${bulkButton()}</div>`}<section id="list" class="${page==='recipes'&&recipesView==='catalog'?'catalog-layout':''}" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
+ $('#app').innerHTML=`<header class="topbar"><span class="brand"><span class="brand-symbol" aria-hidden="true">S</span>Spesapp</span><nav class="nav" aria-label="Sezioni">${workspaceNav()}</nav>${page!=='recipes'?`<button class="mobile-add ${isAddOpen()?'active':''}" data-command="toggle-add" aria-expanded="${isAddOpen()}">${isAddOpen()?'−':'＋'} Prodotto</button>`:'<span class="mobile-add mobile-add-placeholder" aria-hidden="true">＋ Prodotto</span>'}</header><main class="shell"><p id="sync-error" class="sync-error" role="alert" hidden></p>${workspaceHeading()}${page==='recipes'?`<div class="recipe-view-tabs"><button data-command="recipe-catalog" aria-pressed="${recipesView==='catalog'}">Ricettario</button><button data-command="recipe-week" aria-pressed="${recipesView==='week'}">Settimana</button><button class="recipe-history-tool" data-command="preparation-history" aria-label="Ultime ricette preparate" title="Ultime ricette preparate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6m3-3v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="recipe-history-tool ready-tool" data-week="ready-list" aria-label="Porzioni già pronte" title="Porzioni già pronte"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 18h18M5 18v-2a7 7 0 0 1 14 0v2M12 9V6m-1 0h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="ready-count" aria-hidden="true"></span></button><button class="recipe-history-tool" data-week="prepared-calories" aria-label="Calorie delle ricette preparate" title="Calorie preparate nella settimana"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M13 3c1 5 5 6 5 11a6 6 0 0 1-12 0c0-3 2-5 4-7 0 3 1 4 2 4 2-2 1-5 1-8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button></div>${catalogMaintenance?'<button data-command="catalog-review">Aggiorna ricettario</button>':''}${recipesView==='week'?'':`<div class="toolbar"><input id="search" type="search" aria-label="Cerca ricetta o più ingredienti separati da virgole" placeholder="CERCA RICETTA O INGREDIENTI: POLLO, PATATE…" value="${esc(search)}" maxlength="120"><button data-command="new-recipe">＋ Nuova ricetta</button></div><div class="recipe-filterbar"><div class="filters">${filterButtons(['Tutte','Fattibili adesso','Preferite'],recipeFilter,'recipe')}</div><label class="meal-filter"><span class="sr-only">Filtra per pasto</span><select id="meal-filter" aria-label="Filtra per pasto">${['Tutti i pasti',...mealTypes,...(state.recipes.some(r=>mealForRecipe(r)==='Da classificare')?['Da classificare']:[])].map(m=>`<option ${mealFilter===m?'selected':''}>${m}</option>`).join('')}</select></label><label class="meal-filter"><span class="sr-only">Filtra per tipo di piatto</span><select id="dish-filter" aria-label="Filtra per tipo di piatto">${['Tutti i tipi',...dishTypes].map(type=>`<option ${dishFilter===type?'selected':''}>${type}</option>`).join('')}</select></label></div>`}`:page==='pantry'?`${addForm()}<div class="toolbar"><input id="search" type="search" aria-label="Cerca in dispensa" placeholder="CERCA IN DISPENSA…" value="${esc(search)}" maxlength="120"></div><div class="stock-toolbar"><div class="filters pantry-filters">${filterButtons(['Disponibili','Da rifornire','Esauriti'],pantryFilter,'stock')}</div>${bulkButton()}</div>`:`${addForm()}<div class="shopping-list-tools"><button class="bulk-trash" data-command="buy-all" aria-label="Comprato tutto" title="Comprato tutto" ${state.shopping.length?'':'disabled'}><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m4 12 4 4L20 4M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>${bulkButton()}</div>`}<section id="list" class="${page==='recipes'&&recipesView==='catalog'?'catalog-layout':''}" aria-label="${page==='shopping'?'Prodotti da comprare':page==='pantry'?'Prodotti in dispensa':'Ricette'}"></section></main>`;
 
  renderList();updateAddUnitError();
 
@@ -165,7 +166,7 @@ function renderList(){
 
   let recipes=state.recipes.filter(r=>(mealFilter==='Tutti i pasti'||mealForRecipe(r)===mealFilter)&&(dishFilter==='Tutti i tipi'||recipeDishTypes(r).includes(dishFilter))&&recipeMatchesSearch(r,search)).map(r=>({r,status:recipeStatus(state,r,unitLookup)}));
 
-  recipes=recipes.filter(({r,status})=>recipeFilter==='Preferite'?!!r.favorite:status.possible===(recipeFilter==='Fattibili adesso')).sort((a,b)=>((mealTypes.indexOf(mealForRecipe(a.r))+1||99)-(mealTypes.indexOf(mealForRecipe(b.r))+1||99))||(Number(b.status.possible)-Number(a.status.possible))||((state.counts[b.r.id]||0)-(state.counts[a.r.id]||0))||a.r.name.localeCompare(b.r.name,'it'));
+  recipes=recipes.filter(({r,status})=>recipeFilter==='Preferite'?!!r.favorite:recipeFilter==='Tutte'||status.possible).sort((a,b)=>((mealTypes.indexOf(mealForRecipe(a.r))+1||99)-(mealTypes.indexOf(mealForRecipe(b.r))+1||99))||(Number(b.status.possible)-Number(a.status.possible))||((state.counts[b.r.id]||0)-(state.counts[a.r.id]||0))||a.r.name.localeCompare(b.r.name,'it'));
 
   reconcile($('#list'),recipes.map(({r,status},index)=>`${index===0||mealForRecipe(recipes[index-1].r)!==mealForRecipe(r)?`<h2 class="group-title meal-heading" data-key="meal-${esc(mealForRecipe(r))}">${esc(mealForRecipe(r))}</h2>`:''}<details class="recipe" name="recipe-accordion" data-recipe="${esc(r.id)}" ${openRecipes.has(r.id)?'open':''}><summary><span class="recipe-name">${esc(r.name)}</span>${calorieBadge(r)}${effortBadge(r,cooking)}<span class="recipe-capacity ${status.preparations>0?'ready':''}" aria-label="Puoi farla ${status.preparations} ${status.preparations===1?'volta':'volte'}" title="Puoi farla ${status.preparations} ${status.preparations===1?'volta':'volte'}"><span class="capacity-description">Puoi farla </span>${status.preparations}<span class="capacity-description"> ${status.preparations===1?'volta':'volte'}</span></span></summary>${openRecipes.has(r.id)?recipeBody(r,status,unitLookup):''}</details>`).join('')||'<p class="empty">'+(query?'Nessuna ricetta corrisponde alla ricerca.':(mealFilter!=='Tutti i pasti'||dishFilter!=='Tutti i tipi')?'Nessuna ricetta corrisponde ai filtri.':recipeFilter==='Preferite'?'Nessuna ricetta preferita. Usa ☆ sulla ricetta per aggiungerla.':recipeFilter==='Fattibili adesso'?'Non hai ancora tutti gli ingredienti per queste ricette.':'Nessuna ricetta in questa sezione.')+'</p>');return;
 
@@ -347,7 +348,7 @@ document.addEventListener('submit',event=>{
 
  if(form.id==='recipe-form'){
 
-  try{const data=new FormData(form),recipe=validateRecipe({id:editingRecipe?.id||crypto.randomUUID(),name:data.get('name'),meal:data.get('meal'),source_url:data.get('source_url'),instructions:data.get('instructions')||'',tools:editingRecipe?.tools||[],favorite:editingRecipe?.favorite||false,...(data.get('kcal')!==''?{kcal:Number(data.get('kcal'))}:{}),ingredients:draftIngredients}),info={minutes:data.get('activeMinutes')?Number(data.get('activeMinutes')):null,difficulty:data.get('difficulty')||null},oldInfo=getCookingPreferences().recipeInfo[recipe.id]||{},effortChanged=info.minutes!==(oldInfo.minutes??null)||info.difficulty!==(oldInfo.difficulty??null);if(effortChanged){if(!weekUI?.ready)throw Error('Attendi il caricamento delle preferenze prima di salvare tempo e difficoltà.');updateCookingPreferences(getCookingPreferences(),{kind:'effort',recipeId:recipe.id,info},Date.now());}if(action('saveRecipe',{recipe,...(editingRecipe?{expected:editingRecipe}:{})})){if(effortChanged)weekUI.savePreferences({kind:'effort',recipeId:recipe.id,info});$('#editor').close();search='';mealFilter='Tutti i pasti';dishFilter='Tutti i tipi';recipeFilter=recipeStatus(state,recipe).possible?'Fattibili adesso':'Non fattibili';renderShell();notify('Ricetta salvata.');}}catch(e){$('#editor-error').textContent=e.message;}
+  try{const data=new FormData(form),recipe=validateRecipe({id:editingRecipe?.id||crypto.randomUUID(),name:data.get('name'),meal:data.get('meal'),source_url:data.get('source_url'),instructions:data.get('instructions')||'',tools:editingRecipe?.tools||[],favorite:editingRecipe?.favorite||false,...(data.get('kcal')!==''?{kcal:Number(data.get('kcal'))}:{}),ingredients:draftIngredients}),info={minutes:data.get('activeMinutes')?Number(data.get('activeMinutes')):null,difficulty:data.get('difficulty')||null},oldInfo=getCookingPreferences().recipeInfo[recipe.id]||{},effortChanged=info.minutes!==(oldInfo.minutes??null)||info.difficulty!==(oldInfo.difficulty??null);if(effortChanged){if(!weekUI?.ready)throw Error('Attendi il caricamento delle preferenze prima di salvare tempo e difficoltà.');updateCookingPreferences(getCookingPreferences(),{kind:'effort',recipeId:recipe.id,info},Date.now());}if(action('saveRecipe',{recipe,...(editingRecipe?{expected:editingRecipe}:{})})){if(effortChanged)weekUI.savePreferences({kind:'effort',recipeId:recipe.id,info});$('#editor').close();search='';mealFilter='Tutti i pasti';dishFilter='Tutti i tipi';recipeFilter='Tutte';renderShell();notify('Ricetta salvata.');}}catch(e){$('#editor-error').textContent=e.message;}
 
  }
 
@@ -441,6 +442,7 @@ matchMedia('(max-width:650px)').addEventListener('change',()=>{if($('#editor').o
 
 let releaseRecipesAttempted=false;
 const catalogBatches = [
+ ...Array.from({length:Math.ceil(ricette109.length/40)},(_,i)=>({id:'release-20261117-classici-109-'+i,recipes:ricette109.slice(i*40,(i+1)*40)})),
  ...Array.from({length:Math.ceil(ricetteSemplici106.length/40)},(_,i)=>({id:'release-20261116-semplici-106-'+i,recipes:ricetteSemplici106.slice(i*40,(i+1)*40)})),
  ...Array.from({length:Math.ceil(ricetteEssenziali105.length/40)},(_,i)=>({id:'release-20261116-essenziali-105-'+i,recipes:ricetteEssenziali105.slice(i*40,(i+1)*40)})),
  ...Array.from({length:Math.ceil(piattiSemplici101.length/40)},(_,i)=>({id:'release-20261116-semplici-101-'+i,recipes:piattiSemplici101.slice(i*40,(i+1)*40)})),
@@ -466,7 +468,7 @@ function importExpandedCatalog(){
   if(state.applied.includes(id))continue;
   const recipes = batch.filter(recipe=>!savedNames.has(recipe.name)&&!savedIds.has(recipe.id)
    &&!recipeStatus(state,recipe,lookup).unitConflicts.length
-   &&!recipe.ingredients.some(item=>nonFood.has(item.ingredient))).slice(0,Math.max(0,Math.min(2500,LIMITS.recipes)-state.recipes.length));
+   &&!recipe.ingredients.some(item=>nonFood.has(item.ingredient))).slice(0,Math.max(0,Math.min(3000,LIMITS.recipes)-state.recipes.length));
   if(!recipes.length)continue;
   if(state.recipes.length+recipes.length>LIMITS.recipes)throw Error('Spazio insufficiente nel ricettario per completare l’importazione.');
   store.dispatch({id,type:'saveRecipe',at:Date.now(),payload:{recipes}});
@@ -474,7 +476,7 @@ function importExpandedCatalog(){
  }
  return false;
 }
-function ensureReleaseRecipes(){if(releaseRecipesAttempted||!store||!meta.ready||meta.pending||meta.preview||meta.error||!navigator.onLine)return;try{if(importExpandedCatalog())return;}catch(e){releaseRecipesAttempted=true;notify('Nuove ricette non ancora aggiunte: '+e.message,true);return;}const lookup=createUnitLookup(state),recipes=recipeAdditions.filter(r=>!state.recipes.some(x=>x.id===r.id||x.name===r.name||x.source_url===r.source_url)&&!recipeStatus(state,r,lookup).unitConflicts.length&&!r.ingredients.some(i=>[...state.pantry,...state.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))).slice(0,Math.min(40,Math.max(0,Math.min(2500,LIMITS.recipes)-state.recipes.length)));if(!recipes.length){releaseRecipesAttempted=true;return;}const id='release-20261108-'+recipes[0].id;if(state.applied.includes(id)){releaseRecipesAttempted=true;return;}try{store.dispatch({id,type:'saveRecipe',at:Date.now(),payload:{recipes}});}catch(e){releaseRecipesAttempted=true;notify('Nuove ricette non ancora aggiunte: '+e.message,true);}}
+function ensureReleaseRecipes(){if(releaseRecipesAttempted||!store||!meta.ready||meta.pending||meta.preview||meta.error||!navigator.onLine)return;try{if(importExpandedCatalog())return;}catch(e){releaseRecipesAttempted=true;notify('Nuove ricette non ancora aggiunte: '+e.message,true);return;}const lookup=createUnitLookup(state),recipes=recipeAdditions.filter(r=>!state.recipes.some(x=>x.id===r.id||x.name===r.name||x.source_url===r.source_url)&&!recipeStatus(state,r,lookup).unitConflicts.length&&!r.ingredients.some(i=>[...state.pantry,...state.shopping].some(p=>p.name===i.ingredient&&p.category==='Altro'))).slice(0,Math.min(40,Math.max(0,Math.min(3000,LIMITS.recipes)-state.recipes.length)));if(!recipes.length){releaseRecipesAttempted=true;return;}const id='release-20261108-'+recipes[0].id;if(state.applied.includes(id)){releaseRecipesAttempted=true;return;}try{store.dispatch({id,type:'saveRecipe',at:Date.now(),payload:{recipes}});}catch(e){releaseRecipesAttempted=true;notify('Nuove ricette non ancora aggiunte: '+e.message,true);}}
 function onStoreChange(next,nextMeta){
 
  const previousPending=meta.pending;
@@ -493,7 +495,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100,...piattiSemplici101,...ricetteEssenziali105,...ricetteSemplici106],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+try{store=await createStore([...seed.recipes,...catalogo71,...catalogo72,...catalogo89,...ricetteFacili93,...ricetteFacili94,...piattiRapidi100,...piattiSemplici101,...ricetteEssenziali105,...ricetteSemplici106,...ricette109],onStoreChange,error=>notify(error.message,true));ensureReleaseRecipes();try{weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});renderList();}catch(e){notify('Le settimane non sono disponibili: '+e.message,true);}}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{addEventListener('focus',()=>void registration.update().catch(()=>{}));}).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 
