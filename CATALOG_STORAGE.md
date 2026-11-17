@@ -46,3 +46,10 @@ The active bank has 1,054 distinct recipes and distinct external procedure URLs,
 The fixed, idempotent saveRecipe migration release-20261117-verified-sources-113 removes unverified built-in combinations and installs the verified bank atomically, preserving source-backed favourites, pantry, shopping and preparation counts/history. User-edited verified definitions are retained. Conflicts with current stock units are skipped rather than silently converted. Personal definitions remain recoverable; only linked recipes are exposed. Legacy immutable catalogues remain loaded for decoding existing compact backups/history. They must not be edited or automatically imported again. New manual recipe saves require an external source URL; the manual author must supply the matching procedure.
 
 The new compact reference version covers newly introduced IDs only. Old IDs retain their original immutable definitions. Offline caches include all four source modules. Source availability can change after the verification date.
+
+
+## Verified additions (release 114)
+
+Adds 70 distinct external-source recipes (33 Italian classics and 37 simple dishes), for a seeded total of 1,124. Classic sources were checked with the web reader for the specific Come preparare section; simpler Cucchiaio pages were checked for Recipe steps or the explicit HTML PROCEDIMENTO section. Existing canonical definitions and source records remain immutable. The new compact reference covers only fonte-114 IDs; the classic IDs still resolve through their original catalogue. New sources extend the verified URL registry.
+
+The application adds only this new bank in idempotent batches of at most 40, preserving existing definitions, favourites, stocks, counts and previous deletions. It does not reinstall the old 1,054-entry bank. Source, name and ID duplicates are skipped, as are conflicts with active stock units or nonfood products. Pending operations block the next batch. A per-session request set prevents repeated dispatch when old acknowledgement IDs have been trimmed. Fresh accounts seed the combined source-backed bank.

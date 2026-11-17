@@ -1,8 +1,8 @@
-const VERSION='spesapp-2026-11-17-fonti-verificate-v113';
+const VERSION='spesapp-2026-11-17-classici-verificati-v114';
 
-const MODULES=['verified-recipes-113-1','verified-recipes-113-2','verified-recipes-113-3','verified-recipes-113-4','verified-recipes-113','cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','shopping-resolution-ui','shopping-suggestions','recipe-omissions','piatti-rapidi-100','piatti-semplici-101','ricette-essenziali-105','ricette-semplici-106','ricette-109','classici-110','ricette-110','ricette-111','cooking-methods','seed-recipes-101','recipe-catalog-101','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=113`);
+const MODULES=['verified-recipes-114','verified-recipes-113-1','verified-recipes-113-2','verified-recipes-113-3','verified-recipes-113-4','verified-recipes-113','cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','shopping-resolution-ui','shopping-suggestions','recipe-omissions','piatti-rapidi-100','piatti-semplici-101','ricette-essenziali-105','ricette-semplici-106','ricette-109','classici-110','ricette-110','ricette-111','cooking-methods','seed-recipes-101','recipe-catalog-101','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=114`);
 
-const LOCAL=['./','./index.html','./workspace.css?v=113','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const LOCAL=['./','./index.html','./workspace.css?v=114','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 
 const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
 
