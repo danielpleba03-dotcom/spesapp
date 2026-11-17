@@ -1,10 +1,10 @@
-import {ricette111,riserva111,methods111} from './ricette-111.mjs?v=111';
+import {ricette111,riserva111,methods111} from './ricette-111.mjs?v=112';
 // Cooking methods are attached to a recipe, never duplicated as separate recipes.
-import {catalog101} from './recipe-catalog-101.mjs?v=111';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=111';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=111';
-import {ricette109} from './ricette-109.mjs?v=111';
-import {ricette110,methods110} from './ricette-110.mjs?v=111';
+import {catalog101} from './recipe-catalog-101.mjs?v=112';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=112';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=112';
+import {ricette109} from './ricette-109.mjs?v=112';
+import {ricette110,methods110} from './ricette-110.mjs?v=112';
 const norm=x=>String(x||'').normalize('NFC').trim().toLocaleUpperCase('it-IT').replace(/\s+/g,' ');
 const signature=r=>JSON.stringify([norm(r.name),String(r.instructions||'').trim(),(r.tools||[]).map(norm),r.ingredients.map(i=>[norm(i.ingredient),i.qty,i.unit]).sort((a,b)=>a[0].localeCompare(b[0]))]);
 const originals=new Map([...catalog101.values(),...ricetteEssenziali105,...riservaEssenziali105,...ricetteSemplici106,...ricette109,...ricette110,...ricette111,...riserva111].map(r=>[r.id,{r,key:signature(r)}]));
@@ -37,6 +37,11 @@ export function recipeCookingMethods(recipe){
    methods=[{...methods[0],id:'pentola',label:'Pentola e padella',tools:['fornelli']},{id:'forno',label:'Forno + pentola',tools:['fornelli','forno'],instructions:prep+'Cuoci la verdura a 200 °C in forno preriscaldato per circa '+oven+' minuti, finché tenera; mescola a metà cottura.'+end},{id:'aria',label:'Friggitrice ad aria + pentola',tools:['fornelli','aria'],instructions:prep+'Cuoci la verdura a 190 °C per circa '+air+' minuti, scuotendo a metà e controllando che sia tenera. Segui le indicazioni del tuo apparecchio sul preriscaldamento.'+end}];
   }
  }
+ // A substitution cannot safely inherit cooking times or temperatures for the original ingredient.
+ if(original&&String(recipe.instructions||'').trim()===String(original.r.instructions||'').trim()){
+  const names=r=>r.ingredients.map(i=>norm(i.ingredient)).sort().join('|');
+  if(names(recipe)!==names(original.r))methods=[{...baseMethod(recipe),instructions:'Ingredienti modificati rispetto alla ricetta originale. Il procedimento originale non è applicabile automaticamente: verifica la preparazione adatta agli ingredienti sostituiti prima di cucinare.'}];
+ }
  checked.set(recipe,methods);return methods;
 }
 export function weekCookingAssignments(week,excludeMealId=null){
@@ -44,8 +49,8 @@ export function weekCookingAssignments(week,excludeMealId=null){
  for(const m of week.meals||[]){if(excludeMealId&&(m.id===excludeMealId||m.from===excludeMealId))continue;if(m.from&&assignments.has(m.from)){assignments.set(m.id,assignments.get(m.from));continue;}const r=week.recipes[m.recipeId];if(!r)continue;const options=recipeCookingMethods(r).filter(x=>x.tools.every(t=>availableCookingTools.includes(t))),balanced=options.filter(x=>Object.hasOwn(counts,x.id));const selected=(balanced.length?balanced:options).slice().sort((a,b)=>(counts[a.id]||0)-(counts[b.id]||0))[0];if(selected){assignments.set(m.id,selected.id);if(Object.hasOwn(counts,selected.id))counts[selected.id]++;}}
  return {assignments,counts};
 }
-export function balanceCookingOptions(options,week,excludeMealId=null){
+export function balanceCookingOptions(options,week,excludeMealId=null,coldEligible=new Set()){
  const {counts}=weekCookingAssignments(week,excludeMealId),rank=r=>Math.min(...recipeCookingMethods(r).filter(m=>Object.hasOwn(counts,m.id)&&m.tools.every(t=>availableCookingTools.includes(t))).map(m=>counts[m.id]));
- const finite=options.filter(r=>Number.isFinite(rank(r)));if(!finite.length)return options;const least=Math.min(...finite.map(rank));return finite.filter(r=>rank(r)===least);
+ const finite=options.filter(r=>Number.isFinite(rank(r)));if(!finite.length)return options;const least=Math.min(...finite.map(rank));const coldUsed=(week.meals||[]).some(m=>m.id!==excludeMealId&&m.from!==excludeMealId&&week.recipes[m.recipeId]&&recipeCookingMethods(week.recipes[m.recipeId]).every(method=>method.id==='freddo'));return options.filter(r=>rank(r)===least||(!coldUsed&&coldEligible.has(r.id)&&recipeCookingMethods(r).some(method=>method.id==='freddo')));
 }
 

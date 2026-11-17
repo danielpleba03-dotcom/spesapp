@@ -1,8 +1,8 @@
-import {catalog111,CATALOG_111} from './ricette-111.mjs?v=111';
-import {catalog110,CATALOG_110} from './ricette-110.mjs?v=111';
-import {catalog109,CATALOG_109} from './ricette-109.mjs?v=111';
-import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=111';
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=111';
+import {catalog111,CATALOG_111} from './ricette-111.mjs?v=112';
+import {catalog110,CATALOG_110} from './ricette-110.mjs?v=112';
+import {catalog109,CATALOG_109} from './ricette-109.mjs?v=112';
+import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=112';
+import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=112';
 export const mealTypes=['Colazioni','Primi','Secondi','Contorni','Merende','Dolci'];
 
 export const mealForRecipe=r=>mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';

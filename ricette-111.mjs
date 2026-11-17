@@ -1,9 +1,9 @@
 // Immutable release 111: varied everyday dishes, one card per ingredient combination.
-import {catalog101} from './recipe-catalog-101.mjs?v=111';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=111';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=111';
-import {ricette109} from './ricette-109.mjs?v=111';
-import {ricette110} from './ricette-110.mjs?v=111';
+import {catalog101} from './recipe-catalog-101.mjs?v=112';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=112';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=112';
+import {ricette109} from './ricette-109.mjs?v=112';
+import {ricette110} from './ricette-110.mjs?v=112';
 const i=(ingredient,qty,unit='g')=>({ingredient,qty,unit});
 const vegetables=[
  ['ZUCCHINE',150,'rondelle di circa 1 cm',10,18,12],['CAROTE',150,'bastoncini sottili',12,25,18],['BROCCOLI',150,'piccole cimette',10,20,13],['CAVOLFIORE',150,'piccole cimette',12,25,16],['PEPERONI',150,'listarelle',15,25,18],['ZUCCA',150,'polpa pulita a cubetti di 1,5 cm',15,25,18],['FINOCCHI',150,'fettine sottili',12,25,18],['MELANZANE',150,'cubetti di 1,5 cm',18,25,18],['SPINACI',150,'foglie pulite',8,null,null],['BIETOLE',150,'foglie pulite, separando le coste più spesse',12,null,null],['CICORIA',150,'foglie pulite',15,null,null],['VERZA',150,'strisce sottili',15,22,15],['CAVOLO CAPPUCCIO',150,'strisce sottili',15,22,15],['RADICCHIO',120,'spicchi piccoli',10,18,12],['PORRI',120,'rondelle ben lavate',12,22,15],['FAGIOLINI',150,'fagiolini spuntati',18,25,18],['ASPARAGI',150,'pezzi privati della base legnosa',10,18,12],['FUNGHI CHAMPIGNON',150,'fettine di funghi coltivati puliti',10,20,14],['POMODORI',150,'cubetti lavati',0,null,null],['CETRIOLI',150,'fettine lavate',0,null,null]
