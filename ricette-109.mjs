@@ -1,7 +1,7 @@
 // Immutable release 109. Single-portion classics and simple everyday variations.
-import {catalog101} from './recipe-catalog-101.mjs?v=114';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=114';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=114';
+import {catalog101} from './recipe-catalog-101.mjs?v=115';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=115';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=115';
 const ing=(ingredient,qty,unit='g')=>({ingredient,qty,unit});
 export const ricette109=[
  {id:'classici-109-carbonara',name:'SPAGHETTI ALLA CARBONARA',meal:'Primi',ingredients:[ing('PASTA',80),ing('GUANCIALE',37.5),ing('TUORLI',27),ing('PECORINO ROMANO',12.5),ing('PEPE NERO',.1),ing('SALE FINO',.5)],source_url:'https://ricette.giallozafferano.it/Spaghetti-alla-Carbonara.html',source_title:'GialloZafferano · dosi adattate per una persona',instructions:'Per una persona: 27 g di tuorli corrispondono indicativamente a un tuorlo e mezzo; pesali, preferibilmente pastorizzati. Rosola il guanciale senza altri grassi. Cuoci la pasta in acqua salata. Mescola tuorli, pecorino e pepe; unisci la pasta al guanciale e incorpora la crema fuori dal fuoco, regolando con poca acqua di cottura. Servi subito. Il link mostra la tecnica completa.'},
