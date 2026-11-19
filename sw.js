@@ -1,4 +1,4 @@
-const VERSION='spesapp-2026-11-19-ricettario-fluido-v117';
+const VERSION='spesapp-2026-11-20-identita-separata-v117';
 
 const MODULES=['catalog-viewport','verified-recipes-116','verified-recipes-116-1','verified-recipes-116-2','verified-recipes-116-3','verified-recipes-115','verified-recipes-115-1','verified-recipes-115-2','verified-recipes-114','verified-recipes-113-1','verified-recipes-113-2','verified-recipes-113-3','verified-recipes-113-4','verified-recipes-113','cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','shopping-resolution-ui','shopping-suggestions','recipe-omissions','piatti-rapidi-100','piatti-semplici-101','ricette-essenziali-105','ricette-semplici-106','ricette-109','classici-110','ricette-110','ricette-111','cooking-methods','seed-recipes-101','recipe-catalog-101','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=117`);
 
