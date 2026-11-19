@@ -1,9 +1,9 @@
-import {catalog101} from './recipe-catalog-101.mjs?v=115';
-import {ricetteEssenziali105} from './ricette-essenziali-105.mjs?v=115';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=115';
-import {ricette109} from './ricette-109.mjs?v=115';
+import {catalog101} from './recipe-catalog-101.mjs?v=116';
+import {ricetteEssenziali105} from './ricette-essenziali-105.mjs?v=116';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=116';
+import {ricette109} from './ricette-109.mjs?v=116';
 // Immutable balanced dishes. One recipe, several explicit cooking patterns with unchanged ingredients.
-import {classici110,effortClassici110} from './classici-110.mjs?v=115';
+import {classici110,effortClassici110} from './classici-110.mjs?v=116';
 export {classici110};
 export const ricette110=[...classici110],effort110={...effortClassici110},methods110={};
 const i=(ingredient,qty,unit='g')=>({ingredient,qty,unit});

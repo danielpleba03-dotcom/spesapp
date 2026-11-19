@@ -395,7 +395,7 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
 .resolution-return small { display: block; margin-top: 4px; }
 
 /* Keep long catalogs scrollable while skipping offscreen closed-card rendering. */
-.catalog-layout > details.recipe:not([open]) { content-visibility: auto; contain-intrinsic-size: auto 110px; }
+.catalog-layout > details.recipe { content-visibility: visible; contain: none; }
 
 .resolution-result-section { margin: 14px 0; padding: 12px; border: 1px solid var(--border, #425064); border-radius: 12px; }
 .resolution-result-section.removed { border-color: #af7463; }
@@ -437,4 +437,17 @@ body[data-page] .recipe-week-meal.meal-past.meal-prepared {
 .recipe-method-tools{display:block;color:var(--muted);font-size:.73rem;margin:4px 0 8px}
 @media(max-width:650px){.recipe-method-tabs button{min-height:44px;flex:1 1 130px}}
 
-@media(min-width:651px){.catalog-layout>details.recipe:not([open]){contain-intrinsic-size:auto 58px}}
+
+
+/* Paint each card and its heading as one stable surface while scrolling. */
+.catalog-layout>.recipe,.catalog-layout>.recipe>summary{content-visibility:visible;contain:none;animation:none;transform:none;opacity:1}
+.week-choice-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.week-recipe-results{display:grid;gap:7px;max-height:55dvh;overflow:auto;overscroll-behavior:contain;margin-top:12px}
+.week-recipe-results button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;line-height:1.4;min-height:52px;flex-shrink:0}
+.week-recipe-results small{flex-shrink:0}
+.week-picker-search{position:sticky;top:0;z-index:1;background:var(--panel);padding-bottom:8px}
+.recipe-sheet-move{flex-shrink:0;min-width:40px;padding:8px}
+@media(max-width:650px){.week-choice-actions{grid-template-columns:1fr}.week-recipe-results{max-height:52dvh}.recipe-sheet-tools{gap:5px}.recipe-sheet-tools button{min-width:36px;padding:7px}}
+
+.week-recipe-results{height:min(52dvh,480px)}
+.catalog-layout>.recipe{transition:background-color .14s,border-color .14s}

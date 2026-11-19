@@ -1,6 +1,6 @@
 // Immutable release 106: simple single-portion recipes with complete preparation.
-import {catalog101} from './recipe-catalog-101.mjs?v=115';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=115';
+import {catalog101} from './recipe-catalog-101.mjs?v=116';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=116';
 const item=(ingredient,qty,unit='g')=>({ingredient,qty,unit});
 // Each component carries its own preparation; quantities of legumes refer to cooked food.
 const veg=[
