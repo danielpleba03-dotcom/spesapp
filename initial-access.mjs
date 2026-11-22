@@ -1,4 +1,4 @@
-const APP_CONFIG = {"name": "Spesapp", "key": "spesapp:initial-access:v1", "digest": "7a5309f6c62da7fe49b499290ac1f47b3ac141312b7da06d2039e598e0affca3", "entry": "./bootstrap.mjs?v=121", "numeric": true};
+const APP_CONFIG = {"name": "Spesapp", "key": "spesapp:initial-access:v1", "digest": "7a5309f6c62da7fe49b499290ac1f47b3ac141312b7da06d2039e598e0affca3", "entry": "./bootstrap.mjs?v=122", "numeric": true};
 
 const { name, key, digest, entry, numeric } = APP_CONFIG;
 const form = document.querySelector('#initial-access form');
@@ -8,6 +8,7 @@ const button = form.querySelector('button');
 const panel = form.closest('main');
 
 if (numeric) input.inputMode = 'numeric';
+panel.dataset.mode = 'entry';
 form.hidden = false;
 feedback.textContent = '';
 
@@ -15,16 +16,31 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
 }
 
+let appVisible=false,accessAuthorized=false;
+function revealApplication(){
+ if(appVisible||!accessAuthorized)return;appVisible=true;
+ panel.remove();document.documentElement.classList.remove('access-locked');
+ // Apply final phone geometry before the first visible application frame.
+ window.dispatchEvent(new Event('resize'));
+ if(window.parent!==window)window.parent.postMessage({type:'spesapp:ready'},location.origin);
+}
+window.addEventListener('spesapp:ready',revealApplication);
+window.addEventListener('message',event=>{
+ const frame=document.querySelector('iframe.portrait-frame');
+ if(event.origin===location.origin&&frame&&event.source===frame.contentWindow&&event.data?.type==='spesapp:ready')revealApplication();
+});
+
 async function openApp() {
   button.disabled = true;
   try {
     await import(entry);
-    panel.remove();
-    document.documentElement.classList.remove('access-locked');
+    // The app signals readiness after its first usable page, not just module loading.
   } catch (error) {
     console.error(error);
+    panel.dataset.mode = 'error';
     form.hidden = true;
     feedback.textContent = 'Impossibile aprire ' + name + '. Ricarica la pagina per riprovare.';
+    const retry=document.createElement('button');retry.type='button';retry.textContent='Riprova';retry.addEventListener('click',()=>location.reload());feedback.after(retry);
   }
 }
 
@@ -35,7 +51,16 @@ try {
   // A browser that blocks storage can still unlock the current session.
 }
 
+// A phone's same-origin portrait context shares the already verified tab session.
+// This avoids asking for the code again if storage is unavailable in that context.
+if(!unlocked&&window.parent!==window)try{
+ unlocked=window.parent.location.origin===location.origin&&window.parent.document.documentElement.dataset.spesappAccess===digest;
+}catch{}
+
 if (unlocked) {
+  accessAuthorized = true;
+  document.documentElement.dataset.spesappAccess = digest;
+  panel.dataset.mode = 'loading';
   form.hidden = true;
   feedback.textContent = 'Apertura in corso…';
   void openApp();
@@ -68,6 +93,9 @@ if (unlocked) {
       // Storage is optional for the current session.
     }
     input.value = '';
+    accessAuthorized = true;
+    document.documentElement.dataset.spesappAccess = digest;
+    panel.dataset.mode = 'loading';
     form.hidden = true;
     feedback.textContent = 'Apertura in corso…';
     await openApp();

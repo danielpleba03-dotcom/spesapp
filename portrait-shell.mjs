@@ -36,7 +36,10 @@ export function mountPortraitShell(){
 
  const frame=document.createElement('iframe');frame.className='portrait-frame';frame.title='Spesapp';frame.src=location.href;
 
- document.body.replaceChildren(frame);
+ // Keep a single outer loading screen while the inner browsing context starts.
+ // The inner app's ready message releases it; intermediate screens stay hidden.
+ const startup=document.querySelector('#initial-access');
+ document.body.replaceChildren(frame,...(startup?[startup]:[]));
 
  const probe=document.createElement('div');probe.className='safe-area-probe';document.body.append(probe);
 

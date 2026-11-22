@@ -152,7 +152,7 @@ if(!w&&api.mainMeta().ready&&!meta.pending&&!api.mainMeta().pending&&!autoReques
  store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;settleReadyWaiters();settleWeekMutation();for(const button of document.querySelectorAll('#week-move-results button,#week-recipe-results button'))button.disabled=Boolean(weekMutationBusy||meta.pending||api.mainMeta().pending);queueMicrotask(requestedCleanup);refreshRecipeLock();refreshReadyList();shoppingResolver.refresh();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,openMissing:shoppingResolver.open,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
  if(api.mainMeta().pending)throw Error('Attendi il salvataggio della preparazione prima di eliminarla.');
  send('deletePreparation',{entryId,restoreIngredients});
-},whenReady,get ready(){return meta.ready;},get pending(){return meta.pending;},getPreferences:()=>cookingPreferences(archive),savePreferences:change=>send('cookingPreferences',{start,change}),refresh:()=>store.refresh(),openToday};
+},whenReady,get ready(){return meta.ready;},get error(){return meta.error;},get pending(){return meta.pending;},getPreferences:()=>cookingPreferences(archive),savePreferences:change=>send('cookingPreferences',{start,change}),refresh:()=>store.refresh(),openToday};
 
 }
 

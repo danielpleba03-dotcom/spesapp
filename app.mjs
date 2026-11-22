@@ -157,7 +157,7 @@ function renderList(){
  if(!$('#list')||!state)return;if(page!=='recipes'||recipesView!=='catalog')disposeCatalogViewport();updateWorkspaceMetric();updateBulkButton();const query=normalize(search),terms=query.split(' ').filter(Boolean);
 
  if(page==='recipes')void ensureWeekUI().catch(()=>{});
- if(page==='recipes'&&recipesView==='week'){if(weekUI)weekUI.render();else $('#list').innerHTML=weekLoadingError?'<div class="empty"><p role="alert">'+esc(weekLoadingError)+'</p><button data-command="retry">Riprova</button></div>':'<p class="empty" role="status">Caricamento delle settimane…</p>';return;}
+ if(page==='recipes'&&recipesView==='week'){if(weekUI)weekUI.render();else $('#list').innerHTML=weekLoadingError?'<div class="empty"><p role="alert">'+esc(weekLoadingError)+'</p><button data-command="retry">Riprova</button></div>':'<p class="empty" role="status">Caricamento delle settimane…</p>';revealWhenUsable();return;}
 
  if(page==='recipes'){
 
@@ -511,11 +511,24 @@ function ensureWeekUI(){
  if(weekUIPromise)return weekUIPromise;
  if(!store||!meta.ready)return Promise.resolve(null);
  weekUIPromise=(async()=>{
-  const {createWeekUI}=await import('./week-ui.mjs?v=121');
-  weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:renderPreparationHistory,onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});
-  if(page==='recipes')renderList();return weekUI;
- })().catch(error=>{weekUIPromise=null;weekLoadingError='Il piano non è ancora disponibile. Controlla la connessione e riprova.';if(page==='recipes'&&recipesView==='week')renderList();throw error;});
+  const {createWeekUI}=await import('./week-ui.mjs?v=122');
+  weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:()=>{renderPreparationHistory();revealWhenUsable();},onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});
+  if(page==='recipes')renderList();revealWhenUsable();return weekUI;
+ })().catch(error=>{weekUIPromise=null;weekLoadingError='Il piano non è ancora disponibile. Controlla la connessione e riprova.';if(page==='recipes'&&recipesView==='week')renderList();revealWhenUsable();throw error;});
  return weekUIPromise;
+}
+
+let startupSignalled=false,startupFrame=null;
+function revealWhenUsable(){
+ if(startupSignalled||startupFrame!==null)return;
+ startupFrame=requestAnimationFrame(()=>{
+  startupFrame=null;
+  const settledError=Boolean(meta.error)||meta.online===false,login=meta.authenticated===false;
+  if(!login&&!settledError&&!meta.ready)return;
+  if(!login&&!settledError&&page==='recipes'&&recipesView==='week'&&!weekUI?.ready&&!weekUI?.error&&!weekLoadingError)return;
+  if(!$('#app')?.children.length)return;
+  startupSignalled=true;window.dispatchEvent(new Event('spesapp:ready'));
+ });
 }
 
 function onStoreChange(next,nextMeta){
@@ -523,9 +536,9 @@ function onStoreChange(next,nextMeta){
  const previousPending=meta.pending;
  const sameContent=Boolean(state&&meta.ready&&nextMeta.ready&&meta.user?.uid===nextMeta.user?.uid&&state.applied?.at(-1)===next.applied?.at(-1)&&state.applied?.length===next.applied?.length&&state.recipes.length===next.recipes.length&&state.pantry.length===next.pantry.length&&state.shopping.length===next.shopping.length);
  if(!sameContent)state=next;
- meta=nextMeta;scheduleRecipeUpgrade();if(!meta.preview&&!meta.authenticated){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';return;}
+ meta=nextMeta;scheduleRecipeUpgrade();if(!meta.preview&&!meta.authenticated){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p>Dispensa, ricette e spesa.<br>Sul PC e sul telefono, sempre con te.</p><button class="primary" data-command="login">Accedi con Google</button><p class="local-note">Accesso riservato al tuo account.</p></section>';revealWhenUsable();return;}
 
- if(!meta.ready){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';return;}
+ if(!meta.ready){$('#editor').close();$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><p role="status">'+esc(meta.error||(meta.online===false?'Per il primo caricamento dei dati serve una connessione.':'Caricamento dei tuoi dati…'))+'</p>'+(meta.error?'<button data-command="retry">Riprova</button><button data-command="logout">Esci dall’account</button>':'')+'</section>';revealWhenUsable();return;}
 
  if(!$('.shell'))renderShell();else if(!sameContent){renderList();refreshSuggestions();updateAddUnitError();}else if(previousPending!==meta.pending&&page==='recipes'&&recipesView==='week')weekUI?.render();
 
@@ -533,6 +546,7 @@ function onStoreChange(next,nextMeta){
  if(!sameContent)weekUI?.refresh();if(meta.ready&&hasWeekRecovery())void ensureWeekUI().catch(()=>{});updatePreparationAvailability();
 
  const error=$('#sync-error');if(error){error.hidden=!meta.error;error.textContent=meta.error||'';}
+ revealWhenUsable();
 
 }
 
@@ -540,7 +554,7 @@ try{
  store=await createStore(()=>[...recipes113,...recipes114,...recipes115,...recipes116,...recipes119,...recipes120].filter(r=>!retiredRecipeIds117.has(r.id)).slice(0,5000),onStoreChange,error=>notify(error.message,true));
  scheduleRecipeUpgrade();
  if(meta.ready&&(page==='recipes'||hasWeekRecovery()))void ensureWeekUI().catch(()=>{});
-}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';}
+}catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';window.dispatchEvent(new Event('spesapp:ready'));}
 
 if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('preview')){
  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{
@@ -548,7 +562,7 @@ if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('previ
   void navigator.serviceWorker.ready.then(active=>{
    const retain=()=>{
     const urls=performance.getEntriesByType('resource').map(entry=>entry.name);
-    for(const name of ['week-ui','week-store','shopping-resolution-ui','shopping-suggestions'])urls.push(new URL('./'+name+'.mjs?v=121',location.href).href);
+    for(const resource of ['week-ui.mjs?v=122','week-store.mjs?v=121','shopping-resolution-ui.mjs?v=121','shopping-suggestions.mjs?v=121'])urls.push(new URL('./'+resource,location.href).href);
     active.active?.postMessage({type:'CACHE_USED_RESOURCES',urls});
    };
    if(globalThis.requestIdleCallback)requestIdleCallback(retain,{timeout:10000});else setTimeout(retain,1500);

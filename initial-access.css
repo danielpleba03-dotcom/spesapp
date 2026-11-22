@@ -1,36 +1,49 @@
-html.access-locked body > :not(#initial-access) { display: none !important; }
-html.access-locked body { display: block; margin: 0; min-height: 100vh; overflow: auto; }
+html.access-locked { background: #0d141c; }
+html.access-locked body > :not(#initial-access):not(.portrait-frame) { display: none !important; }
+/* Keep the phone context running behind the single opaque loading screen. */
+html.access-locked body { display: block; margin: 0; min-height: 100vh; overflow: hidden; }
 #initial-access {
   box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 24px;
-  background: #f5f3ed;
-  color: #192520;
+  background: #0d141c;
+  color: #ecf2f8;
   font: 1rem/1.5 system-ui, sans-serif;
 }
-#initial-access .access-card {
-  box-sizing: border-box;
-  width: min(100%, 26rem);
-  padding: 28px;
-  border: 1px solid #dedfd5;
-  border-radius: 20px;
-  background: white;
-}
-#initial-access h1 { margin: 0 0 12px; font-size: 1.75rem; }
-#initial-access label { display: block; margin-bottom: 6px; }
+#initial-access .access-card { box-sizing: border-box; width: min(100%, 24rem); padding: 24px; }
+#initial-access h1 { margin: 0 0 20px; font-size: 1.8rem; font-weight: 750; letter-spacing: -.06em; }
+#initial-access[data-mode="loading"] .access-card { text-align: center; }
+#initial-access label { display: block; margin-bottom: 8px; color: #c8d4df; }
 #initial-access input, #initial-access button {
   box-sizing: border-box;
   width: 100%;
-  min-height: 46px;
-  padding: 10px 12px;
-  border: 1px solid #747d75;
-  border-radius: 10px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #3b5063;
+  border-radius: 12px;
   font: inherit;
 }
-#initial-access input { background: white; color: #192520; }
-#initial-access button { margin-top: 12px; background: #20563f; color: white; cursor: pointer; }
-#access-feedback { margin: 10px 0 0; }
-#access-feedback:empty { display: none; }
-#initial-access [hidden] { display: none !important; }
+#initial-access input { background: #111d28; color: #ecf2f8; }
+#initial-access button { margin-top: 14px; background: #285b48; color: #f3fff9; cursor: pointer; font-weight: 650; }
+#initial-access button:disabled { cursor: wait; opacity: .7; }
+#initial-access :is(input,button):focus-visible { outline: 2px solid #9ae2bf; outline-offset: 3px; }
+#access-feedback { margin: 18px 0 0; color: #acbdcc; font-size: .925rem; }
+#initial-access[data-mode="loading"] #access-feedback::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 22px;
+  margin: 0 auto 16px;
+  border: 2px solid #304153;
+  border-top-color: #92d9b5;
+  border-radius: 50%;
+  animation: access-loading 1s linear infinite;
+}
+#access-feedback:empty, #initial-access [hidden] { display: none !important; }
+@keyframes access-loading { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #initial-access[data-mode="loading"] #access-feedback::before { animation: none; } }

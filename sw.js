@@ -1,6 +1,6 @@
-const VERSION='spesapp-2026-11-22-avvio-leggero-v121';
+const VERSION='spesapp-2026-11-22-avvio-unico-v122';
 // Cache the opening shell only; other resources are cached as the app uses them.
-const CORE=['./','./initial-access.css?v=1','./initial-access.mjs?v=121','./bootstrap.mjs?v=121','./manifest.webmanifest','./icon.svg'];
+const CORE=['./','./initial-access.css?v=2','./initial-access.mjs?v=122','./bootstrap.mjs?v=122','./manifest.webmanifest','./icon.svg'];
 const immutableCatalogue=url=>/\/(?:verified-recipes-[\d-]+|recipe-catalog-101|seed-recipes-101|catalogo-\d+|classic-recipes|classici-\d+|ricette-[\w-]+|piatti-[\w-]+)\.mjs$/.test(url.pathname)&&url.searchParams.has('v');
 const timeoutFetch=request=>fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
 
@@ -22,7 +22,7 @@ self.addEventListener('activate',event=>event.waitUntil((async()=>{
   const previous=await caches.open(name);
   for(const request of await previous.keys()){
    const url=new URL(request.url);
-   if(url.origin===self.location.origin&&url.href.startsWith(self.registration.scope)&&(immutableCatalogue(url)||url.searchParams.get('v')==='121')){
+   if(url.origin===self.location.origin&&url.href.startsWith(self.registration.scope)&&(immutableCatalogue(url)||url.searchParams.get('v')==='122')){
     if(!await cache.match(request)){const response=await previous.match(request);if(response)try{await cache.put(request,response);}catch{/* Retain the usable older cache on quota pressure. */}}
    }
   }
