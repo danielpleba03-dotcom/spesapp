@@ -1,9 +1,9 @@
-import {recipeHasSource,mealForRecipe} from './domain.mjs?v=120';
-import {balanceCookingOptions,recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=120';
+import {recipeHasSource,mealForRecipe} from './domain.mjs?v=121';
+import {balanceCookingOptions,recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=121';
 import {omissionOption} from './recipe-omissions.mjs?v=120';
-import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=120';
-import {recipeCalories} from './recipe-calories.mjs?v=120';
-import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=120';
+import {validateCookingPreferences,cookingPreferences,updateCookingPreferences,preferenceWeight,recipeEffort,recommendationScore,proposalDiversity,similarRecipes,groupSimilarRecipes,ingredientKey} from './cooking-domain.mjs?v=121';
+import {recipeCalories} from './recipe-calories.mjs?v=121';
+import {recentShoppingPurchases,shoppingTarget,normalize,createUnitLookup,addShoppingRequirements,round,validateRecipe,validateState,recipeStatus,productUnit,applyAction,DomainError} from './domain.mjs?v=121';
 
 const fail=m=>{throw new DomainError(m);},record=x=>!!x&&typeof x==='object'&&!Array.isArray(x),id=x=>{if(typeof x!=='string'||!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)||['constructor','prototype','__proto__'].includes(x))fail('Identificativo non valido.');return x;};
 

@@ -1,7 +1,7 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=120';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=120';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=121';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=121';
 
-import {createJournal} from './journal.mjs?v=120';
+import {createJournal} from './journal.mjs?v=121';
 
 import {firebaseConfig} from './firebase-config.mjs?v=120';
 
@@ -27,13 +27,14 @@ export function cloudMessage(error){
 
 export async function createStore(recipes,onChange,onError,dependencies={}){
 
+ const initialRecipes=()=>typeof recipes==='function'?recipes():recipes;
  const preview=['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('preview')==='1';
 
  if(preview){
 
   let saved;try{saved=localStorage.getItem('spesapp-preview');}catch{}
 
-  let value=saved?validateState(JSON.parse(saved)):emptyState(recipes);
+  let value=saved?validateState(JSON.parse(saved)):emptyState(initialRecipes());
 
   const readPreviewHistory=()=>{const raw=localStorage.getItem('spesapp-recipe-weeks-preview');return raw?validateWeeks(JSON.parse(raw)):emptyWeeks();};
   const notify=()=>onChange(structuredClone(value),{preview:true,authenticated:true,ready:true,online:true,pending:0});
@@ -166,7 +167,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   if(!next){session=null;emit();return;}
 
-  const s={epoch,user:next,remote:emptyState(recipes),ready:false,journal:null,error:'',fromCache:true,snapshotVersion:0,confirmed:new Map(),projections:new Map(),flushing:false,retry:null};session=s;
+  const s={epoch,user:next,remote:emptyState(),ready:false,journal:null,error:'',fromCache:true,snapshotVersion:0,confirmed:new Map(),projections:new Map(),flushing:false,retry:null};session=s;
 
   try{s.journal=createJournal(localStorage,next.uid);}catch(e){s.error=e.message;emit();return;}
 
@@ -178,13 +179,17 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
    if(snapshot.exists()){
 
-    try{const incoming=validateState(snapshot.data()),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1||!incoming.applied.includes(known.at(-1))&&incoming.applied.some(id=>known.includes(id))))return;s.remote=incoming;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
+    try{const raw=snapshot.data(),signature=JSON.stringify(raw);
+     // Firestore may emit cached and server-confirmed metadata for identical data.
+     // Keep validating every changed document; reuse only an already accepted payload.
+     if(s.ready&&s.snapshotDataSignature===signature){s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);return;}
+     const incoming=validateState(raw),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1||!incoming.applied.includes(known.at(-1))&&incoming.applied.some(id=>known.includes(id))))return;s.remote=incoming;s.snapshotDataSignature=signature;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
 
     catch{ s.ready=false;s.error='I dati dell’archivio non sono leggibili. Non sono stati modificati: contatta l’assistenza.';emit();}
 
    }else if(!snapshot.metadata.fromCache){
 
-    void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,stateForStorage(emptyState(recipes)));}).catch(e=>{if(s===session){s.error=cloudMessage(e);emit();}});
+    void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,stateForStorage(emptyState(initialRecipes())));}).catch(e=>{if(s===session){s.error=cloudMessage(e);emit();}});
 
    }else{emit();}
 

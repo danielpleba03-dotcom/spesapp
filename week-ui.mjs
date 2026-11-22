@@ -1,12 +1,12 @@
-import {weekCookingAssignments,recipeCookingMethods} from './cooking-methods.mjs?v=120';
-import {createShoppingResolutionUI} from './shopping-resolution-ui.mjs?v=120';
-import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=120';
+import {weekCookingAssignments,recipeCookingMethods} from './cooking-methods.mjs?v=121';
+import {createShoppingResolutionUI} from './shopping-resolution-ui.mjs?v=121';
+import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=121';
 
-import {createUnitLookup,recipeMatchesSearch,mealForRecipe} from './domain.mjs?v=120';
+import {createUnitLookup,recipeMatchesSearch,mealForRecipe} from './domain.mjs?v=121';
 
-import {digest,weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds,swapWeekMeals,isWeeklyRecipe} from './week-domain.mjs?v=120';
+import {digest,weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds,swapWeekMeals,isWeeklyRecipe} from './week-domain.mjs?v=121';
 
-import {createWeekStore} from './week-store.mjs?v=120';
+import {createWeekStore} from './week-store.mjs?v=121';
 
 import {reconcile} from './ui.mjs?v=120';
 
@@ -23,6 +23,9 @@ export function defaultWeekDay(start,now=new Date()){
 
 export async function createWeekUI(api){let archive={weeks:{}},meta={ready:false,pending:0,error:''},store,start=monday(),selectedDay=defaultWeekDay(start),variant=0,preparedCaloriesOpen=false,freeMealOpen=false;
 
+ const readyWaiters=new Set();
+ function settleReadyWaiters(){if(!meta.ready&&!meta.error)return;for(const waiter of readyWaiters){clearTimeout(waiter.timer);meta.ready?waiter.resolve():waiter.reject(Error(meta.error));}readyWaiters.clear();}
+ function whenReady(){if(meta.ready)return Promise.resolve();if(meta.error)return Promise.reject(Error(meta.error));return new Promise((resolve,reject)=>{const waiter={resolve,reject,timer:null};waiter.timer=setTimeout(()=>{readyWaiters.delete(waiter);reject(Error('Il piano non è ancora disponibile. Controlla la connessione e riprova.'));},15000);readyWaiters.add(waiter);});}
  let followsDefaultDay=true;
  let clockSlot='';
  function openToday(){
@@ -146,10 +149,10 @@ if(!w&&api.mainMeta().ready&&!meta.pending&&!api.mainMeta().pending&&!autoReques
 
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 
- store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;settleWeekMutation();for(const button of document.querySelectorAll('#week-move-results button,#week-recipe-results button'))button.disabled=Boolean(weekMutationBusy||meta.pending||api.mainMeta().pending);queueMicrotask(requestedCleanup);refreshRecipeLock();refreshReadyList();shoppingResolver.refresh();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,openMissing:shoppingResolver.open,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
+ store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;settleReadyWaiters();settleWeekMutation();for(const button of document.querySelectorAll('#week-move-results button,#week-recipe-results button'))button.disabled=Boolean(weekMutationBusy||meta.pending||api.mainMeta().pending);queueMicrotask(requestedCleanup);refreshRecipeLock();refreshReadyList();shoppingResolver.refresh();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));return {render,observeRecipes,openMissing:shoppingResolver.open,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
  if(api.mainMeta().pending)throw Error('Attendi il salvataggio della preparazione prima di eliminarla.');
  send('deletePreparation',{entryId,restoreIngredients});
-},get ready(){return meta.ready;},get pending(){return meta.pending;},getPreferences:()=>cookingPreferences(archive),savePreferences:change=>send('cookingPreferences',{start,change}),refresh:()=>store.refresh(),openToday};
+},whenReady,get ready(){return meta.ready;},get pending(){return meta.pending;},getPreferences:()=>cookingPreferences(archive),savePreferences:change=>send('cookingPreferences',{start,change}),refresh:()=>store.refresh(),openToday};
 
 }
 

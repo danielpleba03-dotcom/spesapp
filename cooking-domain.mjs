@@ -1,12 +1,12 @@
 import {effort111} from './ricette-111.mjs?v=120';
-import {recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=120';
+import {recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=121';
 import {effort110} from './ricette-110.mjs?v=120';
 import {effort109} from './ricette-109.mjs?v=120';
 import {simpleMinutes106} from './ricette-semplici-106.mjs?v=120';
 import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=120';
 import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=120';
 import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=120';
-import {normalize,DomainError} from './domain.mjs?v=120';
+import {normalize,DomainError} from './domain.mjs?v=121';
 const fail=m=>{throw new DomainError(m);},record=x=>x&&typeof x==='object'&&!Array.isArray(x),id=x=>typeof x==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)&&!['__proto__','constructor','prototype'].includes(x);
 export const cookingTools=[['fornelli','Fornelli e padelle'],['forno','Forno'],['microonde','Microonde'],['aria',"Friggitrice ad aria"],['frullatore','Frullatore']];
 export const difficulties=['Facile','Media','Impegnativa'];

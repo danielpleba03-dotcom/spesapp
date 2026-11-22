@@ -1,58 +1,65 @@
-const VERSION='spesapp-2026-11-22-ricettario-5000-v120';
-
-const MODULES=['verified-recipes-120','verified-recipes-120-1','verified-recipes-120-2','verified-recipes-120-3','verified-recipes-120-4','verified-recipes-120-5','verified-recipes-120-6','verified-recipes-120-7','verified-recipes-120-8','verified-recipes-120-9','verified-recipes-120-10','verified-recipes-120-11','verified-recipes-120-12','verified-recipes-120-13','verified-recipes-120-14','verified-recipes-119','verified-recipes-119-1','verified-recipes-119-2','verified-recipes-119-3','verified-recipes-119-4','verified-recipes-119-5','verified-recipes-119-6','catalog-viewport','verified-recipes-116','verified-recipes-116-1','verified-recipes-116-2','verified-recipes-116-3','verified-recipes-115','verified-recipes-115-1','verified-recipes-115-2','verified-recipes-114','verified-recipes-113-1','verified-recipes-113-2','verified-recipes-113-3','verified-recipes-113-4','verified-recipes-113','cooking-domain','cooking-ui','bootstrap','zoom-guard','app','cloud','domain','week-domain','week-store','week-ui','shopping-resolution-ui','shopping-suggestions','recipe-omissions','piatti-rapidi-100','piatti-semplici-101','ricette-essenziali-105','ricette-semplici-106','ricette-109','classici-110','ricette-110','ricette-111','cooking-methods','seed-recipes-101','recipe-catalog-101','recipe-calories','recipe-additions','catalogo-71','catalogo-72','catalogo-89','ricette-facili-93','ricette-facili-94','classic-recipes','journal','ui','select-menu','suggestions','portrait-shell','firebase-config'].map(n=>`./${n}.mjs?v=120`);
-
-const LOCAL=['./initial-access.css?v=1','./initial-access.mjs?v=120','./','./index.html','./workspace.css?v=120','./style.css?v=20261104-calorie-settimana',...MODULES,'./seed.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
-
-const SDK=['firebase-app','firebase-auth','firebase-firestore'].map(n=>`https://www.gstatic.com/firebasejs/13.1.0/${n}.js`);
-
+const VERSION='spesapp-2026-11-22-avvio-leggero-v121';
+// Cache the opening shell only; other resources are cached as the app uses them.
+const CORE=['./','./initial-access.css?v=1','./initial-access.mjs?v=121','./bootstrap.mjs?v=121','./manifest.webmanifest','./icon.svg'];
+const immutableCatalogue=url=>/\/(?:verified-recipes-[\d-]+|recipe-catalog-101|seed-recipes-101|catalogo-\d+|classic-recipes|classici-\d+|ricette-[\w-]+|piatti-[\w-]+)\.mjs$/.test(url.pathname)&&url.searchParams.has('v');
 const timeoutFetch=request=>fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
 
-self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(VERSION);await cache.addAll(LOCAL.map(url=>new Request(url,{cache:'reload'})));await Promise.allSettled(SDK.map(url=>cache.add(url)));await self.skipWaiting();})()));
+self.addEventListener('install',event=>event.waitUntil((async()=>{
+ const cache=await caches.open(VERSION);
+ await Promise.all(CORE.map(async path=>{
+  const request=new Request(new URL(path,self.registration.scope));
+  const saved=new URL(request.url).searchParams.has('v')?await caches.match(request):null;
+  if(saved)await cache.put(request,saved);else await cache.add(new Request(request,{cache:'reload'}));
+ }));
+ await self.skipWaiting();
+})()));
 
-self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith('spesapp-')&&name!==VERSION)await caches.delete(name);await self.clients.claim();})()));
-
-self.addEventListener('fetch',event=>{
-
- const url=new URL(event.request.url);if(event.request.method!=='GET')return;
-
- const sdk=url.origin==='https://www.gstatic.com'&&url.pathname.startsWith('/firebasejs/13.1.0/');
-
- const local=url.origin===self.location.origin&&url.pathname.startsWith(self.registration.scope.replace(self.location.origin,''));
-
- if(!local&&!sdk)return;
-
- event.respondWith((async()=>{
-
-  const cache=await caches.open(VERSION),cached=await cache.match(event.request);
-
-  // Versioned files are immutable within a release; old open tabs may still request their own release.
-
-  if((sdk||url.searchParams.has('v'))&&cached)return cached;
-
-  try{
-
-   const response=await timeoutFetch(event.request);
-
-   if(response.ok){try{await cache.put(event.request,response.clone());}catch{/* Cache quota must never prevent an online response. */}return response;}
-
-   if(response.status>=500&&cached)return cached;
-
-   return response;
-
-  }catch(error){
-
-   if(cached)return cached;
-
-   if(event.request.mode==='navigate'){const shell=await cache.match('./index.html');if(shell)return shell;}
-
-   throw error;
-
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+ const cache=await caches.open(VERSION),older=(await caches.keys()).filter(name=>name.startsWith('spesapp-')&&name!==VERSION);
+ // Preserve immutable recipe data and requests made during installation.
+ // One prior release remains available for already-open tabs.
+ for(const name of older){
+  const previous=await caches.open(name);
+  for(const request of await previous.keys()){
+   const url=new URL(request.url);
+   if(url.origin===self.location.origin&&url.href.startsWith(self.registration.scope)&&(immutableCatalogue(url)||url.searchParams.get('v')==='121')){
+    if(!await cache.match(request)){const response=await previous.match(request);if(response)try{await cache.put(request,response);}catch{/* Retain the usable older cache on quota pressure. */}}
+   }
   }
+ }
+ for(const name of older.slice(0,-1))await caches.delete(name);
+ await self.clients.claim();
+})()));
 
+// After the screen is usable, retain resources already used by this page.
+// force-cache reuses the browser's HTTP cache on a first installation.
+self.addEventListener('message',event=>{
+ if(event.data?.type!=='CACHE_USED_RESOURCES'||!Array.isArray(event.data.urls))return;
+ event.waitUntil((async()=>{
+  const cache=await caches.open(VERSION),urls=[...new Set(event.data.urls)].slice(0,180);
+  const pending=urls.filter(value=>{try{const url=new URL(value),sdk=url.origin==='https://www.gstatic.com'&&url.pathname.startsWith('/firebasejs/13.1.0/')&&url.pathname.endsWith('.js');return sdk||url.origin===self.location.origin&&url.href.startsWith(self.registration.scope)&&(/\.(?:mjs|js|css|html|png|svg|webmanifest)$/.test(url.pathname)||url.href===self.registration.scope);}catch{return false;}});
+  let index=0;async function save(){while(index<pending.length){const url=pending[index++];if(await cache.match(url))continue;try{const saved=await caches.match(url),response=saved||await fetch(url,{cache:'force-cache'});if(response.ok)await cache.put(url,response);}catch{/* Missing optional resources can be fetched on the next online visit. */}}}
+  await Promise.all([save(),save(),save()]);event.ports?.[0]?.postMessage({cached:true});
  })());
-
 });
 
-
-
+self.addEventListener('fetch',event=>{
+ const url=new URL(event.request.url);if(event.request.method!=='GET')return;
+ const sdk=url.origin==='https://www.gstatic.com'&&url.pathname.startsWith('/firebasejs/13.1.0/');
+ const local=url.origin===self.location.origin&&url.href.startsWith(self.registration.scope);
+ if(!local&&!sdk)return;
+ event.respondWith((async()=>{
+  const cache=await caches.open(VERSION),cached=await cache.match(event.request);
+  if(sdk||url.searchParams.has('v')){const saved=cached||await caches.match(event.request);if(saved)return saved;}
+  try{
+   const response=await timeoutFetch(event.request);
+   if(response.ok){event.waitUntil(cache.put(event.request,response.clone()).catch(()=>{}));return response;}
+   if(response.status>=500&&cached)return cached;
+   return response;
+  }catch(error){
+   const saved=cached||await caches.match(event.request);if(saved)return saved;
+   if(event.request.mode==='navigate'){const shell=await cache.match(new URL('./',self.registration.scope));if(shell)return shell;}
+   throw error;
+  }
+ })());
+});
