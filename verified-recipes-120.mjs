@@ -1,0 +1,18 @@
+import {part1} from './verified-recipes-120-1.mjs?v=120';
+import {part2} from './verified-recipes-120-2.mjs?v=120';
+import {part3} from './verified-recipes-120-3.mjs?v=120';
+import {part4} from './verified-recipes-120-4.mjs?v=120';
+import {part5} from './verified-recipes-120-5.mjs?v=120';
+import {part6} from './verified-recipes-120-6.mjs?v=120';
+import {part7} from './verified-recipes-120-7.mjs?v=120';
+import {part8} from './verified-recipes-120-8.mjs?v=120';
+import {part9} from './verified-recipes-120-9.mjs?v=120';
+import {part10} from './verified-recipes-120-10.mjs?v=120';
+import {part11} from './verified-recipes-120-11.mjs?v=120';
+import {part12} from './verified-recipes-120-12.mjs?v=120';
+import {part13} from './verified-recipes-120-13.mjs?v=120';
+import {part14} from './verified-recipes-120-14.mjs?v=120';
+export const recipes120=[...part1,...part2,...part3,...part4,...part5,...part6,...part7,...part8,...part9,...part10,...part11,...part12,...part13,...part14];
+export const CATALOG_120='verified-20261122-120';
+export const catalog120=new Map(recipes120.map(r=>[r.id,r]));
+export const verifiedSourceURLs120=new Set(recipes120.map(r=>r.source_url));

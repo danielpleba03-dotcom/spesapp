@@ -1,12 +1,12 @@
-import {effort111} from './ricette-111.mjs?v=119';
-import {recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=119';
-import {effort110} from './ricette-110.mjs?v=119';
-import {effort109} from './ricette-109.mjs?v=119';
-import {simpleMinutes106} from './ricette-semplici-106.mjs?v=119';
-import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=119';
-import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=119';
-import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=119';
-import {normalize,DomainError} from './domain.mjs?v=119';
+import {effort111} from './ricette-111.mjs?v=120';
+import {recipeCookingMethods,availableCookingTools} from './cooking-methods.mjs?v=120';
+import {effort110} from './ricette-110.mjs?v=120';
+import {effort109} from './ricette-109.mjs?v=120';
+import {simpleMinutes106} from './ricette-semplici-106.mjs?v=120';
+import {essentialMinutes105} from './ricette-essenziali-105.mjs?v=120';
+import {simpleMealMinutes101} from './piatti-semplici-101.mjs?v=120';
+import {quickMealMinutes100} from './piatti-rapidi-100.mjs?v=120';
+import {normalize,DomainError} from './domain.mjs?v=120';
 const fail=m=>{throw new DomainError(m);},record=x=>x&&typeof x==='object'&&!Array.isArray(x),id=x=>typeof x==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(x)&&!['__proto__','constructor','prototype'].includes(x);
 export const cookingTools=[['fornelli','Fornelli e padelle'],['forno','Forno'],['microonde','Microonde'],['aria',"Friggitrice ad aria"],['frullatore','Frullatore']];
 export const difficulties=['Facile','Media','Impegnativa'];
@@ -98,4 +98,14 @@ export function proposalDiversity(recipe,p,used=new Map(),otherRecipe=null){
 const similarityCache=new WeakMap();
 function similarityProfile(r){let p=similarityCache.get(r);if(p)return p;const f=recipeFeatures(r),ingredients=new Map([...f.features].filter(([k])=>k.startsWith('ingredient:')).map(([k,v])=>[k.slice(11),v])),core=[...ingredients].filter(([,v])=>v>=.5).map(([k])=>k),n=normalize(r.name);const style=/RISOTT/.test(n)?'risotto':/LASAGN|CANNELLON|PASTA.*FORNO/.test(n)?'pasta-forno':/POLPETT/.test(n)?'polpette':/FRITTAT|OMELETTE/.test(n)?'frittata':/VELLUTAT|ZUPPA|MINESTR|CREMA/.test(n)?'zuppa':/INSALAT|CAPRESE/.test(n)?'insalata':/INVOLTIN/.test(n)?'involtini':/ARROST|FORNO/.test(n)?'forno':/SCALOPPIN/.test(n)?'scaloppine':null;const base=r.id.startsWith('semplici-101-')?ingredientKey(r.ingredients[0].ingredient):['ROAST BEEF COTTO','BRESAOLA','FESA DI TACCHINO AFFETTATA','PROSCIUTTO COTTO','TONNO AL NATURALE','SGOMBRO AL NATURALE','MOZZARELLA','RICOTTA','FAGIOLI CANNELLINI COTTI','PASTA','RISO','GNOCCHI DI PATATE','COUS COUS','FARRO','ORZO','UOVA','POLLO','TACCHINO','SALMONE','MERLUZZO','MANZO','MAIALE','CECI','LENTICCHIE','FAGIOLI'].find(k=>core.includes(k));p={ingredients,core,style,base};similarityCache.set(r,p);return p;}
 export function similarRecipes(a,b){if(a.id===b.id)return true;if(a.meal!==b.meal)return false;const x=similarityProfile(a),y=similarityProfile(b);if(!x.core.length||!y.core.length)return false;if(x.style!==y.style&&(x.style||y.style))return false;let overlap=0,total=0;for(const k of new Set([...x.ingredients.keys(),...y.ingredients.keys()])){overlap+=Math.min(x.ingredients.get(k)||0,y.ingredients.get(k)||0);total+=Math.max(x.ingredients.get(k)||0,y.ingredients.get(k)||0);}if(overlap/total>=.76)return true;const left=x.core.filter(k=>!y.core.includes(k)),right=y.core.filter(k=>!x.core.includes(k));return !!x.base&&x.base===y.base&&left.length<=1&&right.length<=1&&overlap/total>=.3;}
-export function groupSimilarRecipes(recipes){const groups=[];for(const r of [...recipes].sort((a,b)=>a.id.localeCompare(b.id))){const group=groups.find(g=>g.every(prior=>similarRecipes(r,prior)));if(group)group.push(r);else groups.push([r]);}return groups;}
+export function groupSimilarRecipes(recipes){
+ const groups=[],buckets=new Map();
+ for(const r of [...recipes].sort((a,b)=>a.id.localeCompare(b.id))){
+  // Different courses/styles can never match in similarRecipes. Partition first,
+  // preserving the same sorted, complete-link grouping within each bucket.
+  const key=r.meal+'|'+(similarityProfile(r).style||''),bucket=buckets.get(key)||[];
+  const group=bucket.find(g=>g.every(prior=>similarRecipes(r,prior)));
+  if(group)group.push(r);else{const created=[r];groups.push(created);bucket.push(created);buckets.set(key,bucket);}
+ }
+ return groups;
+}
