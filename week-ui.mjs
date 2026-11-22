@@ -1,14 +1,14 @@
-import {weekCookingAssignments,recipeCookingMethods} from './cooking-methods.mjs?v=117';
-import {createShoppingResolutionUI} from './shopping-resolution-ui.mjs?v=117';
-import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=117';
+import {weekCookingAssignments,recipeCookingMethods} from './cooking-methods.mjs?v=119';
+import {createShoppingResolutionUI} from './shopping-resolution-ui.mjs?v=119';
+import {cookingPreferences,proposalReason,createRecommendationContext} from './cooking-domain.mjs?v=119';
 
-import {createUnitLookup,recipeMatchesSearch,mealForRecipe} from './domain.mjs?v=117';
+import {createUnitLookup,recipeMatchesSearch,mealForRecipe} from './domain.mjs?v=119';
 
-import {digest,weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds,swapWeekMeals,isWeeklyRecipe} from './week-domain.mjs?v=117';
+import {digest,weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds,swapWeekMeals,isWeeklyRecipe} from './week-domain.mjs?v=119';
 
-import {createWeekStore} from './week-store.mjs?v=117';
+import {createWeekStore} from './week-store.mjs?v=119';
 
-import {reconcile} from './ui.mjs?v=117';
+import {reconcile} from './ui.mjs?v=119';
 
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),pretty=d=>new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'numeric',month:'short'}).format(new Date(d+'T12:00:00')),$=s=>document.querySelector(s);
 

@@ -1,6 +1,6 @@
-import {part1} from './verified-recipes-116-1.mjs?v=117';
-import {part2} from './verified-recipes-116-2.mjs?v=117';
-import {part3} from './verified-recipes-116-3.mjs?v=117';
+import {part1} from './verified-recipes-116-1.mjs?v=119';
+import {part2} from './verified-recipes-116-2.mjs?v=119';
+import {part3} from './verified-recipes-116-3.mjs?v=119';
 export const recipes116=[...part1,...part2,...part3];
 export const CATALOG_116='verified-20261119-116';
 export const catalog116=new Map(recipes116.map(r=>[r.id,r]));

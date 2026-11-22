@@ -1,10 +1,10 @@
-import {ricette111,riserva111,methods111} from './ricette-111.mjs?v=117';
+import {ricette111,riserva111,methods111} from './ricette-111.mjs?v=119';
 // Cooking methods are attached to a recipe, never duplicated as separate recipes.
-import {catalog101} from './recipe-catalog-101.mjs?v=117';
-import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=117';
-import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=117';
-import {ricette109} from './ricette-109.mjs?v=117';
-import {ricette110,methods110} from './ricette-110.mjs?v=117';
+import {catalog101} from './recipe-catalog-101.mjs?v=119';
+import {ricetteEssenziali105,riservaEssenziali105} from './ricette-essenziali-105.mjs?v=119';
+import {ricetteSemplici106} from './ricette-semplici-106.mjs?v=119';
+import {ricette109} from './ricette-109.mjs?v=119';
+import {ricette110,methods110} from './ricette-110.mjs?v=119';
 const norm=x=>String(x||'').normalize('NFC').trim().toLocaleUpperCase('it-IT').replace(/\s+/g,' ');
 const signature=r=>JSON.stringify([norm(r.name),String(r.instructions||'').trim(),(r.tools||[]).map(norm),r.ingredients.map(i=>[norm(i.ingredient),i.qty,i.unit]).sort((a,b)=>a[0].localeCompare(b[0]))]);
 const originals=new Map([...catalog101.values(),...ricetteEssenziali105,...riservaEssenziali105,...ricetteSemplici106,...ricette109,...ricette110,...ricette111,...riserva111].map(r=>[r.id,{r,key:signature(r)}]));
