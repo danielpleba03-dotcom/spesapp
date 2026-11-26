@@ -22,7 +22,7 @@ import {enhanceSelects} from './select-menu.mjs?v=120';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=126';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=127';
 
 import {createStore} from './cloud.mjs?v=121';
 
