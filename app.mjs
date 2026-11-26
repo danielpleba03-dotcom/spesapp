@@ -22,7 +22,7 @@ import {enhanceSelects} from './select-menu.mjs?v=120';
 
 enhanceSelects();
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=125';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=126';
 
 import {createStore} from './cloud.mjs?v=121';
 
@@ -163,7 +163,7 @@ function renderList(){
 
   const unitLookup=createUnitLookup(state),cooking=getCookingPreferences();
 
-  let recipes=state.recipes.filter(r=>recipeHasSource(r)&&(mealFilter==='Tutti i pasti'||mealForRecipe(r)===mealFilter)&&(dishFilter==='Tutti i tipi'||recipeDishTypes(r).includes(dishFilter))&&recipeMatchesSearch(r,search)).map(r=>({r,status:recipeStatus(state,r,unitLookup)}));
+  let recipes=state.recipes.filter(r=>recipeHasSource(r)&&(mealFilter==='Tutti i pasti'||mealForRecipe(r)===mealFilter)&&recipeMatchesSearch(r,search)).map(r=>({r,status:recipeStatus(state,r,unitLookup)}));
 
   recipes=recipes.filter(({r,status})=>recipeFilter==='Preferite'?!!r.favorite:recipeFilter==='Tutte'||status.possible).sort((a,b)=>((mealTypes.indexOf(mealForRecipe(a.r))+1||99)-(mealTypes.indexOf(mealForRecipe(b.r))+1||99))||(Number(b.status.possible)-Number(a.status.possible))||((state.counts[b.r.id]||0)-(state.counts[a.r.id]||0))||a.r.name.localeCompare(b.r.name,'it'));
 
@@ -571,6 +571,7 @@ if('serviceWorker'in navigator&&!new URLSearchParams(location.search).has('previ
   });
  }).catch(()=>notify('Installazione offline non disponibile su questo browser.'));
 }
+
 
 
 
