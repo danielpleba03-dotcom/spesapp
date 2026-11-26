@@ -12,6 +12,8 @@ import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=120';
 import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=120';
 export function recipeHasSource(recipe){if(catalog125.has(recipe?.id))return true;if(!recipe?.source_url)return false;const known=catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id)||catalog111.has(recipe.id)||catalog113.has(recipe.id)||catalog114.has(recipe.id)||catalog115.has(recipe.id)||catalog116.has(recipe.id)||catalog119.has(recipe.id)||catalog120.has(recipe.id);return verifiedSourceURLs.has(recipe.source_url)||verifiedSourceURLs114.has(recipe.source_url)||verifiedSourceURLs115.has(recipe.source_url)||verifiedSourceURLs116.has(recipe.source_url)||verifiedSourceURLs119.has(recipe.source_url)||verifiedSourceURLs120.has(recipe.source_url)||(!known&&/^https:\/\//.test(recipe.source_url));}
 export const mealTypes=['Primi','Secondi','Contorni','Dolci'];
+// Kept for backwards compatibility with the existing recipe catalogue filter.
+export const dishTypes=['Pasta','Riso','Carne','Pesce','Vegetariano'];
 const legacyMealTypes=['Colazioni','Merende','Antipasti'];
 
 export function reclassifyLegacyMeal(recipe){
@@ -770,3 +772,4 @@ export function preparationAlternatives(state,ingredient){
  const group=groups.find(g=>g.some(t=>normalize(ingredient).includes(t)));
  return state.pantry.filter(p=>p.category==='Alimentari'&&p.qty>0&&p.name!==normalize(ingredient)).map(p=>({...p,suggested:!!group?.some(t=>p.name.includes(t))})).sort((a,b)=>Number(b.suggested)-Number(a.suggested)||a.name.localeCompare(b.name,'it'));
 }
+
