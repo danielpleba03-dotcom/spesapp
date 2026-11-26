@@ -1,6 +1,6 @@
-const VERSION='spesapp-2026-11-26-ricettario-v129';
+const VERSION='spesapp-2026-11-26-ricettario-v130';
 // Cache the opening shell only; other resources are cached as the app uses them.
-const CORE=['./','./initial-access.css?v=2','./initial-access.mjs?v=129','./bootstrap.mjs?v=129','./manifest.webmanifest','./icon.svg'];
+const CORE=['./','./initial-access.css?v=2','./initial-access.mjs?v=130','./bootstrap.mjs?v=130','./manifest.webmanifest','./icon.svg'];
 const immutableCatalogue=url=>/\/(?:verified-recipes-[\d-]+|recipe-catalog-101|seed-recipes-101|catalogo-\d+|classic-recipes|classici-\d+|ricette-[\w-]+|piatti-[\w-]+)\.mjs$/.test(url.pathname)&&url.searchParams.has('v');
 const timeoutFetch=request=>fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
 
@@ -48,6 +48,9 @@ self.addEventListener('fetch',event=>{
  const sdk=url.origin==='https://www.gstatic.com'&&url.pathname.startsWith('/firebasejs/13.1.0/');
  const local=url.origin===self.location.origin&&url.href.startsWith(self.registration.scope);
  if(!local&&!sdk)return;
+ // ES module graphs can contain many recipe chunks. Let the browser fetch modules
+ // directly instead of aborting a slow individual module after a fixed timeout.
+ if(local&&/\.mjs$/.test(url.pathname))return;
  event.respondWith((async()=>{
   const cache=await caches.open(VERSION),cached=await cache.match(event.request);
   if(sdk||url.searchParams.has('v')){const saved=cached||await caches.match(event.request);if(saved)return saved;}
