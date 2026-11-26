@@ -1,6 +1,7 @@
+import {catalog125,CATALOG_125} from './curated-recipes-125.mjs?v=125';
 import {catalog120,CATALOG_120,verifiedSourceURLs120} from './verified-recipes-120.mjs?v=120';
 import {catalog119,CATALOG_119,verifiedSourceURLs119} from './verified-recipes-119.mjs?v=120';
-import {catalog116,CATALOG_116,verifiedSourceURLs116,mealOverrides116} from './verified-recipes-116.mjs?v=120';
+import {catalog116,CATALOG_116,verifiedSourceURLs116} from './verified-recipes-116.mjs?v=120';
 import {catalog115,CATALOG_115,verifiedSourceURLs115} from './verified-recipes-115.mjs?v=120';
 import {catalog114,CATALOG_114,verifiedSourceURLs114} from './verified-recipes-114.mjs?v=120';
 import {recipes113,catalog113,CATALOG_113,verifiedSourceURLs} from './verified-recipes-113.mjs?v=120';
@@ -9,10 +10,28 @@ import {catalog110,CATALOG_110} from './ricette-110.mjs?v=120';
 import {catalog109,CATALOG_109} from './ricette-109.mjs?v=120';
 import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=120';
 import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=120';
-export function recipeHasSource(recipe){if(!recipe?.source_url)return false;const known=catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id)||catalog111.has(recipe.id)||catalog113.has(recipe.id)||catalog114.has(recipe.id)||catalog115.has(recipe.id)||catalog116.has(recipe.id)||catalog119.has(recipe.id)||catalog120.has(recipe.id);return verifiedSourceURLs.has(recipe.source_url)||verifiedSourceURLs114.has(recipe.source_url)||verifiedSourceURLs115.has(recipe.source_url)||verifiedSourceURLs116.has(recipe.source_url)||verifiedSourceURLs119.has(recipe.source_url)||verifiedSourceURLs120.has(recipe.source_url)||(!known&&/^https:\/\//.test(recipe.source_url));}
-export const mealTypes=['Colazioni','Antipasti','Primi','Secondi','Contorni','Merende','Dolci'];
+export function recipeHasSource(recipe){if(catalog125.has(recipe?.id))return true;if(!recipe?.source_url)return false;const known=catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id)||catalog111.has(recipe.id)||catalog113.has(recipe.id)||catalog114.has(recipe.id)||catalog115.has(recipe.id)||catalog116.has(recipe.id)||catalog119.has(recipe.id)||catalog120.has(recipe.id);return verifiedSourceURLs.has(recipe.source_url)||verifiedSourceURLs114.has(recipe.source_url)||verifiedSourceURLs115.has(recipe.source_url)||verifiedSourceURLs116.has(recipe.source_url)||verifiedSourceURLs119.has(recipe.source_url)||verifiedSourceURLs120.has(recipe.source_url)||(!known&&/^https:\/\//.test(recipe.source_url));}
+export const mealTypes=['Primi','Secondi','Contorni','Dolci'];
+const legacyMealTypes=['Colazioni','Merende','Antipasti'];
 
-export const mealForRecipe=r=>{const override=mealOverrides116[r?.id];return override&&r.meal===override.from&&r.source_url===override.source?override.to:mealTypes.includes(r?.meal)?r.meal:r?.name==='BUDINO BANANA E CIOCCOLATO'?'Dolci':'Da classificare';};
+export function reclassifyLegacyMeal(recipe){
+ const meal=recipe?.meal;
+ if(mealTypes.includes(meal))return meal;
+ const n=normalize(recipe?.name||'');
+ const ings=(recipe?.ingredients||[]).map(i=>normalize(i.ingredient));
+ const hasIng=re=>ings.some(i=>re.test(i));
+ const hasSweetIng=hasIng(/^(ZUCCHERO|ZUCCHERO DI CANNA|ZUCCHERO A VELO|CIOCCOLATO|CACAO|MIELE|NUTELLA|MARMELLATA|CONFETTURA|SCIROPPO|BISCOTTI|AMARETTI|SAVOIARDI|MERINGHE|TORRONE|PANETTONE|BRIOCHE|GELATO|PANNA FRESCA)/);
+ const hasSavoryMarker=hasIng(/^(PARMIGIANO|PECORINO|GRANA|PROSCIUTTO|SALSICCIA|TONNO|SALMONE|MERLUZZO|ORATA|BRANZINO|CALAMARI|POLPO|GAMBERI|BACCALA|ALICI|SARDINE|MANZO|VITELLO|MAIALE|POLLO|TACCHINO|AGNELLO|CONIGLIO|BRESAOLA|ROAST|SPECK|PANCETTA|GUANCIALE|LARDO|SALAME|MORTADELLA|ACCIUGHE|STRACCHINO|MOZZARELLA|FETA|FONTINA|SCAMORZA|ASIAGO|EMMENTAL|GORGONZOLA|CAPRINO|AGLIO|CIPOLLE|POMODORI|ZUCCHINE|MELANZANE|PEPERONI|CARCIOFI|ASPARAGI|BROCCOLI|CAVOL|SPINACI|BIETOLE|FUNGHI|CECI|FAGIOLI|LENTICCHIE|FAVE|PISELLI)/);
+ if(n==='BUDINO BANANA E CIOCCOLATO'||/\b(PORRIDGE|PANCAKE|GRANOLA|MUESLI|CHIA PUDDING|FRENCH TOAST|BISCOTT|MUFFIN|CROSTATA|CIAMBELL|BUDIN|GELAT|SORBETT|GRANIT|MERING|BARRETT|GALLETTES|SPECULOOS|VANILLEKIPFERL|BAICOLI|CANESTRELL|OVIS MOLLIS|COOKIES|NASCONDINI|SCROCCAFUSI|FROLLIN|DOLCETT|MANDORLE CARAMELL|PAIN AU CHOCOLAT|CANNONCIN|ZABAIONE|GHIACCIOL|PIGNE AL CIOCCOLATO|PIZZICOTTI|TRECCINE DI RICOTTA|SOSPIRI D'AMORE|CIOCCOLAT|TORRON|CREME BRULEE|TARTE TATIN|PAN DI SPAGNA|SALAME DI CIOCCOLATO|PASTIER|STRUDEL|PANNA COTTA|BACI DI DAMA|CANNOLI|BONET|TIRAMIS|CHEESECAKE|CREPES SENZA UOVA|CREMA AL|CREMA DI MIRTILLI|CREMA MASCARPONE|CREMA PASTICC|CREMA SEMPLICE|MOUSSE AL CIOCCOLATO|MOUSSE ALLE FRAGOLE|MOUSSE DI MELONE)\b/.test(n))return 'Dolci';
+ if((hasSweetIng&&!hasSavoryMarker)||(/\b(TORTA|MOUSSE|CREMA)\b/.test(n)&&hasSweetIng&&!hasIng(/PARMIGIANO|GROVIERA|GORGONZOLA|PROSCIUTTO|MORTADELLA|TONNO|OLIVE/)))return 'Dolci';
+ if(/\b(PASTA|SPAGHETT|PENNE|FUSILLI|RIGATONI|TAGLIATEL|TROFIE|LINGUINE|BUCATINI|LASAGN|RAVIOLI|GNOCCH|PACCHERI|ORECCHIETTE|MACCHERONI|FARFALLE|RISOTT|RISO|POLENTA|COUS ?COUS|FARRO|ORZO|QUINOA|PIZZA|FOCACCIA|QUICHE|CASATIELLO|TORTA SALATA|PIADIN|BRUSCHETT|CROSTIN|CANAP|PANIN|TRAMEZZIN|CRESCENTIN|FRISELL|FARINATA|SAMOSA|TACOS|QUESADILL|AREPAS|WAFFLE|BAO|SFOGLIA|VOL AU VENT|BIGOLI|TORTELLIN|CANNELLON|PASSATELLI|MALLOREDDUS|PIZZOCCHERI|FREGULA|RIBOLLITA|MINESTR|VELLUTATA|ZUPPA|PANE GUTTIAU|CORNETTI AL FORMAGGIO|TARTELETTE|TRONCHETTO)\b/.test(n))return 'Primi';
+ if(/\b(CHIPS|PATAT|CAROTE|ZUCCHIN|MELANZAN|PEPERON|BROCCOL|CAVOL|FINOCCH|ZUCCA|ASPARAG|FAGIOLIN|SPINACI|BIETOL|RADICCHIO|PUNTARELLE|CARCIOF|PORRI|SCAROLA|CICORIA|VERZA|RAPE|CIPOLLE|CIPOLLINE|FUNGHI|POMODOR|INSALATA|CAPONATA|CECI|FAGIOLI|FAVE|CASTAGNE|HUMMUS|PATE|AGLIATA|CREMA DI OLIVE|PESTO DI|FRULLATO DI POMODORO|MANDORLE SALATE|POP CORN|SALATINI|PANELLE|SCAGLIOZZI)\b/.test(n)&&!/\b(POLPETT|INVOLTIN|FRITTAT|UOVA|CARPACCIO DI MANZO|CARPACCIO DI BRESAOLA|CARPACCIO DI SPADA|MOZZARELLA RIPIENA|PARMIGIANA|FLAN|MOUSSE|TORTINO|POLENTA|COUS|FARRO|RISO|PASTA|GNOCCH)\b/.test(n))return 'Contorni';
+ if(/\b(ARROSTO|POLLO|TACCHINO|MANZO|VITELLO|MAIALE|AGNELLO|CONIGLIO|ANATRA|CARNE|SALSICCIA|BRESAOLA|PROSCIUTTO|ROAST ?BEEF|SPECK|MORTADELLA|SALMONE|TONNO|MERLUZZO|ORATA|BRANZINO|TROTA|CALAMARI|POLPO|GAMBERI|BACCALA|ALICI|SARDINE|SEPPIE|COZZE|VONGOL|PESCE|UOVA|UOVO|FRITTAT|OMELETTE|MOZZARELLA|FETA|PROVOLONE|SCAMORZA|FORMAGGIO|FLAN|SFORMATO|POLPETT|INVOLTIN|PARMIGIANA|CARPACCIO|TARTARE|CAPRESE|MOUSSE DI TONNO|MOUSSE DI PROSCIUTTO|MOUSSE DI MORTADELLA|MOUSSE DI GORGONZOLA|CREMA DI PARMIGIANO|PROSCIUTTO E MELONE)\b/.test(n)||hasIng(/^(POLLO|PETTO DI POLLO|TACCHINO|FESA DI TACCHINO|MANZO|VITELLO|MAIALE|AGNELLO|CONIGLIO|SALMONE|TONNO|MERLUZZO|ORATA|BRANZINO|TROTA|CALAMARI|POLPO|GAMBERI|BACCALA|ALICI|SARDINE|UOVA|BRESAOLA|PROSCIUTTO|ROAST BEEF)/))return 'Secondi';
+ if(hasIng(/^(FARINA|PASTA|RISO|SEMOLA|FARRO|ORZO|COUS COUS|QUINOA|PANE)/))return 'Primi';
+ return 'Contorni';
+}
+
+export const mealForRecipe=r=>reclassifyLegacyMeal(r);
 
 export const categories=['Alimentari','Altro'];
 
@@ -32,25 +51,98 @@ function identifier(value){if(!['number','string'].includes(typeof value)||!idPa
 
 export const normalize=s=>String(s??'').normalize('NFC').trim().toLocaleUpperCase('it-IT').replace(/\s+/g,' ');
 
-const dishPatterns = [
- ['Pasta', /\b(PASTA(?! (?:DI ARACHIDI|FROLLA|SFOGLIA|BRIS))|SPAGHETTI|PENNE|FUSILLI|RIGATONI|TAGLIATELLE|TROFIE|LINGUINE|BUCATINI|LASAGNE|RAVIOLI|GNOCCHI|PACCHERI|ORECCHIETTE|MACCHERONI|FARFALLE|VERMICELLI)\b/],
- ['Riso', /\b(RISO|RISOTTO|RISOTTI)\b/],
- ['Pesce e frutti di mare', /\b(PESCE|SALMONE|MERLUZZO|ORATA|BRANZINO|TROTA|TONNO|GAMBER[IO]|GAMBERETTI|CALAMAR[IO]|SEPPI[AE]|POLPO|SOGLIOLA|BACCAL[AÀ]|ALICI|ACCIUGHE|COZZE|VONGOLE|SGOMBRO|SARDE)\b/],
- ['Carne', /\b(CARNE|POLLO|TACCHINO|MANZO|VITELLO|MAIALE|CONIGLIO|AGNELLO|ANATRA|SALSICCIA|PANCETTA|GUANCIALE|PROSCIUTTO|SPECK|MORTADELLA|LARDO|BRESAOLA)\b/],
- ['Uova', /\b(UOVA?|FRITTAT[AE]|OMELETTE)\b/],
- ['Legumi e soia', /\b(CECI|FAGIOLI|LENTICCHIE|PISELLI|FAVE|TOFU|TEMPEH|EDAMAME)\b/],
- ['Altri cereali', /\b(ORZO|FARRO|QUINOA|COUS COUS|POLENTA|MIGLIO|BULGUR|AVENA)\b/],
-];
-const vegetablePattern = /\b(ZUCCHINE|MELANZANE|PEPERONI|PATATE|CAROTE|ZUCCA|POMODORI|BROCCOLI|CAVOLFIORE|FINOCCHI|ASPARAGI|FAGIOLINI|SPINACI|BIETOLE|RADICCHIO|INSALATA|RUCOLA|CARCIOFI|PORRI|SCAROLA|FUNGHI|CIPOLLE|SEDANO|LATTUGA|MAIS|VERZA)\b/;
-export const dishTypes = [...dishPatterns.map(([label])=>label), 'Verdure', 'Altro'];
-export function recipeDishTypes(recipe){
- const names = [normalize(recipe.name), ...recipe.ingredients.map(item=>normalize(item.ingredient)).filter(name=>!name.startsWith('BRODO DI '))];
- const matches = dishPatterns.filter(([label, pattern])=>names.some(name=>
-  pattern.test(name) && !(label==='Riso' && /^(FARINA|AMIDO|LATTE|BEVANDA|ACETO) DI RISO$/.test(name))
- )).map(([label])=>label);
- if(names.some(name=>vegetablePattern.test(name)))matches.push('Verdure');
- return matches.length ? matches : ['Altro'];
+const EVERYDAY_STAPLE_SPECS={
+ 'ACQUA':{packSize:1,recipeUnit:'l'},
+ 'OLIO EXTRAVERGINE DI OLIVA':{packSize:1,recipeUnit:'l'},
+ 'OLIO DI SEMI':{packSize:1,recipeUnit:'l'},
+ 'OLIO':{packSize:1,recipeUnit:'l'},
+ 'ACETO':{packSize:1,recipeUnit:'l'},
+ 'ACETO BALSAMICO':{packSize:0.5,recipeUnit:'l'},
+ 'SALSA DI SOIA':{packSize:0.25,recipeUnit:'l'},
+ 'SALE FINO':{packSize:1000,recipeUnit:'g'},
+ 'SALE GROSSO':{packSize:1000,recipeUnit:'g'},
+ 'SALE':{packSize:1000,recipeUnit:'g'},
+ 'ZUCCHERO':{packSize:1000,recipeUnit:'g'},
+ 'ZUCCHERO DI CANNA':{packSize:500,recipeUnit:'g'},
+ 'ZUCCHERO A VELO':{packSize:250,recipeUnit:'g'},
+ 'AGLIO':{packSize:50,recipeUnit:'g'},
+ 'PEPE NERO':{packSize:50,recipeUnit:'g'},
+ 'PEPE BIANCO':{packSize:50,recipeUnit:'g'},
+ 'PEPE ROSA':{packSize:50,recipeUnit:'g'},
+ 'PEPE':{packSize:50,recipeUnit:'g'},
+ 'BICARBONATO':{packSize:500,recipeUnit:'g'},
+ 'ZAFFERANO':{packSize:1,recipeUnit:'g'},
+ 'LIEVITO PER DOLCI':{packSize:48,recipeUnit:'g'},
+ 'LIEVITO DI BIRRA SECCO':{packSize:21,recipeUnit:'g'},
+ 'LIEVITO SECCO DI BIRRA':{packSize:21,recipeUnit:'g'},
+ 'ORIGANO':{packSize:30,recipeUnit:'g'},
+ 'BASILICO':{packSize:30,recipeUnit:'g'},
+ 'PREZZEMOLO':{packSize:30,recipeUnit:'g'},
+ 'ROSMARINO':{packSize:30,recipeUnit:'g'},
+ 'SALVIA':{packSize:30,recipeUnit:'g'},
+ 'TIMO':{packSize:30,recipeUnit:'g'},
+ 'ALLORO':{packSize:30,recipeUnit:'g'},
+ 'MAGGIORANA':{packSize:30,recipeUnit:'g'},
+ 'MENTA':{packSize:30,recipeUnit:'g'},
+ 'NOCE MOSCATA':{packSize:30,recipeUnit:'g'},
+ 'CANNELLA':{packSize:30,recipeUnit:'g'},
+ 'CURRY':{packSize:30,recipeUnit:'g'},
+ 'CURCUMA':{packSize:30,recipeUnit:'g'},
+ 'PAPRIKA':{packSize:30,recipeUnit:'g'},
+ 'PAPRICA':{packSize:30,recipeUnit:'g'},
+ 'PEPERONCINO':{packSize:30,recipeUnit:'g'},
+ 'PEPERONCINO IN POLVERE':{packSize:30,recipeUnit:'g'},
+ 'CUMINO':{packSize:30,recipeUnit:'g'},
+ 'CHIODI DI GAROFANO':{packSize:30,recipeUnit:'g'},
+ 'CARDAMOMO':{packSize:30,recipeUnit:'g'},
+ 'ANETO':{packSize:30,recipeUnit:'g'},
+ 'CORIANDOLO':{packSize:30,recipeUnit:'g'},
+ 'DRAGONCELLO':{packSize:30,recipeUnit:'g'},
+ 'ERBA CIPOLLINA':{packSize:30,recipeUnit:'g'},
+ 'ERBE DI PROVENZA':{packSize:30,recipeUnit:'g'},
+ 'FINOCCHIETTO':{packSize:30,recipeUnit:'g'},
+ 'VANIGLIA':{packSize:30,recipeUnit:'g'},
+ 'SENAPE IN POLVERE':{packSize:30,recipeUnit:'g'},
+ 'SENAPE IN GRANI':{packSize:30,recipeUnit:'g'}
+};
+export const STAPLE_THRESHOLD=0.25;
+export function everydayStapleSpec(productName){const key=normalize(productName);return Object.hasOwn(EVERYDAY_STAPLE_SPECS,key)?{name:key,...EVERYDAY_STAPLE_SPECS[key]}:null;}
+export function isEverydayStaple(productName){return everydayStapleSpec(productName)!==null;}
+export function stapleAvailableQty(pantryItem){
+ if(!pantryItem||pantryItem.category!=='Alimentari')return 0;
+ const spec=everydayStapleSpec(pantryItem.name);
+ if(!spec)return Number(pantryItem.qty)||0;
+ const consumed=Number(pantryItem.consumed)||0;
+ return Math.max(0,round((Number(pantryItem.qty)||0)*spec.packSize-consumed));
 }
+export function consumeStapleFromPantry(pantryItem,amountInRecipeUnit){
+ const spec=everydayStapleSpec(pantryItem.name);
+ if(!spec)return;
+ const P=spec.packSize,deductAt=round((1-STAPLE_THRESHOLD)*P);
+ let used=round((Number(pantryItem.consumed)||0)+amountInRecipeUnit);
+ while(used>=deductAt&&pantryItem.qty>0){pantryItem.qty-=1;used=round(used-P);}
+ if(pantryItem.qty===0&&used>0)used=0;
+ if(used===0)delete pantryItem.consumed;else pantryItem.consumed=used;
+}
+export function restoreStapleToPantry(pantryItem,amountInRecipeUnit){
+ const spec=everydayStapleSpec(pantryItem.name);
+ if(!spec)return;
+ const P=spec.packSize,restoreAt=round(-STAPLE_THRESHOLD*P);
+ let used=round((Number(pantryItem.consumed)||0)-amountInRecipeUnit);
+ while(used<=restoreAt){pantryItem.qty+=1;used=round(used+P);}
+ if(used===0)delete pantryItem.consumed;else pantryItem.consumed=used;
+}
+export function pantryItemAvailable(state,productName,unit){
+ const key=normalize(productName),spec=everydayStapleSpec(key);
+ if(spec){
+  const item=(state.pantry||[]).find(p=>p.category==='Alimentari'&&p.name===key);
+  if(!item)return 0;
+  return unit==='pz'?item.qty:unit===spec.recipeUnit?stapleAvailableQty(item):0;
+ }
+ return (state.pantry||[]).filter(p=>p.category==='Alimentari'&&p.name===key&&p.unit===unit).reduce((sum,p)=>sum+p.qty,0);
+}
+
+// Cookbook filters use the four main meal categories only.
 
 
 function name(value){if(typeof value!=='string')fail('Scrivi il nome del prodotto.');const n=normalize(value);if(!n||n.length>LIMITS.name||/[\x00-\x1f\x7f]/.test(n))fail('Inserisci un nome tra 1 e 120 caratteri, senza caratteri di controllo.');return n;}
@@ -61,7 +153,15 @@ export const round=n=>Math.round(n*1e6)/1e6;
 
 export const step=unit=>unit==='g'?50:1;
 
-export const low=p=>Number(p.qty)>0&&Number(p.qty)<=(p.unit==='g'?200:2);
+export const low=p=>{
+ if(Number(p.qty)<=0)return false;
+ const spec=everydayStapleSpec(p.name);
+ if(spec){
+  if(p.name==='ACQUA')return Number(p.qty)<=1;
+  return Number(p.qty)===1&&(Number(p.consumed)||0)>=spec.packSize*0.5;
+ }
+ return Number(p.qty)<=(p.unit==='g'?200:2);
+};
 
 export const stockView=p=>Number(p.qty)<=0?'Esauriti':low(p)?'Da rifornire':'Disponibili';
 
@@ -92,13 +192,37 @@ function unitReferences(state,productName,excludeRecipeId){const key=normalize(p
 
 // Rebuild it for each render/operation; do not reuse it after mutating the state.
 
-export function createUnitLookup(state){const refs=new Map(),add=(key,unit,id,product)=>{if(!refs.has(key))refs.set(key,[]);refs.get(key).push([unit,id,product]);};for(const p of [...(state.pantry||[]),...(state.shopping||[])])add(p.name,p.unit,null,true);for(const r of state.recipes||[])for(const i of r.ingredients)add(normalize(i.ingredient),i.unit,r.id,false);return (productName,excludeRecipeId)=>refs.get(normalize(productName))?.find(item=>item[2]||item[1]!==excludeRecipeId)?.[0];}
+export function createUnitLookup(state){
+ const refs=new Map(),add=(key,unit,id,product)=>{if(!refs.has(key))refs.set(key,[]);refs.get(key).push([unit,id,product]);};
+ for(const p of [...(state.pantry||[]),...(state.shopping||[])])add(p.name,p.unit,null,true);
+ for(const r of state.recipes||[])for(const i of r.ingredients)add(normalize(i.ingredient),i.unit,r.id,false);
+ return (productName,excludeRecipeId)=>{
+  const key=normalize(productName),spec=everydayStapleSpec(key);
+  if(spec)return excludeRecipeId===undefined?'pz':spec.recipeUnit;
+  return refs.get(key)?.find(item=>item[2]||item[1]!==excludeRecipeId)?.[0];
+ };
+}
 
-export function productUnit(state,productName,excludeRecipeId){return unitReferences(state,productName,excludeRecipeId)[0]?.unit;}
+export function productUnit(state,productName,excludeRecipeId){
+ const key=normalize(productName),spec=everydayStapleSpec(key);
+ if(spec)return excludeRecipeId===undefined?'pz':spec.recipeUnit;
+ return unitReferences(state,productName,excludeRecipeId)[0]?.unit;
+}
 
 export function lockUnit(state,productName,unit,excludeRecipeId){
 
  const key=name(productName);if(!['g','l','pz'].includes(unit))fail('Unità non valida: scegli grammi, litri oppure pezzi.');
+
+ const spec=everydayStapleSpec(key);
+ if(spec){
+  if(excludeRecipeId!==undefined){
+   if(unit!==spec.recipeUnit&&unit!=='pz')fail(`${key} nelle ricette deve usare ${spec.recipeUnit==='g'?'grammi':'litri'} o pezzi.`);
+  }else if(unit!=='pz'){
+   fail(`${key} è un ingrediente di uso quotidiano: in dispensa e nella lista della spesa usa sempre i pezzi (P).`);
+  }
+  state.units[key]='pz';
+  return;
+ }
 
  const references=unitReferences(state,key,excludeRecipeId),existing=references[0]?.unit;
 
@@ -110,7 +234,7 @@ export function lockUnit(state,productName,unit,excludeRecipeId){
 
 }
 
-function rebuildProductUnits(state){const units={};for(const p of [...state.pantry,...state.shopping]){if(units[p.name]&&units[p.name]!==p.unit)fail(`${p.name}: unità diverse tra dispensa e lista della spesa.`);units[p.name]=p.unit;}for(const r of state.recipes)for(const i of r.ingredients)units[i.ingredient]??=i.unit;state.units=units;}
+function rebuildProductUnits(state){const units={};for(const p of [...state.pantry,...state.shopping]){if(!isEverydayStaple(p.name)&&units[p.name]&&units[p.name]!==p.unit)fail(`${p.name}: unità diverse tra dispensa e lista della spesa.`);units[p.name]=isEverydayStaple(p.name)?'pz':p.unit;}for(const r of state.recipes)for(const i of r.ingredients)units[i.ingredient]??=(isEverydayStaple(i.ingredient)?'pz':i.unit);state.units=units;}
 
 export function emptyState(recipes=[]){const state={schema:1,pantry:[],shopping:[],units:{},recipes:recipes.map(r=>validateRecipe(r,true)),counts:{},applied:[]};rebuildProductUnits(state);return state;}
 
@@ -120,11 +244,11 @@ export function recipeStatus(state,r,unitLookup=null){
 
  const needs=new Map();for(const i of r.ingredients){const key=normalize(i.ingredient)+'|'+i.unit;needs.set(key,{...i,ingredient:normalize(i.ingredient),qty:round((needs.get(key)?.qty||0)+Number(i.qty))});}
 
- const ingredients=[...needs.values()];const missing=ingredients.filter(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);return (Number(p?.qty)||0)+1e-9<i.qty;});
+ const ingredients=[...needs.values()];const missing=ingredients.filter(i=>{const available=pantryItemAvailable(state,i.ingredient,i.unit);return available+1e-9<i.qty;});
 
- const unitConflicts=ingredients.flatMap(i=>{const expected=findUnit(i.ingredient,r.id);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
+ const unitConflicts=ingredients.flatMap(i=>{const spec=everydayStapleSpec(i.ingredient);if(spec){return (i.unit===spec.recipeUnit||i.unit==='pz')?[]:[{ingredient:i.ingredient,unit:i.unit,expected:spec.recipeUnit}];}const expected=findUnit(i.ingredient,r.id);return expected&&expected!==i.unit?[{ingredient:i.ingredient,unit:i.unit,expected}]:[];});
 
- const preparations=ingredients.length?Math.min(...ingredients.map(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);const required=Math.round(Number(i.qty)*1e6),available=Math.round(Number(p?.qty||0)*1e6);return required>0?Math.floor(available/required):0;})):0;
+ const preparations=ingredients.length?Math.min(...ingredients.map(i=>{const available=pantryItemAvailable(state,i.ingredient,i.unit);const required=Math.round(Number(i.qty)*1e6),availScaled=Math.round(available*1e6);return required>0?Math.floor(availScaled/required):0;})):0;
 
  return {ingredients,missing,unitConflicts,possible:ingredients.length>0&&missing.length===0&&unitConflicts.length===0,preparations:unitConflicts.length?0:preparations};
 
@@ -144,7 +268,7 @@ export function preparationStatus(state,recipe,people=1,actual=null){
 
   if(!Array.isArray(actual)||actual.length!==base.length)fail('Controlla tutti gli ingredienti della preparazione.');
 
-  const seen=new Set();ingredients=actual.map(item=>{if(!record(item))fail('Ingrediente non valido.');const ingredient=name(item.ingredient),key=(item.sourceIngredient===undefined?ingredient:name(item.sourceIngredient))+'|'+(item.sourceUnit??item.unit);if(!byKey.has(key)||seen.has(key))fail('Gli ingredienti e le unità devono corrispondere alla ricetta.');seen.add(key);const qty=number(item.qty);validProduct({name:ingredient,category:'Alimentari',qty,unit:item.unit});if(key!==ingredient+'|'+item.unit&&!state.pantry.some(p=>p.category==='Alimentari'&&p.name===ingredient&&p.unit===item.unit&&p.qty>0))fail('Scegli un sostituto disponibile in dispensa.');const expected=productUnit(state,ingredient,recipe.id);if(expected&&expected!==item.unit)fail(ingredient+' deve usare la stessa unità della dispensa.');return {ingredient,unit:item.unit,qty};});
+  const seen=new Set();ingredients=actual.map(item=>{if(!record(item))fail('Ingrediente non valido.');const ingredient=name(item.ingredient),key=(item.sourceIngredient===undefined?ingredient:name(item.sourceIngredient))+'|'+(item.sourceUnit??item.unit);if(!byKey.has(key)||seen.has(key))fail('Gli ingredienti e le unità devono corrispondere alla ricetta.');seen.add(key);const qty=number(item.qty);validProduct({name:ingredient,category:'Alimentari',qty,unit:item.unit});if(key!==ingredient+'|'+item.unit&&!state.pantry.some(p=>p.category==='Alimentari'&&p.name===ingredient&&(p.unit===item.unit||isEverydayStaple(ingredient))&&pantryItemAvailable(state,ingredient,item.unit)>0))fail('Scegli un sostituto disponibile in dispensa.');const spec=everydayStapleSpec(ingredient);if(spec){if(item.unit!==spec.recipeUnit&&item.unit!=='pz')fail(ingredient+' deve usare '+spec.recipeUnit.toUpperCase()+' o P.');}else{const expected=productUnit(state,ingredient,recipe.id);if(expected&&expected!==item.unit)fail(ingredient+' deve usare la stessa unità della dispensa.');}return {ingredient,unit:item.unit,qty};});
 
  }else ingredients=base.map(i=>({...i,qty:round(i.qty*factor)}));
 
@@ -154,7 +278,7 @@ export function preparationStatus(state,recipe,people=1,actual=null){
 
  if(!ingredients.some(i=>i.qty>0))fail('Inserisci almeno una quantità utilizzata maggiore di zero.');
 
- ingredients=ingredients.map(i=>{const p=state.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit),available=p?.qty||0;return {...i,available,enough:available+1e-9>=i.qty};});
+ ingredients=ingredients.map(i=>{const available=pantryItemAvailable(state,i.ingredient,i.unit);return {...i,available,enough:available+1e-9>=i.qty};});
 
  return {ingredients,missing:ingredients.filter(i=>!i.enough),possible:ingredients.every(i=>i.enough),people:factor};
 
@@ -174,15 +298,17 @@ export function recipeShoppingPlan(state,recipe,unitLookup=null){
 
  return status.ingredients.flatMap(i=>{
 
-  const stocked=state.pantry.find(p=>p.name===i.ingredient&&p.category==='Alimentari'&&p.unit===i.unit)?.qty||0;
+  const spec=everydayStapleSpec(i.ingredient);
+  const stocked=pantryItemAvailable(state,i.ingredient,i.unit);
 
   const missing=Math.max(0,round(i.qty-stocked));if(!missing)return [];
 
-  const target=shoppingTarget(missing,i.unit);
+  const targetUnit=spec?'pz':i.unit;
+  const target=spec?(i.unit==='pz'?Math.ceil(missing):Math.max(1,Math.ceil(round(missing*1e6)/round(spec.packSize*1e6)))):shoppingTarget(missing,i.unit);
 
-  const planned=state.shopping.filter(p=>p.name===i.ingredient&&p.unit===i.unit&&p.category==='Alimentari').reduce((sum,p)=>round(sum+p.qty),0);
+  const planned=state.shopping.filter(p=>p.name===i.ingredient&&p.unit===targetUnit&&p.category==='Alimentari').reduce((sum,p)=>round(sum+p.qty),0);
 
-  const qty=Math.max(0,round(target-planned));return qty>0?[{name:i.ingredient,unit:i.unit,category:'Alimentari',qty,target}]:[];
+  const qty=Math.max(0,round(target-planned));return qty>0?[{name:i.ingredient,unit:targetUnit,category:'Alimentari',qty,target}]:[];
 
  });
 
@@ -196,7 +322,7 @@ export function validateRecipe(raw,allowMissingSource=true){
 
  const r={tools:[...new Set((raw.tools||[]).map(normalize))],id:identifier(raw.id),name:name(raw.name),instructions:String(raw.instructions||'').trim(),source_url:String(raw.source_url||'').trim(),source_title:String(raw.source_title||'').trim(),servings:1,ingredients:raw.ingredients.map(i=>{if(!record(i))fail('Ingrediente non valido.');return {ingredient:name(i.ingredient),qty:number(i.qty),unit:i.unit};})};
 
- if(raw.meal!==undefined){if(typeof raw.meal!=='string'||!mealTypes.includes(raw.meal))fail('Scegli una categoria del ricettario.');r.meal=raw.meal;}
+ if(raw.meal!==undefined){if(typeof raw.meal!=='string'||(!mealTypes.includes(raw.meal)&&!legacyMealTypes.includes(raw.meal)))fail('Scegli una categoria del ricettario.');r.meal=mealTypes.includes(raw.meal)?raw.meal:reclassifyLegacyMeal({...r,meal:raw.meal});}
 
  if(raw.favorite!==undefined){if(typeof raw.favorite!=='boolean')fail('Preferenza della ricetta non valida.');r.favorite=raw.favorite;}
 
@@ -223,11 +349,33 @@ export function validateImport(raw){
 
  const s=emptyState();
 
- for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');if(kind==='shopping'&&item.planStarts)p.planStarts=validatePlanStarts(item.planStarts);
+ for(const kind of ['pantry','shopping']){const ids=new Set(),names=new Set();for(const item of raw[kind]){if(!record(item))fail('Prodotto non valido nel backup.');const p={id:identifier(item.id),name:name(item.name),category:item.category,qty:number(item.qty??item.planned_qty),unit:item.unit};validProduct(p,kind==='shopping');
+  const spec=everydayStapleSpec(p.name);
+  if(spec&&p.category==='Alimentari'){
+   if(p.unit!=='pz'){
+    if(kind==='pantry'){
+     if(p.qty<=0){p.qty=0;}
+     else{const packs=Math.max(1,Math.ceil(round(p.qty*1e6)/round(spec.packSize*1e6))),consumed=round(packs*spec.packSize-p.qty);p.qty=packs;if(consumed>0)p.consumed=consumed;}
+    }else{
+     p.qty=Math.max(1,Math.ceil(round(p.qty*1e6)/round(spec.packSize*1e6)));
+    }
+    p.unit='pz';
+   }else if(kind==='pantry'&&item.consumed!==undefined&&item.consumed!==null){
+    const c=number(item.consumed);
+    if(Math.abs(c)>spec.packSize||round(c)!==c)fail('Consumo residuo non valido nel backup.');
+    if(c!==0)p.consumed=c;
+   }
+  }
+  if(kind==='shopping'&&item.planStarts)p.planStarts=validatePlanStarts(item.planStarts);
 if(kind==='pantry'&&p.category==='Alimentari'&&item.recentBuys!==undefined){
  if(!Array.isArray(item.recentBuys)||item.recentBuys.length>12)fail('Acquisti recenti non validi.');
  p.recentBuys=item.recentBuys.map(event=>{
-  if(!record(event)||!Number.isFinite(event.at)||event.at<Date.UTC(2000,0,1)||event.at>=Date.UTC(2100,0,1)||!Number.isFinite(event.qty)||event.qty<=0||event.qty>LIMITS.quantity||!Number.isFinite(event.remaining)||event.remaining<0||event.remaining>event.qty||p.unit==='pz'&&(!Number.isInteger(event.qty)||!Number.isInteger(event.remaining)))fail('Acquisto recente non valido.');
+  if(!record(event)||!Number.isFinite(event.at)||event.at<Date.UTC(2000,0,1)||event.at>=Date.UTC(2100,0,1)||!Number.isFinite(event.qty)||event.qty<=0||event.qty>LIMITS.quantity||!Number.isFinite(event.remaining)||event.remaining<0||event.remaining>event.qty)fail('Acquisto recente non valido.');
+  if(p.unit==='pz'&&(!Number.isInteger(event.qty)||!Number.isInteger(event.remaining))){
+   if(!spec)fail('Acquisto recente non valido.');
+   const eq=Math.max(1,Math.ceil(round(event.qty*1e6)/round(spec.packSize*1e6))),er=Math.min(eq,Math.max(0,Math.ceil(round(event.remaining*1e6)/round(spec.packSize*1e6))));
+   return {id:identifier(event.id),at:event.at,qty:eq,remaining:er};
+  }
   return {id:identifier(event.id),at:event.at,qty:event.qty,remaining:event.remaining};
  });
  consumeRecentBuys(p);
@@ -274,18 +422,18 @@ export function validateState(raw){
 // Expand immutable catalog references, preserving order and per-user favorite flags.
 const catalogCanonical=new Map(),catalogSignatures=new Map();
 function catalogRecipe(id){
- if(!catalog101.has(id)&&!catalog106.has(id)&&!catalog109.has(id)&&!catalog110.has(id)&&!catalog111.has(id)&&!catalog113.has(id)&&!catalog114.has(id)&&!catalog115.has(id)&&!catalog116.has(id)&&!catalog119.has(id)&&!catalog120.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
- if(!catalogCanonical.has(id)){const recipe=validateRecipe(catalog101.get(id)||catalog106.get(id)||catalog109.get(id)||catalog110.get(id)||catalog111.get(id)||catalog113.get(id)||catalog114.get(id)||catalog115.get(id)||catalog116.get(id)||catalog119.get(id)||catalog120.get(id),true);catalogCanonical.set(id,recipe);catalogSignatures.set(id,recipeSignature(recipe));}
+ if(!catalog101.has(id)&&!catalog106.has(id)&&!catalog109.has(id)&&!catalog110.has(id)&&!catalog111.has(id)&&!catalog113.has(id)&&!catalog114.has(id)&&!catalog115.has(id)&&!catalog116.has(id)&&!catalog119.has(id)&&!catalog120.has(id)&&!catalog125.has(id))fail('Questo ricettario richiede una versione più recente di Spesapp. Ricarica l’app.');
+ if(!catalogCanonical.has(id)){const recipe=validateRecipe(catalog101.get(id)||catalog106.get(id)||catalog109.get(id)||catalog110.get(id)||catalog111.get(id)||catalog113.get(id)||catalog114.get(id)||catalog115.get(id)||catalog116.get(id)||catalog119.get(id)||catalog120.get(id)||catalog125.get(id),true);catalogCanonical.set(id,recipe);catalogSignatures.set(id,recipeSignature(recipe));}
  return catalogCanonical.get(id);
 }
 function expandCatalogRows(rows){
  const expanded=[];
  for(const row of rows){
   if(record(row)&&Object.hasOwn(row,'catalog')){
-   if(![CATALOG_VERSION,CATALOG_106,CATALOG_109,CATALOG_110,CATALOG_111,CATALOG_113,CATALOG_114,CATALOG_115,CATALOG_116,CATALOG_119,CATALOG_120].includes(row.catalog)||Object.keys(row).some(key=>!['catalog','ids','favorites'].includes(key))||!Array.isArray(row.ids)||!row.ids.length||row.ids.length>LIMITS.recipes||row.favorites!==undefined&&!record(row.favorites))fail('Riferimento al ricettario non valido. Ricarica l’app.');
+   if(![CATALOG_VERSION,CATALOG_106,CATALOG_109,CATALOG_110,CATALOG_111,CATALOG_113,CATALOG_114,CATALOG_115,CATALOG_116,CATALOG_119,CATALOG_120,CATALOG_125].includes(row.catalog)||Object.keys(row).some(key=>!['catalog','ids','favorites'].includes(key))||!Array.isArray(row.ids)||!row.ids.length||row.ids.length>LIMITS.recipes||row.favorites!==undefined&&!record(row.favorites))fail('Riferimento al ricettario non valido. Ricarica l’app.');
    const flags=row.favorites||{},ids=new Set(row.ids);
    if(Object.entries(flags).some(([id,value])=>!ids.has(id)||typeof value!=='boolean'))fail('Preferiti del ricettario non validi.');
-   for(const id of row.ids){identifier(id);if(!(row.catalog===CATALOG_VERSION?catalog101:row.catalog===CATALOG_106?catalog106:row.catalog===CATALOG_109?catalog109:row.catalog===CATALOG_110?catalog110:row.catalog===CATALOG_111?catalog111:row.catalog===CATALOG_113?catalog113:row.catalog===CATALOG_114?catalog114:row.catalog===CATALOG_115?catalog115:row.catalog===CATALOG_116?catalog116:row.catalog===CATALOG_119?catalog119:catalog120).has(id))fail('Riferimento al ricettario non valido.');const recipe={...catalogRecipe(id)};delete recipe.favorite;if(Object.hasOwn(flags,id))recipe.favorite=flags[id];expanded.push(recipe);}
+   for(const id of row.ids){identifier(id);if(!(row.catalog===CATALOG_VERSION?catalog101:row.catalog===CATALOG_106?catalog106:row.catalog===CATALOG_109?catalog109:row.catalog===CATALOG_110?catalog110:row.catalog===CATALOG_111?catalog111:row.catalog===CATALOG_113?catalog113:row.catalog===CATALOG_114?catalog114:row.catalog===CATALOG_115?catalog115:row.catalog===CATALOG_116?catalog116:row.catalog===CATALOG_119?catalog119:row.catalog===CATALOG_120?catalog120:catalog125).has(id))fail('Riferimento al ricettario non valido.');const recipe={...catalogRecipe(id)};delete recipe.favorite;if(Object.hasOwn(flags,id))recipe.favorite=flags[id];expanded.push(recipe);}
   }else expanded.push(row);
   if(expanded.length>LIMITS.recipes)fail('Troppe ricette nell’archivio.');
  }
@@ -305,13 +453,13 @@ function compactCustomRecipe(recipe){
 export function stateForStorage(state){
  const recipes=[];let block=null;
  for(const recipe of state.recipes){
-  const base=record(recipe)&&(catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id)||catalog111.has(recipe.id)||catalog113.has(recipe.id)||catalog114.has(recipe.id)||catalog115.has(recipe.id)||catalog116.has(recipe.id)||catalog119.has(recipe.id)||catalog120.has(recipe.id))?catalogRecipe(recipe.id):null;
+  const base=record(recipe)&&(catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id)||catalog111.has(recipe.id)||catalog113.has(recipe.id)||catalog114.has(recipe.id)||catalog115.has(recipe.id)||catalog116.has(recipe.id)||catalog119.has(recipe.id)||catalog120.has(recipe.id)||catalog125.has(recipe.id))?catalogRecipe(recipe.id):null;
   // An exact match with an already validated immutable recipe needs no repeated parsing.
   // Edited recipes and invalid favorite flags still follow full validation.
   const exact=base&&(recipe.favorite===undefined||typeof recipe.favorite==='boolean')&&recipeSignature(recipe)===catalogSignatures.get(recipe.id);
   const normalized=exact?recipe:validateRecipe(recipe,true);
   if(base&&(exact||recipeSignature(normalized)===catalogSignatures.get(recipe.id))){
-   const version=catalog101.has(recipe.id)?CATALOG_VERSION:catalog106.has(recipe.id)?CATALOG_106:catalog109.has(recipe.id)?CATALOG_109:catalog110.has(recipe.id)?CATALOG_110:catalog111.has(recipe.id)?CATALOG_111:catalog113.has(recipe.id)?CATALOG_113:catalog114.has(recipe.id)?CATALOG_114:catalog115.has(recipe.id)?CATALOG_115:catalog116.has(recipe.id)?CATALOG_116:catalog119.has(recipe.id)?CATALOG_119:CATALOG_120;
+   const version=catalog101.has(recipe.id)?CATALOG_VERSION:catalog106.has(recipe.id)?CATALOG_106:catalog109.has(recipe.id)?CATALOG_109:catalog110.has(recipe.id)?CATALOG_110:catalog111.has(recipe.id)?CATALOG_111:catalog113.has(recipe.id)?CATALOG_113:catalog114.has(recipe.id)?CATALOG_114:catalog115.has(recipe.id)?CATALOG_115:catalog116.has(recipe.id)?CATALOG_116:catalog119.has(recipe.id)?CATALOG_119:catalog120.has(recipe.id)?CATALOG_120:CATALOG_125;
    if(!block||block.catalog!==version){block={catalog:version,ids:[],favorites:{}};recipes.push(block);}
    block.ids.push(recipe.id);if(Object.hasOwn(recipe,'favorite'))block.favorites[recipe.id]=recipe.favorite;
   }else{block=null;recipes.push(compactCustomRecipe(recipe));}
@@ -365,20 +513,42 @@ function selectedIds(a){if(!Array.isArray(a.ids)||!a.ids.length||a.ids.length>LI
 
 export function addShoppingRequirements(state,requirements,actionId,expectedRecipes=[],weekStart=null){
 
- if(!Array.isArray(requirements)||requirements.length>LIMITS.rows||!Array.isArray(expectedRecipes)||expectedRecipes.length>20)fail('Ingredienti della spesa non validi.');
+ if(!Array.isArray(requirements)||requirements.length>LIMITS.rows||!Array.isArray(expectedRecipes)||expectedRecipes.length>40)fail('Ingredienti della spesa non validi.');
 
  for(const r of expectedRecipes)if(!state.recipes.some(x=>x.id===r.id&&JSON.stringify(x.ingredients)===JSON.stringify(r.ingredients)&&x.name===r.name))fail('Una ricetta è cambiata. Riapri la settimana prima di aggiungere la spesa.');
 
  const refs=new Map(),needs=new Map();for(const p of [...state.pantry,...state.shopping]){if(!refs.has(p.name))refs.set(p.name,new Set());refs.get(p.name).add(p.unit);}for(const r of state.recipes)for(const i of r.ingredients){if(!refs.has(i.ingredient))refs.set(i.ingredient,new Set());refs.get(i.ingredient).add(i.unit);}
 
- for(const raw of requirements){const i={name:name(raw.name),category:'Alimentari',qty:number(raw.qty),unit:raw.unit};validProduct(i,true);if(raw.category!=='Alimentari')fail('Gli ingredienti devono essere alimentari.');const units=refs.get(i.name);if(units&&(units.size!==1||!units.has(i.unit)))fail(i.name+': correggi l’unità nella ricetta.');if([...state.pantry,...state.shopping].some(p=>p.name===i.name&&p.category==='Altro'))fail(i.name+' appartiene ad Altro: correggi la categoria.');if(needs.has(i.name)&&needs.get(i.name).unit!==i.unit)fail('Usa una sola unità per '+i.name);needs.set(i.name,{...i,qty:round((needs.get(i.name)?.qty||0)+i.qty)});}
-
- let n=0;for(const i of needs.values()){validProduct(i,true);const available=state.pantry.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),listed=state.shopping.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((n,p)=>n+p.qty,0),missing=Math.max(0,round(i.qty-available)),target=shoppingTarget(missing,i.unit);if(target<=listed)continue;const existing=state.shopping.find(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari');if(existing){existing.qty=target;state.shopping=state.shopping.filter(product=>product.id===existing.id||product.name!==i.name||product.unit!==i.unit||product.category!=='Alimentari');}else state.shopping.push({...i,id:identifier(String(actionId).slice(0,115)+'-shop-'+n),qty:round(target-listed)});n++;}
- if(weekStart!==null){
-  validatePlanStarts([weekStart]);
-  for(const product of state.shopping)if(product.category==='Alimentari'&&needs.has(product.name))product.planStarts=[...new Set([...(product.planStarts||[]),weekStart])].slice(-52);
+ for(const raw of requirements){
+  const i={name:name(raw.name),category:'Alimentari',qty:number(raw.qty),unit:raw.unit};validProduct(i,true);if(raw.category!=='Alimentari')fail('Gli ingredienti devono essere alimentari.');
+  const spec=everydayStapleSpec(i.name);
+  if(spec){
+   if(i.unit!==spec.recipeUnit&&i.unit!=='pz')fail(i.name+': correggi l’unità nella ricetta.');
+  }else{
+   const units=refs.get(i.name);if(units&&(units.size!==1||!units.has(i.unit)))fail(i.name+': correggi l’unità nella ricetta.');
+  }
+  if([...state.pantry,...state.shopping].some(p=>p.name===i.name&&p.category==='Altro'))fail(i.name+' appartiene ad Altro: correggi la categoria.');
+  const key=i.name+'|'+i.unit;
+  needs.set(key,{...i,qty:round((needs.get(key)?.qty||0)+i.qty)});
  }
 
+ const byProduct=new Map();
+ for(const i of needs.values()){
+  const spec=everydayStapleSpec(i.name);
+  const available=pantryItemAvailable(state,i.name,i.unit);
+  const missing=Math.max(0,round(i.qty-available));
+  const targetUnit=spec?'pz':i.unit;
+  const target=spec?(missing>0?(i.unit==='pz'?Math.ceil(missing):Math.max(1,Math.ceil(round(missing*1e6)/round(spec.packSize*1e6)))):0):shoppingTarget(missing,i.unit);
+  const pKey=i.name+'|'+targetUnit;
+  byProduct.set(pKey,{name:i.name,category:'Alimentari',unit:targetUnit,target:Math.max(byProduct.get(pKey)?.target||0,target)});
+ }
+
+ let n=0;for(const i of byProduct.values()){if(i.target<=0)continue;const listed=state.shopping.filter(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari').reduce((sum,p)=>sum+p.qty,0);if(i.target<=listed)continue;const existing=state.shopping.find(p=>p.name===i.name&&p.unit===i.unit&&p.category==='Alimentari');if(existing){existing.qty=i.target;state.shopping=state.shopping.filter(product=>product.id===existing.id||product.name!==i.name||product.unit!==i.unit||product.category!=='Alimentari');}else state.shopping.push({id:identifier(String(actionId).slice(0,115)+'-shop-'+n),name:i.name,category:'Alimentari',unit:i.unit,qty:round(i.target-listed)});n++;}
+ if(weekStart!==null){
+  validatePlanStarts([weekStart]);
+  const neededNames=new Set([...byProduct.values()].map(i=>i.name));
+  for(const product of state.shopping)if(product.category==='Alimentari'&&neededNames.has(product.name))product.planStarts=[...new Set([...(product.planStarts||[]),weekStart])].slice(-52);
+ }
 
 }
 
@@ -395,7 +565,8 @@ const appliedOperations = ids => {
 
 function saveRecipe(state,recipe,fallbackId,expected){
  if(!record(recipe))fail('Ricetta non valida.');
- const r=validateRecipe({...recipe,id:recipe.id||fallbackId},false);
+ const allowMissingSource=Boolean(String(recipe.instructions||'').trim())||catalog125.has(recipe.id);
+ const r=validateRecipe({...recipe,id:recipe.id||fallbackId},allowMissingSource);
  if(expected!==undefined&&JSON.stringify(state.recipes.find(x=>x.id===r.id))!==JSON.stringify(expected))fail('La ricetta è stata modificata o eliminata da un altro dispositivo. Riaprila prima di salvare.');
  if(state.recipes.some(x=>x.id!==r.id&&x.name===r.name))fail('Esiste già una ricetta con questo nome.');
  for(const i of r.ingredients){
@@ -456,7 +627,7 @@ export function applyAction(original,action){
 
  switch(action.type){
 
- case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.requirements!==undefined){addShoppingRequirements(s,a.requirements,action.id,a.expectedRecipes||[],a.weekStart??null);break;}if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){validProduct({...existing,qty:item.target},true);existing.qty=item.target;s.shopping=s.shopping.filter(product=>product.id===existing.id||product.name!==item.name||product.unit!==item.unit||product.category!=='Alimentari');}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
+ case 'addPantry':case 'addShopping':{if(action.type==='addShopping'&&a.requirements!==undefined){addShoppingRequirements(s,a.requirements,action.id,a.expectedRecipes||[],a.weekStart??null);break;}if(action.type==='addShopping'&&a.recipeId!==undefined){const recipe=s.recipes.find(r=>r.id===String(a.recipeId));if(!recipe)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(recipe)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata. Riaprila prima di aggiungere gli ingredienti.');const plan=recipeShoppingPlan(s,recipe);for(const [index,item]of plan.entries()){lockUnit(s,item.name,item.unit);if([...s.pantry,...s.shopping].some(p=>p.name===item.name&&p.category==='Altro'))fail(`${item.name} appartiene ad Altro: correggi la categoria prima di continuare.`);const existing=s.shopping.find(p=>p.name===item.name&&p.unit===item.unit&&p.category==='Alimentari');if(existing){validProduct({...existing,qty:item.target},true);existing.qty=item.target;s.shopping=s.shopping.filter(product=>product.id===existing.id||product.name!==item.name||product.unit!==item.unit||product.category!=='Alimentari');}else s.shopping.push({id:identifier(String(action.id).slice(0,120)+'-'+index),name:item.name,qty:item.qty,unit:item.unit,category:'Alimentari'});}break;}if(action.type==='addPantry'&&a.restoreAmount===true&&isEverydayStaple(a.name)&&a.unit!=='pz'){const key=name(a.name),spec=everydayStapleSpec(key),amount=number(a.qty);validProduct({name:key,category:'Alimentari',qty:amount,unit:a.unit},true);if(a.unit!==spec.recipeUnit)fail(key+' usa unità non compatibile.');let existing=s.pantry.find(x=>x.name===key&&x.category==='Alimentari');if(!existing){existing={id:identifier(action.id),name:key,category:'Alimentari',qty:0,unit:'pz'};s.pantry.push(existing);}restoreStapleToPantry(existing,amount);lockUnit(s,key,'pz');break;}const p={id:identifier(action.id),name:name(a.name),category:a.category,qty:number(a.qty),unit:a.unit};if(isEverydayStaple(p.name)&&p.category==='Alimentari')p.unit='pz';validProduct(p,true);if(p.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===p.name)))fail(`${p.name} è un ingrediente di una ricetta: scegli Alimentari.`);lockUnit(s,p.name,p.unit);if(action.type==='addPantry')upsert(p);else s.shopping.push(p);break;}
 
  case 'quantity':{if(a.undo!==undefined){const patch=a.undo;if(!Array.isArray(patch)||!patch.length||patch.length>2)fail('Ripristino non valido.');const seen=new Set();for(const item of patch){if(!record(item)||!['pantry','shopping'].includes(item.kind))fail('Ripristino non valido.');identifier(item.id);const key=item.kind+':'+item.id;if(seen.has(key))fail('Ripristino duplicato.');seen.add(key);for(const value of [item.before,item.after])if(value!==null){validProduct(value,item.kind==='shopping');if(value.id!==item.id||name(value.name)!==value.name)fail('Ripristino non valido.');}if(item.before===null&&item.after===null)fail('Ripristino vuoto.');}
 
@@ -466,9 +637,9 @@ export function applyAction(original,action){
 
  for(const item of patch)if(item.before){lockUnit(s,item.before.name,item.before.unit);if(item.before.category==='Altro'&&s.recipes.some(r=>r.ingredients.some(i=>i.ingredient===item.before.name)))fail('Questo prodotto è ora usato in una ricetta.');}
 
- validateState(s);break;}if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;if(a.kind==='pantry')consumeRecentBuys(p);break;}
+ validateState(s);break;}if(!['pantry','shopping'].includes(a.kind))fail('Elenco dei prodotti non valido.');const p=find(a.kind,a.id);if(!p)break;if(a.expected!==undefined&&number(a.expected)!==p.qty)fail('La quantità è stata modificata da un altro dispositivo. Controlla il valore aggiornato e riprova.');const qty=a.delta!==undefined?Math.max(a.kind==='shopping'?(p.unit==='pz'?1:.01):0,round(p.qty+number(a.delta))):number(a.qty);validProduct({...p,qty},a.kind==='shopping');p.qty=qty;if(a.kind==='pantry'){if(qty===0)delete p.consumed;consumeRecentBuys(p);}break;}
 
- case 'exhaust':{if(a.ids!==undefined){const ids=selectedIds(a);for(const p of s.pantry)if(ids.has(p.id)){p.qty=0;consumeRecentBuys(p);}break;}const p=find('pantry',a.id);if(p){p.qty=0;consumeRecentBuys(p);}break;}
+ case 'exhaust':{if(a.ids!==undefined){const ids=selectedIds(a);for(const p of s.pantry)if(ids.has(p.id)){p.qty=0;delete p.consumed;consumeRecentBuys(p);}break;}const p=find('pantry',a.id);if(p){p.qty=0;delete p.consumed;consumeRecentBuys(p);}break;}
 
  case 'deletePantry':{if(a.ids!==undefined){const ids=selectedIds(a);s.pantry=s.pantry.filter(p=>!ids.has(p.id)||p.qty>0);break;}const p=find('pantry',a.id);if(p&&p.qty<=0)s.pantry=s.pantry.filter(x=>x.id!==p.id);break;}
 
@@ -514,11 +685,11 @@ else{
     if(a.catalogTargetComplete!==5000||action.id!=='release-20261122-catalogue-5000-complete'||a.recipes.length)fail('Completamento del ricettario non valido.');
     if(s.recipes.filter(recipeHasSource).length<5000)fail('Il ricettario è cambiato durante l’aggiornamento. Ricarica per completarlo.');
    }
-   if(a.catalogTarget!==undefined&&(a.catalogTarget!==5000||!/^release-20261122-verified-sources-120-\d+$/.test(action.id)))fail('Obiettivo del ricettario non valido.');
+   if(a.catalogTarget!==undefined&&(![5000,5500].includes(a.catalogTarget)||!/^release-(?:20261122-verified-sources-120|20261126-curated-125)-\d+$/.test(action.id)))fail('Obiettivo del ricettario non valido.');
    if(a.recipes.length>40)fail('Troppe ricette in un aggiornamento.');
    let targetCount=a.catalogTarget===5000?s.recipes.filter(recipeHasSource).length:0;
    const batchUnits=new Map(),household=new Set();
-   if(a.catalogTarget===5000){
+   if(a.catalogTarget===5000||a.catalogTarget===5500){
     const add=(name,unit)=>{if(!batchUnits.has(name))batchUnits.set(name,new Set());batchUnits.get(name).add(unit);};
     for(const item of [...s.pantry,...s.shopping]){add(item.name,item.unit);if(item.category==='Altro')household.add(item.name);}
     for(const recipe of s.recipes)for(const item of recipe.ingredients)add(item.ingredient,item.unit);
@@ -527,13 +698,19 @@ else{
     if(a.catalogTarget===5000&&targetCount>=5000)break;
     const recipe=validateRecipe(raw);
     if(a.catalogTarget===5000&&(!catalog120.has(recipe.id)||recipeSignature(recipe)!==recipeSignature(catalogRecipe(recipe.id))))fail('Ricetta non appartenente al catalogo verificato.');
+    if(a.catalogTarget===5500&&(!catalog125.has(recipe.id)||recipeSignature(recipe)!==recipeSignature(catalogRecipe(recipe.id))))fail('Ricetta non appartenente al catalogo curato.');
     if(s.recipes.some(x=>x.name===recipe.name))continue;
     if(s.recipes.some(x=>x.id===recipe.id))fail('Identificativo di ricetta già in uso.');
-    if(a.catalogTarget===5000){
+    if(a.catalogTarget===5000||a.catalogTarget===5500){
      // New canonical IDs only: index the existing references once per batch,
      // checking every incoming unit and every conflict before appending.
      for(const item of recipe.ingredients){
       if(household.has(item.ingredient))fail(item.ingredient+' appartiene ad Altro: nelle ricette usa prodotti alimentari.');
+      const spec=everydayStapleSpec(item.ingredient);
+      if(spec){
+       if(item.unit!==spec.recipeUnit&&item.unit!=='pz')fail(item.ingredient+': unità non valida nella ricetta.');
+       continue;
+      }
       const refs=batchUnits.get(item.ingredient);
       if(refs?.size>1)fail(item.ingredient+' ha unità diverse negli elementi salvati. Correggi le ricette.');
       if(refs?.size&&!refs.has(item.unit))fail(item.ingredient+': unità diversa da dispensa, lista o ricette.');
@@ -555,7 +732,7 @@ else{
 
  case 'deleteRecipe':if(a.expected!==undefined&&JSON.stringify(s.recipes.find(r=>r.id===String(a.id)))!==JSON.stringify(a.expected))fail('La ricetta è cambiata. Riapri prima di eliminarla.');s.recipes=s.recipes.filter(r=>r.id!==String(a.id));delete s.counts[String(a.id)];break;
 
- case 'cook':{const r=s.recipes.find(r=>r.id===String(a.id));if(!r)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(r)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata su un altro dispositivo. Riapri la preparazione prima di confermare.');const status=preparationStatus(s,r,a.people??1,a.ingredients??null);if(!status.possible)fail('Le quantità disponibili non bastano: '+status.missing.map(i=>i.ingredient).join(', ')+'.');for(const i of status.ingredients){if(i.qty===0)continue;const p=s.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&p.unit===i.unit);p.qty=round(Math.max(0,p.qty-i.qty));consumeRecentBuys(p);}if((own(s.counts,r.id)||0)>=LIMITS.quantity)fail('Conteggio delle preparazioni troppo elevato.');s.counts[r.id]=(own(s.counts,r.id)||0)+1;break;}
+ case 'cook':{const r=s.recipes.find(r=>r.id===String(a.id));if(!r)fail('Questa ricetta non è più disponibile.');if(a.expectedRecipe!==undefined&&JSON.stringify(r)!==JSON.stringify(a.expectedRecipe))fail('La ricetta è cambiata su un altro dispositivo. Riapri la preparazione prima di confermare.');const status=preparationStatus(s,r,a.people??1,a.ingredients??null);if(!status.possible)fail('Le quantità disponibili non bastano: '+status.missing.map(i=>i.ingredient).join(', ')+'.');for(const i of status.ingredients){if(i.qty===0)continue;const spec=everydayStapleSpec(i.ingredient);const p=s.pantry.find(p=>p.category==='Alimentari'&&p.name===i.ingredient&&(p.unit===i.unit||spec));if(spec&&i.unit!=='pz')consumeStapleFromPantry(p,i.qty);else p.qty=round(Math.max(0,p.qty-i.qty));consumeRecentBuys(p);}if((own(s.counts,r.id)||0)>=LIMITS.quantity)fail('Conteggio delle preparazioni troppo elevato.');s.counts[r.id]=(own(s.counts,r.id)||0)+1;break;}
 
  case 'import':{const imported=validateImport(a.state);const applied=s.applied;Object.assign(s,imported);s.applied=applied;break;}
 
