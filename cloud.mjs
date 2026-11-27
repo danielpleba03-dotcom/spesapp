@@ -4,7 +4,7 @@ import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateFor
 import {createJournal} from './journal.mjs?v=121';
 
 import {firebaseConfig} from './firebase-config.mjs?v=120';
-import {ensureCatalogs} from './catalog-runtime.mjs?v=132';
+import {ensureCatalogs} from './catalog-runtime.mjs?v=135';
 import {ensureCatalogs} from './catalog-runtime.mjs?v=132';
 
 export function cloudMessage(error){
