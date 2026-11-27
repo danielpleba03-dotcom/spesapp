@@ -1,10 +1,5 @@
-import {recipes120} from './verified-recipes-120.mjs?v=120';
-import {recipes119} from './verified-recipes-119.mjs?v=120';
 import {renderCatalogViewport,disposeCatalogViewport} from './catalog-viewport.mjs?v=120';
-import {recipes116} from './verified-recipes-116.mjs?v=120';
-import {recipes115} from './verified-recipes-115.mjs?v=120';
-import {recipes114} from './verified-recipes-114.mjs?v=120';
-import {recipes113} from './verified-recipes-113.mjs?v=120';
+import {catalog120,catalog119,catalog116,catalog115,catalog114,catalog113} from './catalog-runtime.mjs?v=132';
 import {recipeHasSource} from './domain.mjs?v=121';
 import {recipeCookingMethods,toolNames} from './cooking-methods.mjs?v=121';
 import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=125';
@@ -31,6 +26,7 @@ import {reconcile,readPreference,writePreference} from './ui.mjs?v=120';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
+const releaseRecipes=()=>[...catalog113.values(),...catalog114.values(),...catalog115.values(),...catalog116.values(),...catalog119.values(),...catalog120.values()];
 const releaseRecipes=()=>[...catalog113.values(),...catalog114.values(),...catalog115.values(),...catalog116.values(),...catalog119.values(),...catalog120.values()];
 
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
@@ -554,7 +550,7 @@ function onStoreChange(next,nextMeta){
 }
 
 try{
- store=await createStore(()=>[...recipes113,...recipes114,...recipes115,...recipes116,...recipes119,...recipes120].filter(r=>!retiredRecipeIds117.has(r.id)).slice(0,5000),onStoreChange,error=>notify(error.message,true));
+ store=await createStore(()=>releaseRecipes().filter(r=>!retiredRecipeIds117.has(r.id)).slice(0,5000),onStoreChange,error=>notify(error.message,true));
  scheduleRecipeUpgrade();
  if(meta.ready&&(page==='recipes'||hasWeekRecovery()))void ensureWeekUI().catch(()=>{});
 }catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';window.dispatchEvent(new Event('spesapp:ready'));}
