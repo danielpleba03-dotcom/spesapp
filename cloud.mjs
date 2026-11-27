@@ -4,6 +4,7 @@ import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateFor
 import {createJournal} from './journal.mjs?v=121';
 
 import {firebaseConfig} from './firebase-config.mjs?v=120';
+import {ensureCatalogs} from './catalog-runtime.mjs?v=132';
 
 export function cloudMessage(error){
 
@@ -173,7 +174,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
   const ref=fire.doc(db,'users',next.uid,'data','main');
 
-  unsub=fire.onSnapshot(ref,{includeMetadataChanges:true},snapshot=>{
+  unsub=fire.onSnapshot(ref,{includeMetadataChanges:true},async snapshot=>{
 
    if(s!==session)return;s.snapshotVersion++;
 
@@ -183,7 +184,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
      // Firestore may emit cached and server-confirmed metadata for identical data.
      // Keep validating every changed document; reuse only an already accepted payload.
      if(s.ready&&s.snapshotDataSignature===signature){s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);return;}
-     const incoming=validateState(raw),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1||!incoming.applied.includes(known.at(-1))&&incoming.applied.some(id=>known.includes(id))))return;s.remote=incoming;s.snapshotDataSignature=signature;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
+     await ensureCatalogs();if(s!==session)return;const incoming=validateState(raw),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1||!incoming.applied.includes(known.at(-1))&&incoming.applied.some(id=>known.includes(id))))return;s.remote=incoming;s.snapshotDataSignature=signature;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
 
     catch{ s.ready=false;s.error='I dati dell’archivio non sono leggibili. Non sono stati modificati: contatta l’assistenza.';emit();}
 
