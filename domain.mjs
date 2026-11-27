@@ -1,15 +1,4 @@
-import {catalog125,CATALOG_125} from './curated-recipes-125.mjs?v=125';
-import {catalog120,CATALOG_120,verifiedSourceURLs120} from './verified-recipes-120.mjs?v=120';
-import {catalog119,CATALOG_119,verifiedSourceURLs119} from './verified-recipes-119.mjs?v=120';
-import {catalog116,CATALOG_116,verifiedSourceURLs116} from './verified-recipes-116.mjs?v=120';
-import {catalog115,CATALOG_115,verifiedSourceURLs115} from './verified-recipes-115.mjs?v=120';
-import {catalog114,CATALOG_114,verifiedSourceURLs114} from './verified-recipes-114.mjs?v=120';
-import {recipes113,catalog113,CATALOG_113,verifiedSourceURLs} from './verified-recipes-113.mjs?v=120';
-import {catalog111,CATALOG_111} from './ricette-111.mjs?v=120';
-import {catalog110,CATALOG_110} from './ricette-110.mjs?v=120';
-import {catalog109,CATALOG_109} from './ricette-109.mjs?v=120';
-import {catalog106,CATALOG_106} from './ricette-semplici-106.mjs?v=120';
-import {catalog101,CATALOG_VERSION} from './recipe-catalog-101.mjs?v=120';
+import {catalog125,CATALOG_125,catalog120,CATALOG_120,verifiedSourceURLs120,catalog119,CATALOG_119,verifiedSourceURLs119,catalog116,CATALOG_116,verifiedSourceURLs116,catalog115,CATALOG_115,verifiedSourceURLs115,catalog114,CATALOG_114,verifiedSourceURLs114,catalog113,CATALOG_113,verifiedSourceURLs,catalog111,CATALOG_111,catalog110,CATALOG_110,catalog109,CATALOG_109,catalog106,CATALOG_106,catalog101,CATALOG_VERSION} from './catalog-runtime.mjs?v=132';
 export function recipeHasSource(recipe){if(catalog125.has(recipe?.id))return true;if(!recipe?.source_url)return false;const known=catalog101.has(recipe.id)||catalog106.has(recipe.id)||catalog109.has(recipe.id)||catalog110.has(recipe.id)||catalog111.has(recipe.id)||catalog113.has(recipe.id)||catalog114.has(recipe.id)||catalog115.has(recipe.id)||catalog116.has(recipe.id)||catalog119.has(recipe.id)||catalog120.has(recipe.id);return verifiedSourceURLs.has(recipe.source_url)||verifiedSourceURLs114.has(recipe.source_url)||verifiedSourceURLs115.has(recipe.source_url)||verifiedSourceURLs116.has(recipe.source_url)||verifiedSourceURLs119.has(recipe.source_url)||verifiedSourceURLs120.has(recipe.source_url)||(!known&&/^https:\/\//.test(recipe.source_url));}
 export const mealTypes=['Primi','Secondi','Contorni','Dolci'];
 // Kept for backwards compatibility with the existing recipe catalogue filter.
