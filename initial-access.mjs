@@ -1,4 +1,4 @@
-const APP_CONFIG = {"name": "Spesapp", "key": "spesapp:initial-access:v1", "digest": "7a5309f6c62da7fe49b499290ac1f47b3ac141312b7da06d2039e598e0affca3", "entry": "./bootstrap.mjs?v=131", "numeric": true};
+const APP_CONFIG = {"name": "Spesapp", "key": "spesapp:initial-access:v1", "digest": "7a5309f6c62da7fe49b499290ac1f47b3ac141312b7da06d2039e598e0affca3", "entry": "./bootstrap.mjs?v=132", "numeric": true};
 
 const { name, key, digest, entry, numeric } = APP_CONFIG;
 const form = document.querySelector('#initial-access form');
@@ -76,7 +76,7 @@ if (unlocked) {
   panel.dataset.mode = 'loading';
   form.hidden = true;
   feedback.textContent = 'Apertura in corso…';
-  void openApp();
+  void runtimePrepared.then(openApp);
 } else {
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -111,6 +111,7 @@ if (unlocked) {
     panel.dataset.mode = 'loading';
     form.hidden = true;
     feedback.textContent = 'Apertura in corso…';
+    await runtimePrepared;
     await openApp();
   });
 }
