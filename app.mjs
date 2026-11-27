@@ -31,6 +31,7 @@ import {reconcile,readPreference,writePreference} from './ui.mjs?v=120';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
+const releaseRecipes=()=>[...catalog113.values(),...catalog114.values(),...catalog115.values(),...catalog116.values(),...catalog119.values(),...catalog120.values()];
 
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
 
@@ -285,7 +286,7 @@ function updatePreparationAvailability(){
 }
 
 
-function catalogMissing(){const room=Math.max(0,LIMITS.recipes-state.recipes.length);if(!room)return [];const lookup=createUnitLookup(state);return [...recipes113,...recipes114,...recipes115,...recipes116,...recipes119,...recipes120].filter(r=>!retiredRecipeIds117.has(r.id)&&!state.recipes.some(x=>x.id===r.id||x.name===r.name||x.source_url&&x.source_url.replace(/\/$/,'')===r.source_url.replace(/\/$/,''))&&!recipeStatus(state,r,lookup).unitConflicts.length).slice(0,room);}
+function catalogMissing(){const room=Math.max(0,LIMITS.recipes-state.recipes.length);if(!room)return [];const lookup=createUnitLookup(state);return releaseRecipes().filter(r=>!retiredRecipeIds117.has(r.id)&&!state.recipes.some(x=>x.id===r.id||x.name===r.name||x.source_url&&x.source_url.replace(/\/$/,'')===r.source_url.replace(/\/$/,''))&&!recipeStatus(state,r,lookup).unitConflicts.length).slice(0,room);}
 
 function showCatalogReview(){const missing=catalogMissing();$('#editor').innerHTML=editorHead('Aggiorna ricettario')+`<p>Ricette presenti: ${state.recipes.length} / ${LIMITS.recipes}.</p><p>${missing.length} ricette con dosi per una persona e fonte esterna verificata.</p><ul class="catalog-review">${missing.map(r=>`<li>${esc(r.name)}</li>`).join('')}</ul><button class="primary" data-command="catalog-add" ${missing.length?'':'disabled'}>Aggiungi ${missing.length} ricette</button>`;openDialog();}
 
@@ -467,7 +468,7 @@ function ensureReleaseRecipes(){
    legacySourcesRequested=true;store.dispatch({id:legacy,type:'saveRecipe',at:Date.now(),payload:{verifiedCatalog113:true}});return;
   }
   const lookup=createUnitLookup(state),names=new Set(state.recipes.map(r=>r.name)),ids=new Set(state.recipes.map(r=>r.id)),urls=new Set(state.recipes.map(r=>r.source_url));
-  for(const bank of [{recipes:recipes114,date:'20261117',version:114},{recipes:recipes115,date:'20261118',version:115},{recipes:recipes116,date:'20261119',version:116},{recipes:recipes119,date:'20261122',version:119},{recipes:recipes120,date:'20261122',version:120}]){
+  for(const bank of [{recipes:[...catalog114.values()],date:'20261117',version:114},{recipes:[...catalog115.values()],date:'20261118',version:115},{recipes:[...catalog116.values()],date:'20261119',version:116},{recipes:[...catalog119.values()],date:'20261122',version:119},{recipes:[...catalog120.values()],date:'20261122',version:120}]){
    const targetReceipt='release-20261122-catalogue-5000-complete',targetCount=state.recipes.filter(recipeHasSource).length;
    if(state.applied.includes(targetReceipt))continue;
    for(let i=0;i<bank.recipes.length;i+=40){
