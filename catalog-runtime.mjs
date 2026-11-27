@@ -9,18 +9,18 @@ const pause=()=>new Promise(resolve=>setTimeout(resolve,0));
 export function ensureCatalogs(){
  if(loading)return loading;
  loading=(async()=>{
-  const a=await import('./recipe-catalog-101.mjs?v=120');copy(catalog101,a.catalog101);await pause();
-  const b=await import('./ricette-semplici-106.mjs?v=120');copy(catalog106,b.catalog106);await pause();
-  const c=await import('./ricette-109.mjs?v=120');copy(catalog109,c.catalog109);await pause();
-  const d=await import('./ricette-110.mjs?v=120');copy(catalog110,d.catalog110);await pause();
-  const e=await import('./ricette-111.mjs?v=120');copy(catalog111,e.catalog111);await pause();
-  const f=await import('./verified-recipes-113.mjs?v=120');copy(catalog113,f.catalog113);urls(verifiedSourceURLs,f.verifiedSourceURLs);await pause();
-  const g=await import('./verified-recipes-114.mjs?v=120');copy(catalog114,g.catalog114);urls(verifiedSourceURLs114,g.verifiedSourceURLs114);await pause();
-  const h=await import('./verified-recipes-115.mjs?v=120');copy(catalog115,h.catalog115);urls(verifiedSourceURLs115,h.verifiedSourceURLs115);await pause();
-  const i=await import('./verified-recipes-116.mjs?v=120');copy(catalog116,i.catalog116);urls(verifiedSourceURLs116,i.verifiedSourceURLs116);await pause();
-  const j=await import('./verified-recipes-119.mjs?v=120');copy(catalog119,j.catalog119);urls(verifiedSourceURLs119,j.verifiedSourceURLs119);await pause();
-  const k=await import('./verified-recipes-120.mjs?v=120');copy(catalog120,k.catalog120);urls(verifiedSourceURLs120,k.verifiedSourceURLs120);await pause();
-  const l=await import('./curated-recipes-125.mjs?v=125');copy(catalog125,l.catalog125);
+  const a=await import('./recipe-catalog-101.mjs?v=136');copy(catalog101,a.catalog101);await pause();
+  const b=await import('./ricette-semplici-106.mjs?v=136');copy(catalog106,b.catalog106);await pause();
+  const c=await import('./ricette-109.mjs?v=136');copy(catalog109,c.catalog109);await pause();
+  const d=await import('./ricette-110.mjs?v=136');copy(catalog110,d.catalog110);await pause();
+  const e=await import('./ricette-111.mjs?v=136');copy(catalog111,e.catalog111);await pause();
+  const f=await import('./verified-recipes-113.mjs?v=136');copy(catalog113,f.catalog113);urls(verifiedSourceURLs,f.verifiedSourceURLs);await pause();
+  const g=await import('./verified-recipes-114.mjs?v=136');copy(catalog114,g.catalog114);urls(verifiedSourceURLs114,g.verifiedSourceURLs114);await pause();
+  const h=await import('./verified-recipes-115.mjs?v=136');copy(catalog115,h.catalog115);urls(verifiedSourceURLs115,h.verifiedSourceURLs115);await pause();
+  const i=await import('./verified-recipes-116.mjs?v=136');copy(catalog116,i.catalog116);urls(verifiedSourceURLs116,i.verifiedSourceURLs116);await pause();
+  const j=await import('./verified-recipes-119.mjs?v=136');copy(catalog119,j.catalog119);urls(verifiedSourceURLs119,j.verifiedSourceURLs119);await pause();
+  const k=await import('./verified-recipes-120.mjs?v=136');copy(catalog120,k.catalog120);urls(verifiedSourceURLs120,k.verifiedSourceURLs120);await pause();
+  const l=await import('./curated-recipes-125.mjs?v=136');copy(catalog125,l.catalog125);
  })();
  return loading;
 }
