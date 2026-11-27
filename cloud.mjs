@@ -1,7 +1,7 @@
-import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=121';
-import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=121';
+import {emptyWeeks,validateWeeks,recordPreparation,preparationHistory} from './week-domain.mjs?v=136';
+import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateForStorage} from './domain.mjs?v=136';
 
-import {createJournal} from './journal.mjs?v=121';
+import {createJournal} from './journal.mjs?v=136';
 
 import {firebaseConfig} from './firebase-config.mjs?v=120';
 import {ensureCatalogs} from './catalog-runtime.mjs?v=136';
