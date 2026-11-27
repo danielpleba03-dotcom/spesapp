@@ -9,6 +9,16 @@ import {calorieBadge} from './recipe-calories.mjs?v=121';
 
 // The weekly UI and its cloud subscription are loaded only when needed.
 
+const fallbackTools={fornelli:'Fornelli',forno:'Forno',padella:'Padella',friggitrice:'Friggitrice ad aria',microonde:'Microonde',frullatore:'Frullatore'};
+let toolNames=fallbackTools;
+let recipeCookingMethods=recipe=>[{id:'base',label:'Preparazione',tools:Array.isArray(recipe?.tools)?recipe.tools:[],instructions:recipe?.instructions||'Segui il procedimento indicato nel link della ricetta.'}];
+let defaultCookingPreferences=()=>({recipeInfo:{}});
+let recipeEffort=(recipe,preferences)=>{const info=preferences?.recipeInfo?.[recipe?.id]||{};return {minutes:info.minutes??recipe?.activeMinutes??null,difficulty:info.difficulty||recipe?.difficulty||'Facile'};};
+let updateCookingPreferences=(preferences,{recipeId,info})=>{preferences.recipeInfo??={};preferences.recipeInfo[recipeId]=info;return preferences;};
+let calorieBadge=recipe=>recipe?.kcal!==undefined&&recipe?.kcal!==null?'<span class="calorie-badge">≈ '+esc(Math.round(recipe.kcal))+' kcal</span>':'';
+let effortBadge=(recipe,preferences)=>{const effort=recipeEffort(recipe,preferences);return '<span class="effort-badge">'+(effort.minutes?'≈ '+esc(effort.minutes)+' min attivi · ':'')+esc(effort.difficulty)+'</span>';};
+let favoriteButton=(recipe,compact=false)=>'<button type="button" class="favorite-button" data-command="favorite-recipe" data-id="'+esc(recipe.id)+'" data-compact="'+(compact?'1':'0')+'" aria-pressed="'+Boolean(recipe.favorite)+'" aria-label="'+(recipe.favorite?'Rimuovi dai preferiti':'Aggiungi ai preferiti')+'">'+(compact?(recipe.favorite?'★':'☆'):(recipe.favorite?'★ Preferita':'☆ Preferita'))+'</button>';
+
 import {enhanceSuggestions} from './suggestions.mjs?v=120';
 
 enhanceSuggestions();
@@ -16,8 +26,13 @@ enhanceSuggestions();
 import {enhanceSelects} from './select-menu.mjs?v=120';
 
 enhanceSelects();
+// Do not load large method datasets until the opening frame is visible.
+const hydrateCookingPresentation=()=>Promise.all([
+ import('./cooking-methods.mjs?v=121'),import('./cooking-domain.mjs?v=125'),import('./cooking-ui.mjs?v=121'),import('./recipe-calories.mjs?v=121')
+]).then(([methods,domain,ui,calories])=>{recipeCookingMethods=methods.recipeCookingMethods;toolNames=methods.toolNames;defaultCookingPreferences=domain.defaultCookingPreferences;recipeEffort=domain.recipeEffort;updateCookingPreferences=domain.updateCookingPreferences;effortBadge=ui.effortBadge;favoriteButton=ui.favoriteButton;calorieBadge=calories.calorieBadge;if(state&&meta.ready)renderList();}).catch(()=>{});
+setTimeout(()=>void hydrateCookingPresentation(),1500);
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=129';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=136';
 
 import {createStore} from './cloud.mjs?v=136';
 
