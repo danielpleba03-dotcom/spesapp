@@ -4,8 +4,7 @@ import {emptyState,applyAction,validateState,DomainError,assertCapacity,stateFor
 import {createJournal} from './journal.mjs?v=121';
 
 import {firebaseConfig} from './firebase-config.mjs?v=120';
-import {ensureCatalogs} from './catalog-runtime.mjs?v=135';
-import {ensureCatalogs} from './catalog-runtime.mjs?v=132';
+import {ensureCatalogs} from './catalog-runtime.mjs?v=136';
 
 export function cloudMessage(error){
 
@@ -51,11 +50,17 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
  const base='https://www.gstatic.com/firebasejs/13.1.0/';
 
- const [{initializeApp},authSDK,fire]=dependencies.sdk||await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+ const withTimeout=(promise,ms,label)=>Promise.race([
+  promise,
+  new Promise((_,reject)=>setTimeout(()=>reject(Object.assign(Error(label),{code:'unavailable'})),ms))
+ ]);
+ const [{initializeApp},authSDK,fire]=dependencies.sdk||await withTimeout(Promise.all([
+  import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')
+ ]),12000,'Il servizio non risponde. Riprova tra poco.');
 
  const app=initializeApp(firebaseConfig),auth=authSDK.getAuth(app);
 
- const db=fire.initializeFirestore(app,{localCache:fire.persistentLocalCache({tabManager:fire.persistentMultipleTabManager()})});
+ const db=fire.getFirestore(app);
 
  let session=null,unsub=null,epoch=0;
 
@@ -163,7 +168,13 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
 
  };
 
+ let authResolved=false;
+ const authWatchdog=setTimeout(()=>{
+  if(authResolved)return;
+  onChange(emptyState(),{ready:false,online:navigator.onLine,pending:0,authenticated:true,error:'L’accesso ai dati sta richiedendo troppo tempo. Riprova tra poco.'});
+ },14000);
  authSDK.onAuthStateChanged(auth,next=>{
+  authResolved=true;clearTimeout(authWatchdog);
 
   unsub?.();if(session)clearTimeout(session.retry);epoch++;
 
@@ -185,7 +196,7 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
      // Firestore may emit cached and server-confirmed metadata for identical data.
      // Keep validating every changed document; reuse only an already accepted payload.
      if(s.ready&&s.snapshotDataSignature===signature){s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);return;}
-     await ensureCatalogs();if(s!==session)return;await ensureCatalogs();if(s!==session)return;const incoming=validateState(raw),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1||!incoming.applied.includes(known.at(-1))&&incoming.applied.some(id=>known.includes(id))))return;s.remote=incoming;s.snapshotDataSignature=signature;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
+     await ensureCatalogs();if(s!==session)return;const incoming=validateState(raw),known=s.remote.applied||[],tail=incoming.applied.at(-1),position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1||!incoming.applied.includes(known.at(-1))&&incoming.applied.some(id=>known.includes(id))))return;s.remote=incoming;s.snapshotDataSignature=signature;s.ready=true;s.fromCache=snapshot.metadata.fromCache;s.error='';emit();void flush(s);}
 
     catch{ s.ready=false;s.error='I dati dell’archivio non sono leggibili. Non sono stati modificati: contatta l’assistenza.';emit();}
 
