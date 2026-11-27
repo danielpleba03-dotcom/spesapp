@@ -1,6 +1,6 @@
-const VERSION='spesapp-2026-11-27-ricettario-v133';
+const VERSION='spesapp-2026-11-27-ricettario-v134';
 // Cache the opening shell only; other resources are cached as the app uses them.
-const CORE=['./','./initial-access.css?v=2','./initial-access.mjs?v=133','./bootstrap.mjs?v=133','./manifest.webmanifest','./icon.svg'];
+const CORE=['./','./initial-access.css?v=2','./initial-access.mjs?v=134','./bootstrap.mjs?v=134','./manifest.webmanifest','./icon.svg'];
 const immutableCatalogue=url=>/\/(?:verified-recipes-[\d-]+|recipe-catalog-101|seed-recipes-101|catalogo-\d+|classic-recipes|classici-\d+|ricette-[\w-]+|piatti-[\w-]+)\.mjs$/.test(url.pathname)&&url.searchParams.has('v');
 const timeoutFetch=request=>fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
 
