@@ -1,5 +1,5 @@
 import {renderCatalogViewport,disposeCatalogViewport} from './catalog-viewport.mjs?v=120';
-import {catalog120,catalog119,catalog116,catalog115,catalog114,catalog113} from './catalog-runtime.mjs?v=132';
+import {catalog120,catalog119,catalog116,catalog115,catalog114,catalog113} from './catalog-runtime.mjs?v=135';
 import {recipeHasSource} from './domain.mjs?v=121';
 import {recipeCookingMethods,toolNames} from './cooking-methods.mjs?v=121';
 import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=125';
