@@ -26,11 +26,7 @@ enhanceSuggestions();
 import {enhanceSelects} from './select-menu.mjs?v=120';
 
 enhanceSelects();
-// Do not load large method datasets until the opening frame is visible.
-const hydrateCookingPresentation=()=>Promise.all([
- import('./cooking-methods.mjs?v=121'),import('./cooking-domain.mjs?v=125'),import('./cooking-ui.mjs?v=121'),import('./recipe-calories.mjs?v=121')
-]).then(([methods,domain,ui,calories])=>{recipeCookingMethods=methods.recipeCookingMethods;toolNames=methods.toolNames;defaultCookingPreferences=domain.defaultCookingPreferences;recipeEffort=domain.recipeEffort;updateCookingPreferences=domain.updateCookingPreferences;effortBadge=ui.effortBadge;favoriteButton=ui.favoriteButton;calorieBadge=calories.calorieBadge;if(state&&meta.ready)renderList();}).catch(()=>{});
-setTimeout(()=>void hydrateCookingPresentation(),1500);
+// Detailed method metadata is intentionally loaded only when the recipe area needs it.\n// The lightweight presentation above keeps the first opening responsive.
 
 import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=136';
 
