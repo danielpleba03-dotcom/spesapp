@@ -1,10 +1,6 @@
 import {renderCatalogViewport,disposeCatalogViewport} from './catalog-viewport.mjs?v=120';
 import {catalog120,catalog119,catalog116,catalog115,catalog114,catalog113} from './catalog-runtime.mjs?v=137';
 import {recipeHasSource} from './domain.mjs?v=137';
-import {recipeCookingMethods,toolNames} from './cooking-methods.mjs?v=121';
-import {defaultCookingPreferences,recipeEffort,updateCookingPreferences} from './cooking-domain.mjs?v=125';
-import {effortBadge,favoriteButton} from './cooking-ui.mjs?v=121';
-import {calorieBadge} from './recipe-calories.mjs?v=121';
 
 
 // The weekly UI and its cloud subscription are loaded only when needed.
@@ -26,9 +22,9 @@ enhanceSuggestions();
 import {enhanceSelects} from './select-menu.mjs?v=120';
 
 enhanceSelects();
-// Detailed method metadata is intentionally loaded only when the recipe area needs it.\n// The lightweight presentation above keeps the first opening responsive.
+// Lightweight recipe presentation keeps the first opening responsive.
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=136';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=137';
 
 import {createStore} from './cloud.mjs?v=137';
 
@@ -37,7 +33,6 @@ import {reconcile,readPreference,writePreference} from './ui.mjs?v=120';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const phoneAgent=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
-const releaseRecipes=()=>[...catalog113.values(),...catalog114.values(),...catalog115.values(),...catalog116.values(),...catalog119.values(),...catalog120.values()];
 const releaseRecipes=()=>[...catalog113.values(),...catalog114.values(),...catalog115.values(),...catalog116.values(),...catalog119.values(),...catalog120.values()];
 
 const mobile=()=>phoneAgent||matchMedia('(max-width:650px)').matches;
