@@ -1,4 +1,4 @@
-const APP_CONFIG = {"name": "Spesapp", "key": "spesapp:initial-access:v1", "digest": "7a5309f6c62da7fe49b499290ac1f47b3ac141312b7da06d2039e598e0affca3", "entry": "./bootstrap.mjs?v=130", "numeric": true};
+const APP_CONFIG = {"name": "Spesapp", "key": "spesapp:initial-access:v1", "digest": "7a5309f6c62da7fe49b499290ac1f47b3ac141312b7da06d2039e598e0affca3", "entry": "./bootstrap.mjs?v=131", "numeric": true};
 
 const { name, key, digest, entry, numeric } = APP_CONFIG;
 const form = document.querySelector('#initial-access form');
@@ -12,8 +12,21 @@ panel.dataset.mode = 'entry';
 form.hidden = false;
 feedback.textContent = '';
 
+// A previous service worker cached a partial module graph on some installed
+// copies of the app. Do a one-time clean start before loading any module.
+const cleanStart = new URLSearchParams(location.search).get('cleanStart') === '1';
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
+  navigator.serviceWorker.getRegistrations().then(async registrations => {
+    if (!cleanStart && registrations.length) {
+      await Promise.all(registrations.map(registration => registration.unregister()));
+      try { await caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('spesapp-')).map(key => caches.delete(key)))); } catch {}
+      const url = new URL(location.href);
+      url.searchParams.set('cleanStart', '1');
+      location.replace(url.href);
+      return;
+    }
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
+  }).catch(() => {});
 }
 
 let appVisible=false,accessAuthorized=false;
