@@ -1,6 +1,6 @@
 import {renderCatalogViewport,disposeCatalogViewport} from './catalog-viewport.mjs?v=120';
-import {catalog120,catalog119,catalog116,catalog115,catalog114,catalog113} from './catalog-runtime.mjs?v=137';
-import {recipeHasSource} from './domain.mjs?v=137';
+import {catalog120,catalog119,catalog116,catalog115,catalog114,catalog113} from './catalog-runtime.mjs?v=138';
+import {recipeHasSource} from './domain.mjs?v=138';
 
 
 // The weekly UI and its cloud subscription are loaded only when needed.
@@ -24,9 +24,9 @@ import {enhanceSelects} from './select-menu.mjs?v=120';
 enhanceSelects();
 // Lightweight recipe presentation keeps the first opening responsive.
 
-import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=137';
+import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=138';
 
-import {createStore} from './cloud.mjs?v=137';
+import {createStore} from './cloud.mjs?v=138';
 
 import {reconcile,readPreference,writePreference} from './ui.mjs?v=120';
 
