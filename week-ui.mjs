@@ -6,7 +6,7 @@ import {createUnitLookup,recipeMatchesSearch,mealForRecipe} from './domain.mjs?v
 
 import {digest,weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds,swapWeekMeals,isWeeklyRecipe} from './week-domain.mjs?v=124';
 
-import {createWeekStore} from './week-store.mjs?v=142';
+import {createWeekStore} from './week-store.mjs?v=143';
 
 import {reconcile} from './ui.mjs?v=120';
 
