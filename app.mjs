@@ -555,8 +555,7 @@ function onStoreChange(next,nextMeta){
 
 }
 
-try{
- store=await createStore(()=>releaseRecipes().filter(r=>!retiredRecipeIds117.has(r.id)).slice(0,5000),onStoreChange,error=>notify(error.message,true));
+$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="status">Connessione ai tuoi dati…</p></section>';\n\ntry{\n store=await createStore(()=>releaseRecipes().filter(r=>!retiredRecipeIds117.has(r.id)).slice(0,5000),onStoreChange,error=>notify(error.message,true));
  // The interface is safe to reveal while Firebase prepares the large catalogue.
  if(!startupSignalled){startupSignalled=true;window.dispatchEvent(new Event('spesapp:ready'));}
  scheduleRecipeUpgrade();
