@@ -26,7 +26,7 @@ enhanceSelects();
 
 import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=138';
 
-import {createStore} from './cloud.mjs?v=138';
+import {createStore} from './cloud.mjs?v=139';
 
 import {reconcile,readPreference,writePreference} from './ui.mjs?v=120';
 
