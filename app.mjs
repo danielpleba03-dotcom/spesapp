@@ -557,6 +557,8 @@ function onStoreChange(next,nextMeta){
 
 try{
  store=await createStore(()=>releaseRecipes().filter(r=>!retiredRecipeIds117.has(r.id)).slice(0,5000),onStoreChange,error=>notify(error.message,true));
+ // The interface is safe to reveal while Firebase prepares the large catalogue.
+ if(!startupSignalled){startupSignalled=true;window.dispatchEvent(new Event('spesapp:ready'));}
  scheduleRecipeUpgrade();
  if(meta.ready&&(page==='recipes'||hasWeekRecovery()))void ensureWeekUI().catch(()=>{});
 }catch(e){$('#app').innerHTML='<section class="welcome"><div class="brandmark">S</div><h1>Spesapp</h1><p role="alert">Non è stato possibile collegarsi al servizio. Controlla la connessione e riprova. I dati non sono stati modificati.</p><button data-command="retry">Riprova</button></section>';window.dispatchEvent(new Event('spesapp:ready'));}
