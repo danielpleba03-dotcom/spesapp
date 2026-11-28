@@ -32,24 +32,65 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
 
  async function flush(s=session){if(!s||s!==session||s.flushing||!s.ready||!navigator.onLine)return;s.flushing=true;try{while(s===session&&navigator.onLine){const action=s.journal.list()[0];if(!action)break;const revision=s.revision;try{const planRef=fire.doc(db,'users',s.uid,'recipeWeeks','main'),mainRef=fire.doc(db,'users',s.uid,'data','main'),receiptRef=fire.doc(db,'users',s.uid,'receipts',action.id);const result=await fire.runTransaction(db,async tx=>{if(s!==session)throw Error('Sessione cambiata');const [ps,ms,rs]=await Promise.all([tx.get(planRef),tx.get(mainRef),tx.get(receiptRef)]);if(!ms.exists())throw Error('Archivio principale non disponibile');const before=ps.exists()?validateWeeks(ps.data()):emptyWeeks(),main=validateState(ms.data());if(rs.exists())return {plan:before,main,receipt:true};const next=applyWeekAction(before,main,action),mainChanged=JSON.stringify(next.main)!==JSON.stringify(main);let backupRef,backup;if(mainChanged&&main.backupDate!==new Date().toISOString().slice(0,10)){const today=new Date().toISOString().slice(0,10);backupRef=fire.doc(db,'users',s.uid,'backups',today);backup=await tx.get(backupRef);next.main.backupDate=today;}if(backupRef&&!backup.exists())tx.set(backupRef,stateForStorage(main));if(mainChanged)tx.set(mainRef,stateForStorage(next.main));tx.set(planRef,next.plan);tx.set(receiptRef,{createdAt:fire.serverTimestamp(),type:'week'});return {plan:next.plan,main:next.main,receipt:false};});if(!result.receipt&&!s.remote.applied.includes(action.id))s.confirmed.set(action.id,action);s.journal.remove(action.id);s.mainBases.delete(action.id);s.optimisticPlans.delete(action.id);if(session===s){if(s.revision===revision||!s.remote.applied.includes(action.id))s.remote=result.plan;s.error='';if(action.type==='resolveShopping')mainStore.commitExternalProjection?.(action.id,result.main);emit();}}catch(e){if(session!==s)break;if(e instanceof DomainError){s.journal.remove(action.id);s.mainBases.delete(action.id);s.optimisticPlans.delete(action.id);mainStore.clearExternalProjection?.(action.id);onError(Error(e.message));emit();continue;}s.error=message(e);emit();retry(s);break;}}}catch(e){if(session===s){s.error=message(e);emit();retry(s);}}finally{s.flushing=false;}}
 
- const connectAuthUser=user=>{if(user?.uid&&session?.uid===user.uid)return;unsubscribe?.();if(session){clearTimeout(session.timer);clearTimeout(session.initialTimer);}if(!user){session=null;emit();return;}const s={uid:user.uid,remote:emptyWeeks(),ready:false,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,initialTimer:null,journal:null};session=s;try{s.journal=weekJournal(localStorage,user.uid);}catch(e){s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});return;}const ref=fire.doc(db,'users',s.uid,'recipeWeeks','main');unsubscribe=fire.onSnapshot(ref,{includeMetadataChanges:true},snap=>{if(session!==s)return;clearTimeout(s.initialTimer);s.revision++;if(snap.exists()){try{const incoming=validateWeeks(snap.data()),tail=incoming.applied.at(-1),known=s.remote.applied,position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1))return;for(const a of incoming.applied)s.confirmed.delete(a);s.remote=incoming;s.ready=true;s.error='';emit();void flush(s);}catch{ s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';s.ready=false;emit();}}else if(!snap.metadata.fromCache){void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,emptyWeeks());}).catch(e=>{if(session===s){s.error=message(e);emit();}});}else emit();},e=>{if(session===s){s.error=message(e);s.ready=false;emit();}});
-  // A direct one-shot read prevents the Plan from waiting forever if a snapshot
-  // listener is delayed by an installed-PWA cache or a transient network issue.
-  // The deadline deliberately reports a safe error instead of creating/replacing a week.
+ const connectAuthUser=user=>{
+  if(user?.uid&&session?.uid===user.uid)return;
+  unsubscribe?.();
+  if(session){clearTimeout(session.timer);clearTimeout(session.initialTimer);clearTimeout(session.readTimer);}
+  if(!user){session=null;emit();return;}
+  const s={uid:user.uid,remote:emptyWeeks(),ready:false,offline:false,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,initialTimer:null,readTimer:null,journal:null};
+  session=s;
+  try{s.journal=weekJournal(localStorage,user.uid);}catch(e){s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});return;}
+  const ref=fire.doc(db,'users',s.uid,'recipeWeeks','main');
+  // The rest of Spesapp is already available from the main document. Do not freeze
+  // the whole Plan if Firestore delivers only a cached empty weekly snapshot.
+  s.initialTimer=setTimeout(()=>{
+   if(session!==s||s.ready)return;
+   s.ready=true;s.offline=true;s.error='';
+   emit();
+  },1200);
+  const acceptSnapshot=snap=>{
+   if(session!==s)return;
+   try{
+    s.remote=snap.exists()?validateWeeks(snap.data()):emptyWeeks();
+    s.revision++;
+    for(const a of s.remote.applied)s.confirmed.delete(a);
+    s.ready=true;s.offline=false;s.error='';
+    clearTimeout(s.initialTimer);clearTimeout(s.readTimer);
+    emit();void flush(s);
+   }catch{
+    clearTimeout(s.initialTimer);clearTimeout(s.readTimer);
+    s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';
+    s.ready=false;emit();
+   }
+  };
+  // A separate read is bounded; it upgrades the local Plan to the online copy
+  // when the listener is delayed, without ever overwriting data on a timeout.
   const readWithDeadline=(promise,ms)=>Promise.race([
    promise,
    new Promise((_,reject)=>setTimeout(()=>reject(Object.assign(Error('Il piano non risponde.'),{code:'deadline-exceeded'})),ms))
   ]);
-  s.initialTimer=setTimeout(()=>void readWithDeadline(fire.getDoc(ref),8000).then(snap=>{
-   if(session!==s||s.ready)return;
-   if(snap.exists()){try{s.remote=validateWeeks(snap.data());s.ready=true;s.error='';emit();void flush(s);}catch{ s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';emit();}}
-   else{s.remote=emptyWeeks();s.ready=true;s.error='';emit();}
-  }).catch(error=>{if(session===s&&!s.ready){s.error=error?.code==='deadline-exceeded'?'Il piano non risponde. Riprova: i dati non sono stati modificati.':message(error);emit();}}),500);
-  emit();};
- // The main store has already restored the signed-in account. Reuse it now rather than waiting for a second Firebase auth event, which can stall an installed PWA.
- authSDK.onAuthStateChanged(auth,connectAuthUser);
- if(mainStore.user)connectAuthUser(mainStore.user);
-
+  s.readTimer=setTimeout(()=>void readWithDeadline(fire.getDoc(ref),8000).then(acceptSnapshot).catch(()=>{}),250);
+  // Subscribe after the fallback is armed. A cached empty snapshot must not
+  // cancel the fallback: only actual server data is allowed to do that.
+  queueMicrotask(()=>{
+   try{
+    unsubscribe=fire.onSnapshot(ref,{includeMetadataChanges:true},snap=>{
+     if(session!==s)return;
+     if(snap.exists()||!snap.metadata.fromCache){acceptSnapshot(snap);return;}
+     emit();
+    },error=>{
+     if(session!==s)return;
+     if(!s.ready){
+      clearTimeout(s.initialTimer);clearTimeout(s.readTimer);
+      s.error=message(error);s.ready=false;emit();
+     }
+    });
+   }catch(error){
+    if(session===s&&!s.ready){clearTimeout(s.initialTimer);clearTimeout(s.readTimer);s.error=message(error);emit();}
+   }
+  });
+  emit();
+ };
  addEventListener('storage',e=>{if(session?.journal?.matches(e.key)){emit();void flush();}});addEventListener('online',()=>{emit();void flush();});
 
  return {canRemoveReadyPortion:id=>Object.values(session?.remote.weeks||{}).some(week=>week.preparations?.some(entry=>entry.id===id)),get state(){return session?.journal?visible(session):emptyWeeks();},dispatch:a=>{const s=session;if(!s?.ready)throw Error('Attendi il caricamento della settimana.');validAction(a);const base=mainStore.state,before=visible(s),result=applyWeekAction(before,base,a);s.journal.put(a);if(a.type==='resolveShopping'){s.mainBases.set(a.id,base);s.optimisticPlans.set(a.id,{revision:s.revision,beforeTail:before.applied.at(-1)||'',plan:result.plan});mainStore.setExternalProjection?.(a.id,result.main);}emit();void flush(s);},refresh:emit};
