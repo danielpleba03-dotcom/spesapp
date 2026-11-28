@@ -169,6 +169,9 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
  };
 
  let authResolved=false;
+ // Never leave the opening screen blocked while Firebase restores a session.
+ // The normal auth callback replaces this safe sign-in view as soon as it arrives.
+ queueMicrotask(()=>{if(!authResolved)onChange(emptyState(),{ready:false,online:navigator.onLine,pending:0,authenticated:false});});
  const authWatchdog=setTimeout(()=>{
   if(authResolved)return;
   onChange(emptyState(),{ready:false,online:navigator.onLine,pending:0,authenticated:true,error:'L’accesso ai dati sta richiedendo troppo tempo. Riprova tra poco.'});
