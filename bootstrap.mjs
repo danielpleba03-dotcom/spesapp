@@ -5,7 +5,7 @@ installZoomGuard();
 
 if(!mountPortraitShell()){
   try{
-    await import('./app.mjs?v=145');
+    await import('./app.mjs?v=146');
   }catch(error){
     console.error('Spesapp startup error',error);
     const root=document.querySelector('#app');
