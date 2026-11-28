@@ -27,7 +27,11 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
    try{const base=mainStore.externalBaseState||mainStore.state,result=applyWeekAction(s.remote,base,action);s.mainBases.set(action.id,base);s.optimisticPlans.set(action.id,{revision:s.revision,beforeTail:s.remote.applied.at(-1)||'',plan:result.plan});mainStore.setExternalProjection(action.id,result.main);}catch{s.mainBases.delete(action.id);s.optimisticPlans.delete(action.id);}
   }
  }
- function emit(){const s=session;if(!s){onChange(emptyWeeks(),{ready:false,pending:0,error:''});return;}if(!s.journal){onChange(s.remote,{ready:false,pending:0,error:s.error});return;}try{restoreMainProjection(s);onChange(visible(s),{ready:s.ready,pending:s.journal.list().length,error:s.error,preview:false});}catch(e){s.ready=false;s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});}}
+ function emit(){const s=session;if(!s){onChange(emptyWeeks(),{ready:false,pending:0,error:''});return;}
+  // Emergency local mode deliberately skips projections/journal replay: those are the paths
+  // that can depend on a stalled remote snapshot. It keeps the Plan interactive instead.
+  if(s.localOnly){onChange(structuredClone(s.remote),{ready:true,pending:0,error:'',preview:false,localOnly:true});return;}
+  if(!s.journal){onChange(s.remote,{ready:false,pending:0,error:s.error});return;}try{restoreMainProjection(s);onChange(visible(s),{ready:s.ready,pending:s.journal.list().length,error:s.error,preview:false});}catch(e){s.ready=false;s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});}}
 
  function retry(s){clearTimeout(s.timer);if(session===s)s.timer=setTimeout(()=>void flush(s),10000);}
 
@@ -35,22 +39,23 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
 
  const forceLocalReady=()=>{
   if(session?.ready)return;
-  let s=session;
-  if(!s){
-   const user=mainStore.user;
-   if(!user?.uid)return;
-   s={uid:user.uid,remote:emptyWeeks(),ready:false,localOnly:true,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,journal:null};
-   session=s;
-   try{s.journal=weekJournal(localStorage,user.uid);}catch(e){s.error=e.message;emit();return;}
-  }
-  s.localOnly=true;s.ready=true;s.error='';
+  // Replace the half-open Firebase session rather than reusing it. The fallback must not
+  // depend on an unfinished snapshot listener or a damaged remote document.
+  unsubscribe?.();if(session)clearTimeout(session.timer);
+  const user=mainStore.user;
+  if(!user?.uid)return;
+  let local=emptyWeeks();
+  try{const raw=localStorage.getItem('spesapp-week-fallback-'+encodeURIComponent(user.uid));if(raw)local=validateWeeks(JSON.parse(raw));}catch{}
+  session={uid:user.uid,remote:local,ready:true,localOnly:true,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,journal:null};
   emit();
  };
  authSDK.onAuthStateChanged(auth,user=>{if(session?.localOnly&&user?.uid===session.uid)return;unsubscribe?.();if(session)clearTimeout(session.timer);if(!user){session=null;emit();return;}const s={uid:user.uid,remote:emptyWeeks(),ready:false,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,journal:null};session=s;try{s.journal=weekJournal(localStorage,user.uid);}catch(e){s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});return;}const ref=fire.doc(db,'users',s.uid,'recipeWeeks','main');unsubscribe=fire.onSnapshot(ref,{includeMetadataChanges:true},snap=>{if(session!==s)return;s.revision++;if(snap.exists()){try{const incoming=validateWeeks(snap.data()),tail=incoming.applied.at(-1),known=s.remote.applied,position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1))return;for(const a of incoming.applied)s.confirmed.delete(a);s.remote=incoming;s.ready=true;s.error='';emit();void flush(s);}catch{ s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';s.ready=false;emit();}}else if(!snap.metadata.fromCache){void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,emptyWeeks());}).catch(e=>{if(session===s){s.error=message(e);emit();}});}else emit();},e=>{if(session===s){s.error=message(e);s.ready=false;emit();}});emit();});
 
  addEventListener('storage',e=>{if(session?.journal?.matches(e.key)){emit();void flush();}});addEventListener('online',()=>{emit();void flush();});
 
- return {forceLocalReady,canRemoveReadyPortion:id=>Object.values(session?.remote.weeks||{}).some(week=>week.preparations?.some(entry=>entry.id===id)),get state(){return session?.journal?visible(session):emptyWeeks();},dispatch:a=>{const s=session;if(!s?.ready)throw Error('Attendi il caricamento della settimana.');validAction(a);const base=mainStore.state,before=visible(s),result=applyWeekAction(before,base,a);s.journal.put(a);if(a.type==='resolveShopping'){s.mainBases.set(a.id,base);s.optimisticPlans.set(a.id,{revision:s.revision,beforeTail:before.applied.at(-1)||'',plan:result.plan});mainStore.setExternalProjection?.(a.id,result.main);}emit();void flush(s);},refresh:emit};
+ return {forceLocalReady,canRemoveReadyPortion:id=>Object.values(session?.remote.weeks||{}).some(week=>week.preparations?.some(entry=>entry.id===id)),get state(){return session?.localOnly?structuredClone(session.remote):session?.journal?visible(session):emptyWeeks();},dispatch:a=>{const s=session;if(!s?.ready)throw Error('Attendi il caricamento della settimana.');validAction(a);
+   if(s.localOnly){const result=applyWeekAction(s.remote,mainStore.state,a);s.remote=result.plan;try{localStorage.setItem('spesapp-week-fallback-'+encodeURIComponent(s.uid),JSON.stringify(s.remote));}catch{}emit();return;}
+   const base=mainStore.state,before=visible(s),result=applyWeekAction(before,base,a);s.journal.put(a);if(a.type==='resolveShopping'){s.mainBases.set(a.id,base);s.optimisticPlans.set(a.id,{revision:s.revision,beforeTail:before.applied.at(-1)||'',plan:result.plan});mainStore.setExternalProjection?.(a.id,result.main);}emit();void flush(s);},refresh:emit};
 
 }
 
