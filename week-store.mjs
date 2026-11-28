@@ -35,11 +35,16 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
  const connectAuthUser=user=>{if(user?.uid&&session?.uid===user.uid)return;unsubscribe?.();if(session){clearTimeout(session.timer);clearTimeout(session.initialTimer);}if(!user){session=null;emit();return;}const s={uid:user.uid,remote:emptyWeeks(),ready:false,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,initialTimer:null,journal:null};session=s;try{s.journal=weekJournal(localStorage,user.uid);}catch(e){s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});return;}const ref=fire.doc(db,'users',s.uid,'recipeWeeks','main');unsubscribe=fire.onSnapshot(ref,{includeMetadataChanges:true},snap=>{if(session!==s)return;clearTimeout(s.initialTimer);s.revision++;if(snap.exists()){try{const incoming=validateWeeks(snap.data()),tail=incoming.applied.at(-1),known=s.remote.applied,position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1))return;for(const a of incoming.applied)s.confirmed.delete(a);s.remote=incoming;s.ready=true;s.error='';emit();void flush(s);}catch{ s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';s.ready=false;emit();}}else if(!snap.metadata.fromCache){void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,emptyWeeks());}).catch(e=>{if(session===s){s.error=message(e);emit();}});}else emit();},e=>{if(session===s){s.error=message(e);s.ready=false;emit();}});
   // A direct one-shot read prevents the Plan from waiting forever if a snapshot
   // listener is delayed by an installed-PWA cache or a transient network issue.
-  s.initialTimer=setTimeout(()=>void fire.getDoc(ref).then(snap=>{
+  // The deadline deliberately reports a safe error instead of creating/replacing a week.
+  const readWithDeadline=(promise,ms)=>Promise.race([
+   promise,
+   new Promise((_,reject)=>setTimeout(()=>reject(Object.assign(Error('Il piano non risponde.'),{code:'deadline-exceeded'})),ms))
+  ]);
+  s.initialTimer=setTimeout(()=>void readWithDeadline(fire.getDoc(ref),8000).then(snap=>{
    if(session!==s||s.ready)return;
    if(snap.exists()){try{s.remote=validateWeeks(snap.data());s.ready=true;s.error='';emit();void flush(s);}catch{ s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';emit();}}
    else{s.remote=emptyWeeks();s.ready=true;s.error='';emit();}
-  }).catch(error=>{if(session===s&&!s.ready){s.error=message(error);emit();}}),3500);
+  }).catch(error=>{if(session===s&&!s.ready){s.error=error?.code==='deadline-exceeded'?'Il piano non risponde. Riprova: i dati non sono stati modificati.':message(error);emit();}}),500);
   emit();};
  // The main store has already restored the signed-in account. Reuse it now rather than waiting for a second Firebase auth event, which can stall an installed PWA.
  authSDK.onAuthStateChanged(auth,connectAuthUser);
