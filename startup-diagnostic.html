@@ -1,0 +1,6 @@
+<!doctype html><meta charset="utf-8"><title>Spesapp startup diagnostic</title><pre id="out">Avvio diagnosi…</pre><script type="module">
+const out=document.querySelector('#out');
+const modules=['./zoom-guard.mjs?v=120','./portrait-shell.mjs?v=124','./catalog-viewport.mjs?v=120','./catalog-runtime.mjs?v=138','./domain.mjs?v=138','./suggestions.mjs?v=120','./select-menu.mjs?v=120','./cloud.mjs?v=138','./ui.mjs?v=120'];
+for(const path of modules){out.textContent+='\nCarico '+path;try{await import(path);out.textContent+=' ✓';}catch(error){out.textContent+=' ERRORE '+error.message;throw error;}}
+out.textContent+='\nCarico app…';try{await import('./app.mjs?v=138');out.textContent+=' ✓';}catch(error){out.textContent+=' ERRORE '+error.message;}
+</script>
