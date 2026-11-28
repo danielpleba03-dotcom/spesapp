@@ -26,7 +26,7 @@ enhanceSelects();
 
 import {householdSuggestions,preparationAlternatives,recipeMatchesSearch,normalize,createUnitLookup,step,low,stockView,recipeStatus,validateRecipe,LIMITS,preparationStatus,round,productUnit,recipeShoppingPlan,mealTypes,mealForRecipe,everydayStapleSpec,formatQuantity,dishTypes} from './domain.mjs?v=138';
 
-import {createStore} from './cloud.mjs?v=139';
+import {createStore} from './cloud.mjs?v=141';
 
 import {reconcile,readPreference,writePreference} from './ui.mjs?v=120';
 
@@ -516,7 +516,7 @@ function ensureWeekUI(){
  if(weekUIPromise)return weekUIPromise;
  if(!store||!meta.ready)return Promise.resolve(null);
  weekUIPromise=(async()=>{
-  const {createWeekUI}=await import('./week-ui.mjs?v=140');
+  const {createWeekUI}=await import('./week-ui.mjs?v=141');
   weekUI=await createWeekUI({store,main:()=>state||store.state,mainMeta:()=>meta,visible:()=>page==='recipes'&&recipesView==='week',showShopping:()=>{const hadLeaving=leaving.size>0;leaving.clear();if(page!=='shopping')nav('shopping');else if(hadLeaving)renderList();},openRecipe:(id,context)=>showRecipeSheet(id,context),onPreparationHistoryChange:()=>{renderPreparationHistory();revealWhenUsable();},onPreferencesChange:()=>{if(page==='recipes'&&recipesView==='catalog')renderList();},notify});
   if(page==='recipes')renderList();revealWhenUsable();return weekUI;
  })().catch(error=>{weekUIPromise=null;weekLoadingError='Il piano non è ancora disponibile. Controlla la connessione e riprova.';if(page==='recipes'&&recipesView==='week')renderList();revealWhenUsable();throw error;});
