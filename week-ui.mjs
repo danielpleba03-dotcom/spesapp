@@ -6,7 +6,7 @@ import {createUnitLookup,recipeMatchesSearch,mealForRecipe} from './domain.mjs?v
 
 import {digest,weekMealRecipe,WEEK_DAYS,extendWeek,localDate,addDays,monday,generateWeek,validateWeek,candidates,estimatedMinutes,portions,shoppingNeeds,shoppingRequirements,mealExpired,mealWindow,alternativeRecipe,mealStockStatus,preparedWeekCalories,plannedWeekCalories,preparationHistory,readyPortions,preparedMealIds,swapWeekMeals,isWeeklyRecipe} from './week-domain.mjs?v=124';
 
-import {createWeekStore} from './week-store.mjs?v=148';
+import {createWeekStore} from './week-store.mjs?v=149';
 
 import {reconcile} from './ui.mjs?v=120';
 
@@ -166,7 +166,7 @@ if(!w&&api.mainMeta().ready&&!meta.pending&&!api.mainMeta().pending&&!autoReques
  store=await createWeekStore(api.store,(next,nextMeta)=>{archive=next;meta=nextMeta;settleReadyWaiters();settleWeekMutation();for(const button of document.querySelectorAll('#week-move-results button,#week-recipe-results button'))button.disabled=Boolean(weekMutationBusy||meta.pending||api.mainMeta().pending);queueMicrotask(requestedCleanup);refreshRecipeLock();refreshReadyList();shoppingResolver.refresh();refresh();api.onPreparationHistoryChange?.();const p=cookingPreferences(archive),signature=JSON.stringify({tools:p.tools,likedIngredients:p.likedIngredients,dislikedIngredients:p.dislikedIngredients,recipeInfo:p.recipeInfo});if(signature!==preferenceSignature){preferenceSignature=signature;api.onPreferencesChange?.();}if(preparedCaloriesOpen&&!freeMealOpen&&$('[data-prepared-calories]'))showPreparedCalories();},e=>api.notify(e.message,true));
  // Never leave the visible Plan locked behind a secondary Firebase subscription.
  // Pending edits remain only on this device until the online copy reconnects.
- setTimeout(()=>{if(!meta.ready&&!meta.error)store.forceLocalReady?.();},800);
+ setTimeout(()=>{if(!meta.ready)store.forceLocalReady?.();},500);
  return {render,observeRecipes,openMissing:shoppingResolver.open,getHistory:()=>preparationHistory(archive),deletePreparation:(entryId,restoreIngredients=false)=>{
  if(api.mainMeta().pending)throw Error('Attendi il salvataggio della preparazione prima di eliminarla.');
  send('deletePreparation',{entryId,restoreIngredients});
