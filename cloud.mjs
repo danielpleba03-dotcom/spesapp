@@ -164,7 +164,9 @@ export async function createStore(recipes,onChange,onError,dependencies={}){
   dispatch(action){const s=session;if(!s?.ready)throw Error('Attendi il caricamento dei tuoi dati.');applyAction(visible(s),action);s.journal.put(action);emit();void flush(s);},
 
   get externalBaseState(){return session?structuredClone(session.remote):emptyState();},
-  get state(){return session?structuredClone(visible(session)):emptyState();},get user(){return session?.user;},preview:false
+  get state(){return session?structuredClone(visible(session)):emptyState();},get user(){return session?.user;},
+  // Reused by the weekly-plan store: it must not open a second Firebase module graph.
+  get firebaseContext(){return {app,auth,db,authSDK,fire};},preview:false
 
  };
 
