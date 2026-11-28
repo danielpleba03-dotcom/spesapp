@@ -42,11 +42,11 @@ export async function createWeekStore(mainStore,onChange,onError,dependencies={}
   // Replace the half-open Firebase session rather than reusing it. The fallback must not
   // depend on an unfinished snapshot listener or a damaged remote document.
   unsubscribe?.();if(session)clearTimeout(session.timer);
-  const user=mainStore.user;
-  if(!user?.uid)return;
+  const uid=mainStore.user?.uid||session?.uid;
+  if(!uid)return;
   let local=emptyWeeks();
-  try{const raw=localStorage.getItem('spesapp-week-fallback-'+encodeURIComponent(user.uid));if(raw)local=validateWeeks(JSON.parse(raw));}catch{}
-  session={uid:user.uid,remote:local,ready:true,localOnly:true,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,journal:null};
+  try{const raw=localStorage.getItem('spesapp-week-fallback-'+encodeURIComponent(uid));if(raw)local=validateWeeks(JSON.parse(raw));}catch{}
+  session={uid,remote:local,ready:true,localOnly:true,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,journal:null};
   emit();
  };
  authSDK.onAuthStateChanged(auth,user=>{if(session?.localOnly&&user?.uid===session.uid)return;unsubscribe?.();if(session)clearTimeout(session.timer);if(!user){session=null;emit();return;}const s={uid:user.uid,remote:emptyWeeks(),ready:false,error:'',revision:0,confirmed:new Map(),mainBases:new Map(),optimisticPlans:new Map(),flushing:false,timer:null,journal:null};session=s;try{s.journal=weekJournal(localStorage,user.uid);}catch(e){s.error=e.message;onChange(s.remote,{ready:false,pending:0,error:s.error});return;}const ref=fire.doc(db,'users',s.uid,'recipeWeeks','main');unsubscribe=fire.onSnapshot(ref,{includeMetadataChanges:true},snap=>{if(session!==s)return;s.revision++;if(snap.exists()){try{const incoming=validateWeeks(snap.data()),tail=incoming.applied.at(-1),known=s.remote.applied,position=tail?known.indexOf(tail):-1;if(known.length&&(!tail||position>=0&&position<known.length-1))return;for(const a of incoming.applied)s.confirmed.delete(a);s.remote=incoming;s.ready=true;s.error='';emit();void flush(s);}catch{ s.error='La settimana salvata non è leggibile. I dati non sono stati modificati.';s.ready=false;emit();}}else if(!snap.metadata.fromCache){void fire.runTransaction(db,async tx=>{const current=await tx.get(ref);if(!current.exists())tx.set(ref,emptyWeeks());}).catch(e=>{if(session===s){s.error=message(e);emit();}});}else emit();},e=>{if(session===s){s.error=message(e);s.ready=false;emit();}});emit();});
