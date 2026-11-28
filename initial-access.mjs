@@ -32,4 +32,4 @@ if(panel)panel.dataset.mode='loading';
 if(feedback)feedback.textContent='Apertura in corso…';
 watchdog=setTimeout(()=>showError(Error('Tempo di avvio scaduto')),18000);
 
-import('./bootstrap.mjs?v=144').catch(showError);
+import('./bootstrap.mjs?v=145').catch(showError);
